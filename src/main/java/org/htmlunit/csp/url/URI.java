@@ -39,7 +39,7 @@ public class URI extends URLWithScheme {
         final String portString = matcher.group("port");
         final int port;
         if (portString == null) {
-            port = URI.defaultPortForProtocol(scheme.toLowerCase(Locale.ENGLISH));
+            port = URI.defaultPortForProtocol(scheme.toLowerCase(Locale.ROOT));
         }
         else {
             port = ":*".equals(portString) ? Constants.WILDCARD_PORT : Integer.parseInt(portString.substring(1));

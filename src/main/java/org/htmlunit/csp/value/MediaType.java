@@ -43,8 +43,8 @@ public final class MediaType {
         if (matcher.find()) {
             // plugin type matching is ASCII case-insensitive
             // https://w3c.github.io/webappsec-csp/#plugin-types-post-request-check
-            final String type = matcher.group("type").toLowerCase(Locale.ENGLISH);
-            final String subtype = matcher.group("subtype").toLowerCase(Locale.ENGLISH);
+            final String type = matcher.group("type").toLowerCase(Locale.ROOT);
+            final String subtype = matcher.group("subtype").toLowerCase(Locale.ROOT);
             return Optional.of(new MediaType(type, subtype));
         }
         return Optional.empty();

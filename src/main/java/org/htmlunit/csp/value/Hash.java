@@ -39,7 +39,7 @@ public final class Hash {
     }
 
     public static Optional<Hash> parseHash(final String value) {
-        final String lowcaseValue = value.toLowerCase(Locale.ENGLISH);
+        final String lowcaseValue = value.toLowerCase(Locale.ROOT);
         final Algorithm algorithm;
         if (lowcaseValue.startsWith("'sha") && lowcaseValue.endsWith("'")) {
             switch (lowcaseValue.substring(4, 7)) {

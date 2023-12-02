@@ -31,7 +31,7 @@ public final class Scheme {
         if (value.matches("^" + Constants.SCHEME_PART + ":$")) {
             // https://tools.ietf.org/html/rfc3986#section-3.1
             // "Although schemes are case-insensitive, the canonical form is lowercase"
-            return Optional.of(new Scheme(value.substring(0, value.length() - 1).toLowerCase(Locale.ENGLISH)));
+            return Optional.of(new Scheme(value.substring(0, value.length() - 1).toLowerCase(Locale.ROOT)));
         }
         return Optional.empty();
     }

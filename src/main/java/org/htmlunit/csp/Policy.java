@@ -170,7 +170,7 @@ public final class Policy {
 
         boolean wasDupe = false;
         final Directive newDirective;
-        final String lowcaseDirectiveName = name.toLowerCase(Locale.ENGLISH);
+        final String lowcaseDirectiveName = name.toLowerCase(Locale.ROOT);
         switch (lowcaseDirectiveName) {
             case "base-uri": {
                 // https://w3c.github.io/webappsec-csp/#directive-base-uri
@@ -363,7 +363,7 @@ public final class Policy {
     // Returns true if at least one directive was removed.
     public boolean remove(final String name) {
         boolean removed = false;
-        final String lowcaseName = name.toLowerCase(Locale.ENGLISH);
+        final String lowcaseName = name.toLowerCase(Locale.ROOT);
         final ArrayList<NamedDirective> copy = new ArrayList<>(directives_.size());
         for (final NamedDirective existing : directives_) {
             if (!existing.lowcaseName_.equals(lowcaseName)) {
@@ -1075,7 +1075,7 @@ public final class Policy {
     private static boolean hostPartMatches(final String a, final String b) {
         if (a.startsWith("*")) {
             final String remaining = a.substring(1);
-            return b.toLowerCase(Locale.ENGLISH).endsWith(remaining.toLowerCase(Locale.ENGLISH));
+            return b.toLowerCase(Locale.ROOT).endsWith(remaining.toLowerCase(Locale.ROOT));
         }
 
         if (!a.equalsIgnoreCase(b)) {
@@ -1192,7 +1192,7 @@ public final class Policy {
         private NamedDirective(final String name, final Directive directive) {
             name_ = name;
             directive_ = directive;
-            lowcaseName_ = name_.toLowerCase(Locale.ENGLISH);
+            lowcaseName_ = name_.toLowerCase(Locale.ROOT);
         }
     }
 

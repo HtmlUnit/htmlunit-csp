@@ -53,12 +53,12 @@ public class Directive {
     }
 
     protected void removeValueIgnoreCase(final String value) {
-        final String lowcaseValue = value.toLowerCase(Locale.ENGLISH);
+        final String lowcaseValue = value.toLowerCase(Locale.ROOT);
         // Could we use some fancy data structure to avoid the linear indexing here?
         // Yes, probably. But in practice these are short lists, and iterating them is not that expensive.
         final ArrayList<String> copy = new ArrayList<>(values_.size());
         for (final String existing : values_) {
-            if (!existing.toLowerCase(Locale.ENGLISH).equals(lowcaseValue)) {
+            if (!existing.toLowerCase(Locale.ROOT).equals(lowcaseValue)) {
                 copy.add(existing);
             }
         }

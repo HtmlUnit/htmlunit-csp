@@ -56,7 +56,7 @@ public final class Host {
         if (matcher.find()) {
             String scheme = matcher.group("scheme");
             if (scheme != null) {
-                scheme = scheme.substring(0, scheme.length() - 3).toLowerCase(Locale.ENGLISH);
+                scheme = scheme.substring(0, scheme.length() - 3).toLowerCase(Locale.ROOT);
             }
             final String portString = matcher.group("port");
             final int port;
@@ -68,7 +68,7 @@ public final class Host {
             }
             // Hosts are only consumed lowercase: https://w3c.github.io/webappsec-csp/#host-part-match
             // There is no possible NPE here; host is not optional
-            final String host = matcher.group("host").toLowerCase(Locale.ENGLISH);
+            final String host = matcher.group("host").toLowerCase(Locale.ROOT);
             final String path = matcher.group("path");
 
             // TODO contemplate warning for paths which contain `//`, `/../`, or `/./`,

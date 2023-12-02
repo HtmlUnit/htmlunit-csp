@@ -43,7 +43,7 @@ public class SandboxDirective extends Directive {
         for (final String token : values) {
             // HTML attribute keywords are ascii-case-insensitive:
             // https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#keywords-and-enumerated-attributes
-            final String lowcaseToken = token.toLowerCase(Locale.ENGLISH);
+            final String lowcaseToken = token.toLowerCase(Locale.ROOT);
             switch (lowcaseToken) {
                 case ALLOW_DOWNLOADS:
                     if (!allowDownloads_) {

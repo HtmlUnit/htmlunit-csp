@@ -32,7 +32,7 @@ public final class Nonce {
     }
 
     public static Optional<Nonce> parseNonce(final String value) {
-        final String lowcaseValue = value.toLowerCase(Locale.ENGLISH);
+        final String lowcaseValue = value.toLowerCase(Locale.ROOT);
         if (lowcaseValue.startsWith("'nonce-") && lowcaseValue.endsWith("'")) {
             final String nonce = value.substring(7, value.length() - 1);
             if (Utils.IS_BASE64_VALUE.test(nonce)) {

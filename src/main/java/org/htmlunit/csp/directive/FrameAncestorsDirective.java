@@ -25,7 +25,7 @@ public class FrameAncestorsDirective extends HostSourceDirective {
 
         int index = 0;
         for (final String token : values) {
-            final String lowcaseToken = token.toLowerCase(Locale.ENGLISH);
+            final String lowcaseToken = token.toLowerCase(Locale.ROOT);
             addHostOrSchemeDuringConstruction(token, lowcaseToken, "ancestor-source", index, errors);
             index++;
         }
