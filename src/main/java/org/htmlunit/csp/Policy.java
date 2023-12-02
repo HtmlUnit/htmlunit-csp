@@ -156,7 +156,7 @@ public final class Policy {
 
     // We do not provide a generic method for updating an existing directive in-place.
     // Just remove the existing one and add it back.
-    public Directive add(final String name, final List<String> values,
+    private Directive add(final String name, final List<String> values,
                             final Directive.DirectiveErrorConsumer directiveErrorConsumer) {
         enforceAscii(name);
 
@@ -387,22 +387,6 @@ public final class Policy {
         return blockAllMixedContent_;
     }
 
-    public void setBlockAllMixedContent(final boolean value) {
-        if (blockAllMixedContent_) {
-            if (value) {
-                return;
-            }
-            blockAllMixedContent_ = false;
-        }
-        else {
-            if (!value) {
-                return;
-            }
-            blockAllMixedContent_ = true;
-            directives_.add(new NamedDirective("block-all-mixed-content", new Directive(Collections.emptyList())));
-        }
-    }
-
     public Optional<SourceExpressionDirective> formAction() {
         return Optional.ofNullable(formAction_);
     }
@@ -433,23 +417,6 @@ public final class Policy {
 
     public boolean upgradeInsecureRequests() {
         return upgradeInsecureRequests_;
-    }
-
-    public void setUpgradeInsecureRequests(final boolean value) {
-        if (upgradeInsecureRequests_) {
-            if (value) {
-                return;
-            }
-            upgradeInsecureRequests_ = false;
-        }
-        else {
-            if (!value) {
-                return;
-            }
-            upgradeInsecureRequests_ = true;
-            directives_.add(new NamedDirective(
-                                        "upgrade-insecure-requests", new Directive(Collections.emptyList())));
-        }
     }
 
     public Optional<SourceExpressionDirective> getFetchDirective(final FetchDirectiveKind kind) {
