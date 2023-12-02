@@ -18,15 +18,15 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class TestBase {
-    final Policy.PolicyListErrorConsumer throwIfPolicyListError = (severity, message, policyIndex, directiveIndex, valueIndex) -> {
+    final Policy.PolicyListErrorConsumer throwIfPolicyListError_ = (severity, message, policyIndex, directiveIndex, valueIndex) -> {
         throw new RuntimeException(new PolicyListError(severity, message, policyIndex, directiveIndex, valueIndex).toString());
     };
 
-    final Policy.PolicyErrorConsumer throwIfPolicyError = (severity, message, directiveIndex, valueIndex) -> {
+    final Policy.PolicyErrorConsumer throwIfPolicyError_ = (severity, message, directiveIndex, valueIndex) -> {
         throw new RuntimeException(new PolicyError(severity, message, directiveIndex, valueIndex).toString());
     };
 
-    final Directive.DirectiveErrorConsumer throwIfDirectiveError = (severity, message, valueIndex) -> {
+    final Directive.DirectiveErrorConsumer throwIfDirectiveError_ = (severity, message, valueIndex) -> {
         throw new RuntimeException(new DirectiveError(severity, message, valueIndex).toString());
     };
 
@@ -65,16 +65,16 @@ public class TestBase {
 
         PolicyListError(final Policy.Severity severity, final String message, final int policyIndex,
                 final int directiveIndex, final int valueIndex) {
-            this.severity_ = severity;
-            this.message_ = message;
-            this.policyIndex_ = policyIndex;
-            this.directiveIndex_ = directiveIndex;
-            this.valueIndex_ = valueIndex;
+            severity_ = severity;
+            message_ = message;
+            policyIndex_ = policyIndex;
+            directiveIndex_ = directiveIndex;
+            valueIndex_ = valueIndex;
         }
 
         @Override
         public String toString() {
-            return "(" + this.severity_.name() + ") " + this.message_ + " at policy " + this.policyIndex_ + " at directive " + this.directiveIndex_ + " at value " + this.valueIndex_;
+            return "(" + severity_.name() + ") " + message_ + " at policy " + policyIndex_ + " at directive " + directiveIndex_ + " at value " + valueIndex_;
         }
 
         @Override
@@ -107,15 +107,15 @@ public class TestBase {
 
         PolicyError(final Policy.Severity severity, final String message,
                 final int directiveIndex, final int valueIndex) {
-            this.severity_ = severity;
-            this.message_ = message;
-            this.directiveIndex_ = directiveIndex;
-            this.valueIndex_ = valueIndex;
+            severity_ = severity;
+            message_ = message;
+            directiveIndex_ = directiveIndex;
+            valueIndex_ = valueIndex;
         }
 
         @Override
         public String toString() {
-            return "(" + this.severity_.name() + ") " + this.message_ + " at directive " + this.directiveIndex_ + " at value " + this.valueIndex_;
+            return "(" + severity_.name() + ") " + message_ + " at directive " + directiveIndex_ + " at value " + valueIndex_;
         }
 
         @Override
@@ -145,14 +145,14 @@ public class TestBase {
         private final int valueIndex_;
 
         DirectiveError(final Policy.Severity severity, final String message, final int valueIndex) {
-            this.severity_ = severity;
-            this.message_ = message;
-            this.valueIndex_ = valueIndex;
+            severity_ = severity;
+            message_ = message;
+            valueIndex_ = valueIndex;
         }
 
         @Override
         public String toString() {
-            return "(" + this.severity_.name() + ") " + this.message_ + " at value " + this.valueIndex_;
+            return "(" + severity_.name() + ") " + message_ + " at value " + valueIndex_;
         }
 
         @Override

@@ -45,9 +45,9 @@ public abstract class HostSourceDirective extends Directive {
 
     @Override
     protected void addValue(final String value) {
-        if (this.none_ != null) {
+        if (none_ != null) {
             super.removeValueIgnoreCase(NONE_SRC); // super so as to not immediately add it back
-            this.none_ = null;
+            none_ = null;
         }
         super.addValue(value);
     }
@@ -55,9 +55,9 @@ public abstract class HostSourceDirective extends Directive {
     @Override
     protected void removeValueIgnoreCase(final String value) {
         super.removeValueIgnoreCase(value);
-        if (this.getValues().isEmpty()) {
-            this.getValues().add(NONE_SRC);
-            this.none_ = NONE_SRC;
+        if (getValues().isEmpty()) {
+            getValues().add(NONE_SRC);
+            none_ = NONE_SRC;
         }
     }
 
@@ -65,22 +65,22 @@ public abstract class HostSourceDirective extends Directive {
                 final String lowcaseToken, final String kind, final int index,
                 final DirectiveErrorConsumer errors) {
         if (lowcaseToken.equals(NONE_SRC)) {
-            if (this.none_ == null) {
-                this.none_ = token;
+            if (none_ == null) {
+                none_ = token;
             }
         }
         else if ("*".equals(lowcaseToken)) {
             // Technically this is just a specific kind of host-source, but it's worth handling explicitly
-            if (!this.star_) {
-                this.star_ = true;
+            if (!star_) {
+                star_ = true;
             }
             else {
                 errors.add(Policy.Severity.Warning, "Duplicate " + kind + " *", index);
             }
         }
         else if (lowcaseToken.equals(SELF_SRC)) {
-            if (!this.self_) {
-                this.self_ = true;
+            if (!self_) {
+                self_ = true;
             }
             else {
                 errors.add(Policy.Severity.Warning, "Duplicate " + kind + " 'self'", index);
@@ -89,7 +89,7 @@ public abstract class HostSourceDirective extends Directive {
         else {
             final Optional<Scheme> asScheme = Scheme.parseScheme(token);
             if (asScheme.isPresent()) {
-                this.addScheme(asScheme.get(), index, errors);
+                addScheme(asScheme.get(), index, errors);
             }
             else {
                 if (Constants.UNQUOTED_KEYWORD_PATTERN.matcher(token).find()) {
@@ -100,7 +100,7 @@ public abstract class HostSourceDirective extends Directive {
 
                 final Optional<Host> asHost = Host.parseHost(token);
                 if (asHost.isPresent()) {
-                    this.addHostSource(asHost.get(), index, errors);
+                    addHostSource(asHost.get(), index, errors);
                 }
                 else {
                     errors.add(Policy.Severity.Error, "Unrecognized " + kind + " " + token, index);
@@ -110,7 +110,7 @@ public abstract class HostSourceDirective extends Directive {
     }
 
     private boolean addScheme(final Scheme scheme, final int index, final DirectiveErrorConsumer errors) {
-        if (this.schemes_.contains(scheme)) {
+        if (schemes_.contains(scheme)) {
             errors.add(Policy.Severity.Warning, "Duplicate scheme " + scheme, index);
             return false;
         }
@@ -118,36 +118,36 @@ public abstract class HostSourceDirective extends Directive {
             // TODO check if this subsumes or is subsumed by any existing scheme/host
             // NB we add it even if it subsumes or is subsumed by existing things,
             // since it's still valid and not a duplicate
-            this.schemes_.add(scheme);
+            schemes_.add(scheme);
             return true;
         }
     }
 
     private boolean addHostSource(final Host source, final int index, final DirectiveErrorConsumer errors) {
-        if (this.hosts_.contains(source)) {
+        if (hosts_.contains(source)) {
             errors.add(Policy.Severity.Warning, "Duplicate host " + source.toString(), index);
             return false;
         }
         else {
             // TODO check if this subsumes or is subsumed by any existing scheme/host
-            this.hosts_.add(source);
+            hosts_.add(source);
             return true;
         }
     }
 
     public boolean star() {
-        return this.star_;
+        return star_;
     }
 
     public boolean self() {
-        return this.self_;
+        return self_;
     }
 
     public List<Scheme> getSchemes() {
-        return Collections.unmodifiableList(this.schemes_);
+        return Collections.unmodifiableList(schemes_);
     }
 
     public List<Host> getHosts() {
-        return Collections.unmodifiableList(this.hosts_);
+        return Collections.unmodifiableList(hosts_);
     }
 }

@@ -46,56 +46,56 @@ public class SandboxDirective extends Directive {
             final String lowcaseToken = token.toLowerCase(Locale.ENGLISH);
             switch (lowcaseToken) {
                 case ALLOW_DOWNLOADS:
-                    if (!this.allowDownloads_) {
-                        this.allowDownloads_ = true;
+                    if (!allowDownloads_) {
+                        allowDownloads_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-downloads", index);
                     }
                     break;
                 case "allow-forms":
-                    if (!this.allowForms_) {
-                        this.allowForms_ = true;
+                    if (!allowForms_) {
+                        allowForms_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-forms", index);
                     }
                     break;
                 case "allow-modals":
-                    if (!this.allowModals_) {
-                        this.allowModals_ = true;
+                    if (!allowModals_) {
+                        allowModals_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-modals", index);
                     }
                     break;
                 case "allow-orientation-lock":
-                    if (!this.allowOrientationLock_) {
-                        this.allowOrientationLock_ = true;
+                    if (!allowOrientationLock_) {
+                        allowOrientationLock_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-orientation-lock", index);
                     }
                     break;
                 case "allow-pointer-lock":
-                    if (!this.allowPointerLock_) {
-                        this.allowPointerLock_ = true;
+                    if (!allowPointerLock_) {
+                        allowPointerLock_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-pointer-lock", index);
                     }
                     break;
                 case "allow-popups":
-                    if (!this.allowPopups_) {
-                        this.allowPopups_ = true;
+                    if (!allowPopups_) {
+                        allowPopups_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-popups", index);
                     }
                     break;
                 case "allow-popups-to-escape-sandbox":
-                    if (!this.allowPopupsToEscapeSandbox_) {
-                        this.allowPopupsToEscapeSandbox_ = true;
+                    if (!allowPopupsToEscapeSandbox_) {
+                        allowPopupsToEscapeSandbox_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning,
@@ -103,32 +103,32 @@ public class SandboxDirective extends Directive {
                     }
                     break;
                 case "allow-presentation":
-                    if (!this.allowPresentation_) {
-                        this.allowPresentation_ = true;
+                    if (!allowPresentation_) {
+                        allowPresentation_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-presentation", index);
                     }
                     break;
                 case "allow-same-origin":
-                    if (!this.allowSameOrigin_) {
-                        this.allowSameOrigin_ = true;
+                    if (!allowSameOrigin_) {
+                        allowSameOrigin_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-same-origin", index);
                     }
                     break;
                 case "allow-scripts":
-                    if (!this.allowScripts_) {
-                        this.allowScripts_ = true;
+                    if (!allowScripts_) {
+                        allowScripts_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-scripts", index);
                     }
                     break;
                 case "allow-storage-access-by-user-activation":
-                    if (!this.allowStorageAccessByUserActivation_) {
-                        this.allowStorageAccessByUserActivation_ = true;
+                    if (!allowStorageAccessByUserActivation_) {
+                        allowStorageAccessByUserActivation_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning,
@@ -136,16 +136,16 @@ public class SandboxDirective extends Directive {
                     }
                     break;
                 case "allow-top-navigation":
-                    if (!this.allowTopNavigation_) {
-                        this.allowTopNavigation_ = true;
+                    if (!allowTopNavigation_) {
+                        allowTopNavigation_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-top-navigation", index);
                     }
                     break;
                 case "allow-top-navigation-by-user-activation":
-                    if (!this.allowTopNavigationByUserActivation_) {
-                        this.allowTopNavigationByUserActivation_ = true;
+                    if (!allowTopNavigationByUserActivation_) {
+                        allowTopNavigationByUserActivation_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning,
@@ -167,54 +167,54 @@ public class SandboxDirective extends Directive {
     }
 
     public boolean allowDownloads() {
-        return this.allowDownloads_;
+        return allowDownloads_;
     }
 
     public boolean allowForms() {
-        return this.allowForms_;
+        return allowForms_;
     }
 
     public boolean allowModals() {
-        return this.allowModals_;
+        return allowModals_;
     }
 
     public boolean allowOrientationLock() {
-        return this.allowOrientationLock_;
+        return allowOrientationLock_;
     }
 
     public boolean allowPointerLock() {
-        return this.allowPointerLock_;
+        return allowPointerLock_;
     }
 
     public boolean allowPopups() {
-        return this.allowPopups_;
+        return allowPopups_;
     }
 
     public boolean allowPopupsToEscapeSandbox() {
-        return this.allowPopupsToEscapeSandbox_;
+        return allowPopupsToEscapeSandbox_;
     }
 
     public boolean allowPresentation() {
-        return this.allowPresentation_;
+        return allowPresentation_;
     }
 
     public boolean allowSameOrigin() {
-        return this.allowSameOrigin_;
+        return allowSameOrigin_;
     }
 
     public boolean allowScripts() {
-        return this.allowScripts_;
+        return allowScripts_;
     }
 
     public boolean allowStorageAccessByUserActivation() {
-        return this.allowStorageAccessByUserActivation_;
+        return allowStorageAccessByUserActivation_;
     }
 
     public boolean allowTopNavigation() {
-        return this.allowTopNavigation_;
+        return allowTopNavigation_;
     }
 
     public boolean allowTopNavigationByUserActivation() {
-        return this.allowTopNavigationByUserActivation_;
+        return allowTopNavigationByUserActivation_;
     }
 }

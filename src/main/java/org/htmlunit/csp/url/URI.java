@@ -27,7 +27,7 @@ public class URI extends URLWithScheme {
     }
 
     public static Optional<URI> parseURI(final String uri) {
-        final Matcher matcher = Constants.hostSourcePattern.matcher(uri);
+        final Matcher matcher = Constants.HOST_SOURCE_PATTERN.matcher(uri);
         if (!matcher.find()) {
             return Optional.empty();
         }

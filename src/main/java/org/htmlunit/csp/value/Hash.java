@@ -26,8 +26,8 @@ public final class Hash {
     private final String base64ValuePart_;
 
     private Hash(final Algorithm algorithm, final String base64ValuePart) {
-        this.algorithm_ = algorithm;
-        this.base64ValuePart_ = base64ValuePart;
+        algorithm_ = algorithm;
+        base64ValuePart_ = base64ValuePart;
     }
 
     public Algorithm getAlgorithm() {
@@ -67,7 +67,7 @@ public final class Hash {
 
     @Override
     public String toString() {
-        return "'" + this.algorithm_.toString() + "-" + this.base64ValuePart_ + "'";
+        return "'" + algorithm_.toString() + "-" + base64ValuePart_ + "'";
     }
 
     @Override
@@ -101,8 +101,8 @@ public final class Hash {
         private final int length_;
 
         Algorithm(final String value, final int length) {
-            this.value_ = value;
-            this.length_ = length;
+            value_ = value;
+            length_ = length;
         }
 
         public int getLength() {
@@ -111,7 +111,7 @@ public final class Hash {
 
         @Override
         public String toString() {
-            return this.value_;
+            return value_;
         }
     }
 }

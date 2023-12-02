@@ -33,7 +33,7 @@ public class PluginTypesDirective extends Directive {
         for (final String token : values) {
             final Optional<MediaType> type = MediaType.parseMediaType(token);
             if (type.isPresent()) {
-                this.addMediaType(type.get(), index, errors);
+                addMediaType(type.get(), index, errors);
             }
             else {
                 errors.add(Policy.Severity.Error, "Expecting media-type but found \"" + token + "\"", index);
@@ -45,7 +45,7 @@ public class PluginTypesDirective extends Directive {
     }
 
     private boolean addMediaType(final MediaType type, final int index, final DirectiveErrorConsumer errors) {
-        if (this.mediaTypes_.contains(type)) {
+        if (mediaTypes_.contains(type)) {
             errors.add(Policy.Severity.Warning, "Duplicate media type " + type.toString(), index);
             return false;
         }
@@ -55,12 +55,12 @@ public class PluginTypesDirective extends Directive {
                             "Media types can only be matched literally. Make sure using `*` is not an oversight.",
                             index);
             }
-            this.mediaTypes_.add(type);
+            mediaTypes_.add(type);
             return true;
         }
     }
 
     public List<MediaType> getMediaTypes() {
-        return Collections.unmodifiableList(this.mediaTypes_);
+        return Collections.unmodifiableList(mediaTypes_);
     }
 }

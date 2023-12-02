@@ -29,10 +29,10 @@ public final class Host {
     private final String path_;
 
     private Host(final String scheme, final String host, final int port, final String path) {
-        this.scheme_ = scheme;
-        this.host_ = host;
-        this.port_ = port;
-        this.path_ = path;
+        scheme_ = scheme;
+        host_ = host;
+        port_ = port;
+        path_ = path;
     }
 
     public String getScheme() {
@@ -87,12 +87,12 @@ public final class Host {
     @Override
     public String toString() {
         final boolean isDefaultPort =
-                this.port_ == Constants.EMPTY_PORT || this.scheme_ != null && this.port_ == URI
-                        .defaultPortForProtocol(this.scheme_);
-        return (this.scheme_ == null ? "" : this.scheme_ + "://")
-                + this.host_
-                + (isDefaultPort ? "" : ":" + (this.port_ == Constants.WILDCARD_PORT ? "*" : this.port_))
-                + (this.path_ == null ? "" : this.path_);
+                port_ == Constants.EMPTY_PORT || scheme_ != null && port_ == URI
+                        .defaultPortForProtocol(scheme_);
+        return (scheme_ == null ? "" : scheme_ + "://")
+                + host_
+                + (isDefaultPort ? "" : ":" + (port_ == Constants.WILDCARD_PORT ? "*" : port_))
+                + (path_ == null ? "" : path_);
     }
 
     @Override

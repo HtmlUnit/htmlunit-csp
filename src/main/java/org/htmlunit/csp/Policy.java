@@ -176,8 +176,8 @@ public final class Policy {
                 // https://w3c.github.io/webappsec-csp/#directive-base-uri
                 final SourceExpressionDirective thisDirective
                         = new SourceExpressionDirective(values, directiveErrorConsumer);
-                if (this.baseUri_ == null) {
-                    this.baseUri_ = thisDirective;
+                if (baseUri_ == null) {
+                    baseUri_ = thisDirective;
                 }
                 else {
                     wasDupe = true;
@@ -187,12 +187,12 @@ public final class Policy {
             }
             case "block-all-mixed-content": {
                 // https://www.w3.org/TR/mixed-content/#strict-opt-in
-                if (!this.blockAllMixedContent_) {
+                if (!blockAllMixedContent_) {
                     if (!values.isEmpty()) {
                         directiveErrorConsumer.add(Severity.Error,
                                         "The block-all-mixed-content directive does not support values", 0);
                     }
-                    this.blockAllMixedContent_ = true;
+                    blockAllMixedContent_ = true;
                 }
                 else {
                     wasDupe = true;
@@ -204,8 +204,8 @@ public final class Policy {
                 // https://w3c.github.io/webappsec-csp/#directive-form-action
                 final SourceExpressionDirective thisDirective
                                 = new SourceExpressionDirective(values, directiveErrorConsumer);
-                if (this.formAction_ == null) {
-                    this.formAction_ = thisDirective;
+                if (formAction_ == null) {
+                    formAction_ = thisDirective;
                 }
                 else {
                     wasDupe = true;
@@ -219,8 +219,8 @@ public final class Policy {
                 // against origins: https://w3c.github.io/webappsec-csp/#frame-ancestors-navigation-response
                 final FrameAncestorsDirective thisDirective
                             = new FrameAncestorsDirective(values, directiveErrorConsumer);
-                if (this.frameAncestors_ == null) {
-                    this.frameAncestors_ = thisDirective;
+                if (frameAncestors_ == null) {
+                    frameAncestors_ = thisDirective;
                 }
                 else {
                     wasDupe = true;
@@ -234,8 +234,8 @@ public final class Policy {
                 // There is no logic here
                 final SourceExpressionDirective thisDirective
                             = new SourceExpressionDirective(values, directiveErrorConsumer);
-                if (this.navigateTo_ == null) {
-                    this.navigateTo_ = thisDirective;
+                if (navigateTo_ == null) {
+                    navigateTo_ = thisDirective;
                 }
                 else {
                     wasDupe = true;
@@ -246,8 +246,8 @@ public final class Policy {
             case "plugin-types": {
                 // https://w3c.github.io/webappsec-csp/#directive-plugin-types
                 final PluginTypesDirective thisDirective = new PluginTypesDirective(values, directiveErrorConsumer);
-                if (this.pluginTypes_ == null) {
-                    this.pluginTypes_ = thisDirective;
+                if (pluginTypes_ == null) {
+                    pluginTypes_ = thisDirective;
                 }
                 else {
                     wasDupe = true;
@@ -257,7 +257,7 @@ public final class Policy {
             }
             case "report-to": {
                 // https://w3c.github.io/webappsec-csp/#directive-report-to
-                if (this.reportTo_ == null) {
+                if (reportTo_ == null) {
                     if (values.isEmpty()) {
                         directiveErrorConsumer.add(Severity.Error, "The report-to directive requires a value", -1);
                     }
@@ -265,7 +265,7 @@ public final class Policy {
                         final String token = values.get(0);
                         final Optional<RFC7230Token> matched = RFC7230Token.parseRFC7230Token(token);
                         if (matched.isPresent()) {
-                            this.reportTo_ = matched.get();
+                            reportTo_ = matched.get();
                         }
                         else {
                             directiveErrorConsumer.add(Severity.Error,
@@ -289,8 +289,8 @@ public final class Policy {
                         "The report-uri directive has been deprecated in favor of the new report-to directive", -1);
 
                 final ReportUriDirective thisDirective = new ReportUriDirective(values, directiveErrorConsumer);
-                if (this.reportUri_ == null) {
-                    this.reportUri_ = thisDirective;
+                if (reportUri_ == null) {
+                    reportUri_ = thisDirective;
                 }
                 else {
                     wasDupe = true;
@@ -301,8 +301,8 @@ public final class Policy {
             case "sandbox": {
                 // https://w3c.github.io/webappsec-csp/#directive-sandbox
                 final SandboxDirective thisDirective = new SandboxDirective(values, directiveErrorConsumer);
-                if (this.sandbox_ == null) {
-                    this.sandbox_ = thisDirective;
+                if (sandbox_ == null) {
+                    sandbox_ = thisDirective;
                 }
                 else {
                     wasDupe = true;
@@ -312,12 +312,12 @@ public final class Policy {
             }
             case "upgrade-insecure-requests": {
                 // https://www.w3.org/TR/upgrade-insecure-requests/#delivery
-                if (!this.upgradeInsecureRequests_) {
+                if (!upgradeInsecureRequests_) {
                     if (!values.isEmpty()) {
                         directiveErrorConsumer.add(Severity.Error,
                                 "The upgrade-insecure-requests directive does not support values", 0);
                     }
-                    this.upgradeInsecureRequests_ = true;
+                    upgradeInsecureRequests_ = true;
                 }
                 else {
                     wasDupe = true;
@@ -337,11 +337,11 @@ public final class Policy {
                 if (fetchDirectiveKind != null) {
                     final SourceExpressionDirective thisDirective
                                 = new SourceExpressionDirective(values, directiveErrorConsumer);
-                    if (this.fetchDirectives_.containsKey(fetchDirectiveKind)) {
+                    if (fetchDirectives_.containsKey(fetchDirectiveKind)) {
                         wasDupe = true;
                     }
                     else {
-                        this.fetchDirectives_.put(fetchDirectiveKind, thisDirective);
+                        fetchDirectives_.put(fetchDirectiveKind, thisDirective);
                     }
                     newDirective = thisDirective;
                     break;
@@ -352,7 +352,7 @@ public final class Policy {
             }
         }
 
-        this.directives_.add(new NamedDirective(name, newDirective));
+        directives_.add(new NamedDirective(name, newDirective));
         if (wasDupe) {
             directiveErrorConsumer.add(Severity.Warning, "Duplicate directive " + lowcaseDirectiveName, -1);
         }
@@ -364,8 +364,8 @@ public final class Policy {
     public boolean remove(final String name) {
         boolean removed = false;
         final String lowcaseName = name.toLowerCase(Locale.ENGLISH);
-        final ArrayList<NamedDirective> copy = new ArrayList<>(this.directives_.size());
-        for (final NamedDirective existing : this.directives_) {
+        final ArrayList<NamedDirective> copy = new ArrayList<>(directives_.size());
+        for (final NamedDirective existing : directives_) {
             if (!existing.lowcaseName_.equals(lowcaseName)) {
                 copy.add(existing);
             }
@@ -376,52 +376,52 @@ public final class Policy {
         if (!removed) {
             return false;
         }
-        this.directives_ = copy;
+        directives_ = copy;
         switch (lowcaseName) {
             case "base-uri": {
-                this.baseUri_ = null;
+                baseUri_ = null;
                 break;
             }
             case "block-all-mixed-content": {
-                this.blockAllMixedContent_ = false;
+                blockAllMixedContent_ = false;
                 break;
             }
             case "form-action": {
-                this.formAction_ = null;
+                formAction_ = null;
                 break;
             }
             case "frame-ancestors": {
-                this.frameAncestors_ = null;
+                frameAncestors_ = null;
                 break;
             }
             case "navigate-to": {
-                this.navigateTo_ = null;
+                navigateTo_ = null;
                 break;
             }
             case "plugin-types": {
-                this.pluginTypes_ = null;
+                pluginTypes_ = null;
                 break;
             }
             case "report-to": {
-                this.reportTo_ = null;
+                reportTo_ = null;
                 break;
             }
             case "report-uri": {
-                this.reportUri_ = null;
+                reportUri_ = null;
                 break;
             }
             case "sandbox": {
-                this.sandbox_ = null;
+                sandbox_ = null;
                 break;
             }
             case "upgrade-insecure-requests": {
-                this.upgradeInsecureRequests_ = false;
+                upgradeInsecureRequests_ = false;
                 break;
             }
             default: {
                 final FetchDirectiveKind fetchDirectiveKind = FetchDirectiveKind.fromString(lowcaseName);
                 if (fetchDirectiveKind != null) {
-                    this.fetchDirectives_.remove(fetchDirectiveKind);
+                    fetchDirectives_.remove(fetchDirectiveKind);
                 }
                 break;
             }
@@ -433,7 +433,7 @@ public final class Policy {
     public String toString() {
         final StringBuilder out = new StringBuilder();
         boolean first = true;
-        for (final NamedDirective directive : this.directives_) {
+        for (final NamedDirective directive : directives_) {
             if (!first) {
                 out.append("; "); // The whitespace is not strictly necessary but is probably valuable
             }
@@ -450,80 +450,80 @@ public final class Policy {
     // Accessors
 
     public Optional<SourceExpressionDirective> baseUri() {
-        return Optional.ofNullable(this.baseUri_);
+        return Optional.ofNullable(baseUri_);
     }
 
     public boolean blockAllMixedContent() {
-        return this.blockAllMixedContent_;
+        return blockAllMixedContent_;
     }
 
     public void setBlockAllMixedContent(final boolean value) {
-        if (this.blockAllMixedContent_) {
+        if (blockAllMixedContent_) {
             if (value) {
                 return;
             }
-            this.remove("block-all-mixed-content");
+            remove("block-all-mixed-content");
         }
         else {
             if (!value) {
                 return;
             }
-            this.blockAllMixedContent_ = true;
-            this.directives_.add(new NamedDirective("block-all-mixed-content", new Directive(Collections.emptyList())));
+            blockAllMixedContent_ = true;
+            directives_.add(new NamedDirective("block-all-mixed-content", new Directive(Collections.emptyList())));
         }
     }
 
     public Optional<SourceExpressionDirective> formAction() {
-        return Optional.ofNullable(this.formAction_);
+        return Optional.ofNullable(formAction_);
     }
 
     public Optional<FrameAncestorsDirective> frameAncestors() {
-        return Optional.ofNullable(this.frameAncestors_);
+        return Optional.ofNullable(frameAncestors_);
     }
 
     public Optional<SourceExpressionDirective> navigateTo() {
-        return Optional.ofNullable(this.navigateTo_);
+        return Optional.ofNullable(navigateTo_);
     }
 
     public Optional<PluginTypesDirective> pluginTypes() {
-        return Optional.ofNullable(this.pluginTypes_);
+        return Optional.ofNullable(pluginTypes_);
     }
 
     public Optional<RFC7230Token> reportTo() {
-        return Optional.ofNullable(this.reportTo_);
+        return Optional.ofNullable(reportTo_);
     }
 
     public Optional<ReportUriDirective> reportUri() {
-        return Optional.ofNullable(this.reportUri_);
+        return Optional.ofNullable(reportUri_);
     }
 
     public Optional<SandboxDirective> sandbox() {
-        return Optional.ofNullable(this.sandbox_);
+        return Optional.ofNullable(sandbox_);
     }
 
     public boolean upgradeInsecureRequests() {
-        return this.upgradeInsecureRequests_;
+        return upgradeInsecureRequests_;
     }
 
     public void setUpgradeInsecureRequests(final boolean value) {
-        if (this.upgradeInsecureRequests_) {
+        if (upgradeInsecureRequests_) {
             if (value) {
                 return;
             }
-            this.remove("upgrade-insecure-requests");
+            remove("upgrade-insecure-requests");
         }
         else {
             if (!value) {
                 return;
             }
-            this.upgradeInsecureRequests_ = true;
-            this.directives_.add(new NamedDirective(
+            upgradeInsecureRequests_ = true;
+            directives_.add(new NamedDirective(
                                         "upgrade-insecure-requests", new Directive(Collections.emptyList())));
         }
     }
 
     public Optional<SourceExpressionDirective> getFetchDirective(final FetchDirectiveKind kind) {
-        return Optional.ofNullable(this.fetchDirectives_.get(kind));
+        return Optional.ofNullable(fetchDirectives_.get(kind));
     }
 
     // High-level querying
@@ -540,7 +540,7 @@ public final class Policy {
     public boolean allowsExternalScript(final Optional<String> nonce, final Optional<String> integrity,
             final Optional<URLWithScheme> scriptUrl, final Optional<Boolean> parserInserted,
             final Optional<URLWithScheme> origin) {
-        if (this.sandbox_ != null && !this.sandbox_.allowScripts()) {
+        if (sandbox_ != null && !sandbox_.allowScripts()) {
             return false;
         }
 
@@ -591,7 +591,7 @@ public final class Policy {
     // https://w3c.github.io/webappsec-csp/#script-src-elem-inline
     public boolean allowsInlineScript(final Optional<String> nonce,
             final Optional<String> source, final Optional<Boolean> parserInserted) {
-        if (this.sandbox_ != null && !this.sandbox_.allowScripts()) {
+        if (sandbox_ != null && !sandbox_.allowScripts()) {
             return false;
         }
         return doesElementMatchSourceListForTypeAndSource(InlineType.Script, nonce, source, parserInserted);
@@ -599,7 +599,7 @@ public final class Policy {
 
     // https://w3c.github.io/webappsec-csp/#script-src-attr-inline
     public boolean allowsScriptAsAttribute(final Optional<String> source) {
-        if (this.sandbox_ != null && !this.sandbox_.allowScripts()) {
+        if (sandbox_ != null && !sandbox_.allowScripts()) {
             return false;
         }
         return doesElementMatchSourceListForTypeAndSource(
@@ -610,10 +610,10 @@ public final class Policy {
     public boolean allowsEval() {
         // This is done in prose, not in a table
         final FetchDirectiveKind governingDirective =
-                this.fetchDirectives_
+                fetchDirectives_
                     .containsKey(FetchDirectiveKind.ScriptSrc)
                         ? FetchDirectiveKind.ScriptSrc : FetchDirectiveKind.DefaultSrc;
-        final SourceExpressionDirective sourceList = this.fetchDirectives_.get(governingDirective);
+        final SourceExpressionDirective sourceList = fetchDirectives_.get(governingDirective);
         return sourceList == null || sourceList.unsafeEval();
     }
 
@@ -625,10 +625,10 @@ public final class Policy {
     // Note: this also does not handle `javascript:` navigation; there's an explicit API for that
     public boolean allowsNavigation(final Optional<URLWithScheme> to, final Optional<Boolean> redirected,
             final Optional<URLWithScheme> redirectedTo, final Optional<URLWithScheme> origin) {
-        if (this.navigateTo_ == null) {
+        if (navigateTo_ == null) {
             return true;
         }
-        if (this.navigateTo_.unsafeAllowRedirects()) {
+        if (navigateTo_.unsafeAllowRedirects()) {
             // if unsafe-allow-redirects is present, check `to` in non-redirect or maybe-non-redirect cases
             if (!redirected.orElse(false)) {
                 if (!to.isPresent()) {
@@ -665,14 +665,14 @@ public final class Policy {
     // Note: it is nonsensical to provide redirectedTo if redirected is Optional.of(false)
     public boolean allowsFormAction(final Optional<URLWithScheme> to, final Optional<Boolean> redirected,
             final Optional<URLWithScheme> redirectedTo, final Optional<URLWithScheme> origin) {
-        if (this.sandbox_ != null && !this.sandbox_.allowForms()) {
+        if (sandbox_ != null && !sandbox_.allowForms()) {
             return false;
         }
-        if (this.formAction_ != null) {
+        if (formAction_ != null) {
             if (!to.isPresent()) {
                 return false;
             }
-            if (!doesUrlMatchSourceListInOrigin(to.get(), this.formAction_, origin)) {
+            if (!doesUrlMatchSourceListInOrigin(to.get(), formAction_, origin)) {
                 return false;
             }
             return true;
@@ -680,18 +680,18 @@ public final class Policy {
         else {
             // this isn't implemented like other fallbacks because
             // it isn't one: form-action does not respect unsafe-allow-redirects
-            return this.allowsNavigation(to, redirected, redirectedTo, origin);
+            return allowsNavigation(to, redirected, redirectedTo, origin);
         }
     }
 
     // NB: the hashes (for unsafe-hashes) are supposed to include the javascript: part, per spec
     public boolean allowsJavascriptUrlNavigation(final Optional<String> source, final Optional<URLWithScheme> origin) {
-        return this.allowsNavigation(
+        return allowsNavigation(
                 Optional.of(
                             new GUID("javascript", source.orElse(""))),
                 Optional.of(false), Optional.empty(), origin)
                 &&
-                    this.doesElementMatchSourceListForTypeAndSource(
+                    doesElementMatchSourceListForTypeAndSource(
                                 InlineType.Navigation, Optional.empty(),
                                             source.map(s -> "javascript:" + s), Optional.of(false));
     }
@@ -741,7 +741,7 @@ public final class Policy {
     }
 
     public boolean allowsFrameAncestor(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
-        if (this.frameAncestors_ == null) {
+        if (frameAncestors_ == null) {
             return true;
         }
         if (!source.isPresent()) {
@@ -864,20 +864,20 @@ public final class Policy {
     }
 
     public boolean allowsPlugin(final Optional<MediaType> mediaType) {
-        if (this.pluginTypes_ == null) {
+        if (pluginTypes_ == null) {
             return true;
         }
         if (!mediaType.isPresent()) {
             return false;
         }
-        return this.pluginTypes_.getMediaTypes().contains(mediaType.get());
+        return pluginTypes_.getMediaTypes().contains(mediaType.get());
     }
 
     // https://w3c.github.io/webappsec-csp/#should-directive-execute
     public Optional<SourceExpressionDirective> getGoverningDirectiveForEffectiveDirective(
                                                 final FetchDirectiveKind kind) {
         for (final FetchDirectiveKind candidate : FetchDirectiveKind.getFetchDirectiveFallbackList(kind)) {
-            final SourceExpressionDirective list = this.fetchDirectives_.get(candidate);
+            final SourceExpressionDirective list = fetchDirectives_.get(candidate);
             if (list != null) {
                 return Optional.of(list);
             }
@@ -900,7 +900,7 @@ public final class Policy {
         private final FetchDirectiveKind effectiveDirective_;
 
         InlineType(final FetchDirectiveKind effectiveDirective) {
-            this.effectiveDirective_ = effectiveDirective;
+            effectiveDirective_ = effectiveDirective;
         }
     }
 
@@ -1190,9 +1190,9 @@ public final class Policy {
         private final String lowcaseName_;
 
         private NamedDirective(final String name, final Directive directive) {
-            this.name_ = name;
-            this.directive_ = directive;
-            this.lowcaseName_ = this.name_.toLowerCase(Locale.ENGLISH);
+            name_ = name;
+            directive_ = directive;
+            lowcaseName_ = name_.toLowerCase(Locale.ENGLISH);
         }
     }
 

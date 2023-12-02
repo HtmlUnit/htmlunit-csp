@@ -28,11 +28,11 @@ public class ReportUriDirective extends Directive {
         super(values);
         int index = 0;
         for (final String value : values) {
-            this.addUri(value, index, errors);
+            addUri(value, index, errors);
             index++;
         }
 
-        if (this.getValues().isEmpty()) {
+        if (getValues().isEmpty()) {
             errors.add(Policy.Severity.Error, "The report-uri value requires at least one value", -1);
         }
     }
@@ -40,14 +40,14 @@ public class ReportUriDirective extends Directive {
     private void addUri(final String uri, final int index, final DirectiveErrorConsumer errors) {
         // TODO actual parsing per https://tools.ietf.org/html/rfc3986#section-4.1
         // It's awful, though: 'urn:example:animal:ferret:nose' is a valid URI
-        if (this.uris_.contains(uri)) {
+        if (uris_.contains(uri)) {
             // NB: we don't prevent you from having duplicates, because that
             // has actual semantic meaning - it will get each report twice (per spec)
             errors.add(Policy.Severity.Info,
                     "Duplicate report-to URI; are you sure you intend to get multiple copies of each report?",
                     index);
         }
-        this.uris_.add(uri);
+        uris_.add(uri);
     }
 
     public List<String> getUris() {

@@ -26,11 +26,11 @@ public class FrameAncestorsDirective extends HostSourceDirective {
         int index = 0;
         for (final String token : values) {
             final String lowcaseToken = token.toLowerCase(Locale.ENGLISH);
-            this.addHostOrSchemeDuringConstruction(token, lowcaseToken, "ancestor-source", index, errors);
+            addHostOrSchemeDuringConstruction(token, lowcaseToken, "ancestor-source", index, errors);
             index++;
         }
 
-        if (this.getNone() != null && values.size() > 1) {
+        if (getNone() != null && values.size() > 1) {
             errors.add(Policy.Severity.Error, "'none' must not be combined with any other ancestor-source", index);
         }
 

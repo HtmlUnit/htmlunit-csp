@@ -23,8 +23,8 @@ public class PolicyInOrigin {
     private final URLWithScheme origin_;
 
     public PolicyInOrigin(final Policy policy, final URLWithScheme origin) {
-        this.policy_ = policy;
-        this.origin_ = origin;
+        policy_ = policy;
+        origin_ = origin;
     }
 
     public Policy getPolicy() {
@@ -34,69 +34,69 @@ public class PolicyInOrigin {
     // Low-level querying
 
     public boolean allowsScriptFromSource(final URLWithScheme url) {
-        return this.policy_.allowsExternalScript(Optional.empty(),
-                Optional.empty(), Optional.of(url), Optional.empty(), Optional.of(this.origin_));
+        return policy_.allowsExternalScript(Optional.empty(),
+                Optional.empty(), Optional.of(url), Optional.empty(), Optional.of(origin_));
     }
 
     public boolean allowsStyleFromSource(final URLWithScheme url) {
-        return this.policy_.allowsExternalStyle(Optional.empty(), Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsExternalStyle(Optional.empty(), Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsImageFromSource(final URLWithScheme url) {
-        return this.policy_.allowsImage(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsImage(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsFrameFromSource(final URLWithScheme url) {
-        return this.policy_.allowsFrame(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsFrame(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsWorkerFromSource(final URLWithScheme url) {
-        return this.policy_.allowsWorker(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsWorker(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsFontFromSource(final URLWithScheme url) {
-        return this.policy_.allowsFont(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsFont(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsObjectFromSource(final URLWithScheme url) {
-        return this.policy_.allowsObject(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsObject(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsMediaFromSource(final URLWithScheme url) {
-        return this.policy_.allowsMedia(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsMedia(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsManifestFromSource(final URLWithScheme url) {
-        return this.policy_.allowsApplicationManifest(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsApplicationManifest(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsPrefetchFromSource(final URLWithScheme url) {
-        return this.policy_.allowsPrefetch(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsPrefetch(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsUnsafeInlineScript() {
-        return this.policy_.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty());
+        return policy_.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty());
     }
 
     public boolean allowsUnsafeInlineStyle() {
-        return this.policy_.allowsInlineStyle(Optional.empty(), Optional.empty());
+        return policy_.allowsInlineStyle(Optional.empty(), Optional.empty());
     }
 
     public boolean allowsConnection(final URLWithScheme url) {
-        return this.policy_.allowsConnection(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsConnection(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsNavigation(final URLWithScheme url) {
-        return this.policy_.allowsNavigation(Optional.of(url),
-                            Optional.empty(), Optional.empty(), Optional.of(this.origin_));
+        return policy_.allowsNavigation(Optional.of(url),
+                            Optional.empty(), Optional.empty(), Optional.of(origin_));
     }
 
     public boolean allowsFrameAncestor(final URLWithScheme url) {
-        return this.policy_.allowsFrameAncestor(Optional.of(url), Optional.of(this.origin_));
+        return policy_.allowsFrameAncestor(Optional.of(url), Optional.of(origin_));
     }
 
     public boolean allowsFormAction(final URLWithScheme url) {
-        return this.policy_.allowsFormAction(Optional.of(url),
-                            Optional.empty(), Optional.empty(), Optional.of(this.origin_));
+        return policy_.allowsFormAction(Optional.of(url),
+                            Optional.empty(), Optional.empty(), Optional.of(origin_));
     }
 }

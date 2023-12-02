@@ -22,6 +22,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public final class Utils {
+    /** IS_BASE64_VALUE. */
     public static final Predicate<String> IS_BASE64_VALUE
                             = Pattern.compile("[a-zA-Z0-9+/\\-_]+=?=?").asPredicate();
 

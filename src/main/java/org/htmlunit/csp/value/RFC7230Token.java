@@ -24,7 +24,7 @@ public final class RFC7230Token {
     private final String value_;
 
     private RFC7230Token(final String value) {
-        this.value_ = value;
+        value_ = value;
     }
 
     public String getValue() {
@@ -60,6 +60,6 @@ public final class RFC7230Token {
 
     @Override
     public String toString() {
-        return this.value_;
+        return value_;
     }
 }

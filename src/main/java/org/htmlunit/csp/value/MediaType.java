@@ -26,8 +26,8 @@ public final class MediaType {
     private final String subtype_;
 
     private MediaType(final String type, final String subtype) {
-        this.type_ = type;
-        this.subtype_ = subtype;
+        type_ = type;
+        subtype_ = subtype;
     }
 
     public String getType() {
@@ -69,6 +69,6 @@ public final class MediaType {
 
     @Override
     public String toString() {
-        return this.type_ + "/" + this.subtype_;
+        return type_ + "/" + subtype_;
     }
 }

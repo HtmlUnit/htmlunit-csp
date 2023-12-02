@@ -69,7 +69,7 @@ public enum FetchDirectiveKind {
     private final String repr_;
 
     FetchDirectiveKind(final String repr) {
-        this.repr_ = repr;
+        repr_ = repr;
     }
 
     public String getRepr() {

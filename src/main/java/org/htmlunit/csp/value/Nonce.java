@@ -24,7 +24,7 @@ public final class Nonce {
     private final String base64ValuePart_;
 
     private Nonce(final String base64Valuepart) {
-        this.base64ValuePart_ = base64Valuepart;
+        base64ValuePart_ = base64Valuepart;
     }
 
     public String getBase64ValuePart() {

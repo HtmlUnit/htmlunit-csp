@@ -24,11 +24,11 @@ public final class Scheme {
     private final String value_;
 
     private Scheme(final String value) {
-        this.value_ = value;
+        value_ = value;
     }
 
     public static Optional<Scheme> parseScheme(final String value) {
-        if (value.matches("^" + Constants.schemePart + ":$")) {
+        if (value.matches("^" + Constants.SCHEME_PART + ":$")) {
             // https://tools.ietf.org/html/rfc3986#section-3.1
             // "Although schemes are case-insensitive, the canonical form is lowercase"
             return Optional.of(new Scheme(value.substring(0, value.length() - 1).toLowerCase(Locale.ENGLISH)));
@@ -42,7 +42,7 @@ public final class Scheme {
 
     @Override
     public String toString() {
-        return this.value_ + ":";
+        return value_ + ":";
     }
 
     @Override

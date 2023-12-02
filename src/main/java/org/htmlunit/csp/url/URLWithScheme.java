@@ -25,10 +25,10 @@ public abstract class URLWithScheme {
     private final String path_;
 
     protected URLWithScheme(final String scheme, final String host, final Integer port, final String path) {
-        this.scheme_ = scheme.toLowerCase(Locale.ENGLISH);
-        this.host_ = host == null ? host : host.toLowerCase(Locale.ENGLISH);
-        this.port_ = port;
-        this.path_ = path;
+        scheme_ = scheme.toLowerCase(Locale.ENGLISH);
+        host_ = host == null ? host : host.toLowerCase(Locale.ENGLISH);
+        port_ = port;
+        path_ = path;
     }
 
     public String getScheme() {

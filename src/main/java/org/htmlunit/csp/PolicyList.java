@@ -20,14 +20,14 @@ public class PolicyList {
     private final List<Policy> policies_;
 
     public PolicyList(final List<Policy> policies) {
-        this.policies_ = policies;
+        policies_ = policies;
     }
 
     @Override
     public String toString() {
         final StringBuilder out = new StringBuilder();
         boolean first = true;
-        for (final Policy policy : this.policies_) {
+        for (final Policy policy : policies_) {
             if (!first) {
                 out.append(", "); // The whitespace is not strictly necessary but is probably valuable
             }

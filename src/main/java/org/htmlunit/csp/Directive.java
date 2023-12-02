@@ -37,18 +37,18 @@ public class Directive {
         if (value.isEmpty()) {
             throw new IllegalArgumentException("values must not be empty");
         }
-        this.values_.add(value);
+        values_.add(value);
     }
 
     public List<String> getValues() {
-        return Collections.unmodifiableList(this.values_);
+        return Collections.unmodifiableList(values_);
     }
 
     protected Directive(final List<String> values) {
-        this.values_ = new ArrayList<>();
+        values_ = new ArrayList<>();
         for (final String value : values) {
             // We use this API so we get the validity checks
-            this.addValue(value);
+            addValue(value);
         }
     }
 
@@ -56,13 +56,13 @@ public class Directive {
         final String lowcaseValue = value.toLowerCase(Locale.ENGLISH);
         // Could we use some fancy data structure to avoid the linear indexing here?
         // Yes, probably. But in practice these are short lists, and iterating them is not that expensive.
-        final ArrayList<String> copy = new ArrayList<>(this.values_.size());
-        for (final String existing : this.values_) {
+        final ArrayList<String> copy = new ArrayList<>(values_.size());
+        for (final String existing : values_) {
             if (!existing.toLowerCase(Locale.ENGLISH).equals(lowcaseValue)) {
                 copy.add(existing);
             }
         }
-        this.values_ = copy;
+        values_ = copy;
     }
 
     @FunctionalInterface

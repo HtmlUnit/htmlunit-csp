@@ -53,48 +53,48 @@ public class SourceExpressionDirective extends HostSourceDirective {
             final String lowcaseToken = token.toLowerCase(Locale.ENGLISH);
             switch (lowcaseToken) {
                 case UNSAFE_INLINE:
-                    if (!this.unsafeInline_) {
-                        this.unsafeInline_ = true;
+                    if (!unsafeInline_) {
+                        unsafeInline_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-inline'", index);
                     }
                     break;
                 case UNSAFE_EVAL:
-                    if (!this.unsafeEval_) {
-                        this.unsafeEval_ = true;
+                    if (!unsafeEval_) {
+                        unsafeEval_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-eval'", index);
                     }
                     break;
                 case STRICT_DYNAMIC:
-                    if (!this.strictDynamic_) {
-                        this.strictDynamic_ = true;
+                    if (!strictDynamic_) {
+                        strictDynamic_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate source-expression 'strict-dynamic'", index);
                     }
                     break;
                 case UNSAFE_HASHES:
-                    if (!this.unsafeHashes_) {
-                        this.unsafeHashes_ = true;
+                    if (!unsafeHashes_) {
+                        unsafeHashes_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-hashes'", index);
                     }
                     break;
                 case REPORT_SAMPLE:
-                    if (!this.reportSample_) {
-                        this.reportSample_ = true;
+                    if (!reportSample_) {
+                        reportSample_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate source-expression 'report-sample'", index);
                     }
                     break;
                 case UNSAFE_ALLOW_REDIRECTS:
-                    if (!this.unsafeAllowRedirects_) {
-                        this.unsafeAllowRedirects_ = true;
+                    if (!unsafeAllowRedirects_) {
+                        unsafeAllowRedirects_ = true;
                     }
                     else {
                         errors.add(Policy.Severity.Warning,
@@ -115,7 +115,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
                         // give a better message for nonce-likes which don't match the base64 grammar
                         final Optional<Nonce> nonce = Nonce.parseNonce(token);
                         if (nonce.isPresent()) {
-                            this.addNonce(nonce.get(), index, errors);
+                            addNonce(nonce.get(), index, errors);
                         }
                         else {
                             errors.add(Policy.Severity.Error, "Unrecognised nonce " + token, index);
@@ -127,7 +127,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
                         // a better message for hash-likes which don't match the base64 grammar
                         final Optional<Hash> hash = Hash.parseHash(token);
                         if (hash.isPresent()) {
-                            this.addHash(hash.get(), index, errors);
+                            addHash(hash.get(), index, errors);
                         }
                         else {
                             errors.add(Policy.Severity.Error,
@@ -138,13 +138,13 @@ public class SourceExpressionDirective extends HostSourceDirective {
                         break;
                     }
                     else {
-                        this.addHostOrSchemeDuringConstruction(token, lowcaseToken, "source-expression", index, errors);
+                        addHostOrSchemeDuringConstruction(token, lowcaseToken, "source-expression", index, errors);
                     }
             }
             ++index;
         }
 
-        if (this.getNone() != null && values.size() > 1) {
+        if (getNone() != null && values.size() > 1) {
             errors.add(Policy.Severity.Error, "'none' must not be combined with any other source-expression", 1);
         }
 
@@ -154,18 +154,18 @@ public class SourceExpressionDirective extends HostSourceDirective {
     }
 
     private boolean addNonce(final Nonce nonce, final int index, final DirectiveErrorConsumer errors) {
-        if (this.nonces_.contains(nonce)) {
+        if (nonces_.contains(nonce)) {
             errors.add(Policy.Severity.Warning, "Duplicate nonce " + nonce.toString(), index);
             return false;
         }
         else {
-            this.nonces_.add(nonce);
+            nonces_.add(nonce);
             return true;
         }
     }
 
     private boolean addHash(final Hash hash, final int index, final DirectiveErrorConsumer errors) {
-        if (this.hashes_.contains(hash)) {
+        if (hashes_.contains(hash)) {
             errors.add(Policy.Severity.Warning, "Duplicate hash " + hash.toString(), index);
             return false;
         }
@@ -181,7 +181,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
                 errors.add(Policy.Severity.Warning, "'_' and '-' in hashes can never match actual elements", index);
             }
 
-            this.hashes_.add(hash);
+            hashes_.add(hash);
             return true;
         }
     }
@@ -194,34 +194,34 @@ public class SourceExpressionDirective extends HostSourceDirective {
     // See also https://github.com/w3c/webappsec-csp/issues/431
 
     public boolean unsafeInline() {
-        return this.unsafeInline_;
+        return unsafeInline_;
     }
 
     public boolean unsafeEval() {
-        return this.unsafeEval_;
+        return unsafeEval_;
     }
 
     public boolean strictDynamic() {
-        return this.strictDynamic_;
+        return strictDynamic_;
     }
 
     public boolean unsafeHashes() {
-        return this.unsafeHashes_;
+        return unsafeHashes_;
     }
 
     public boolean reportSample() {
-        return this.reportSample_;
+        return reportSample_;
     }
 
     public boolean unsafeAllowRedirects() {
-        return this.unsafeAllowRedirects_;
+        return unsafeAllowRedirects_;
     }
 
     public List<Nonce> getNonces() {
-        return Collections.unmodifiableList(this.nonces_);
+        return Collections.unmodifiableList(nonces_);
     }
 
     public List<Hash> getHashes() {
-        return Collections.unmodifiableList(this.hashes_);
+        return Collections.unmodifiableList(hashes_);
     }
 }

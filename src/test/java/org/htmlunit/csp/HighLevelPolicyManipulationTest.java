@@ -38,8 +38,8 @@ public class HighLevelPolicyManipulationTest extends TestBase {
         private final Function<Policy, SourceExpressionDirective> get_;
 
         private SourceDirectiveKind(final String repr, final Function<Policy, SourceExpressionDirective> get) {
-            this.repr_ = repr;
-            this.get_ = get;
+            repr_ = repr;
+            get_ = get;
         }
     }
 
