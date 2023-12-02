@@ -359,76 +359,6 @@ public final class Policy {
         return newDirective;
     }
 
-    // Note that this removes all directives matching this name.
-    // Returns true if at least one directive was removed.
-    public boolean remove(final String name) {
-        boolean removed = false;
-        final String lowcaseName = name.toLowerCase(Locale.ROOT);
-        final ArrayList<NamedDirective> copy = new ArrayList<>(directives_.size());
-        for (final NamedDirective existing : directives_) {
-            if (!existing.lowcaseName_.equals(lowcaseName)) {
-                copy.add(existing);
-            }
-            else {
-                removed = true;
-            }
-        }
-        if (!removed) {
-            return false;
-        }
-        directives_ = copy;
-        switch (lowcaseName) {
-            case "base-uri": {
-                baseUri_ = null;
-                break;
-            }
-            case "block-all-mixed-content": {
-                blockAllMixedContent_ = false;
-                break;
-            }
-            case "form-action": {
-                formAction_ = null;
-                break;
-            }
-            case "frame-ancestors": {
-                frameAncestors_ = null;
-                break;
-            }
-            case "navigate-to": {
-                navigateTo_ = null;
-                break;
-            }
-            case "plugin-types": {
-                pluginTypes_ = null;
-                break;
-            }
-            case "report-to": {
-                reportTo_ = null;
-                break;
-            }
-            case "report-uri": {
-                reportUri_ = null;
-                break;
-            }
-            case "sandbox": {
-                sandbox_ = null;
-                break;
-            }
-            case "upgrade-insecure-requests": {
-                upgradeInsecureRequests_ = false;
-                break;
-            }
-            default: {
-                final FetchDirectiveKind fetchDirectiveKind = FetchDirectiveKind.fromString(lowcaseName);
-                if (fetchDirectiveKind != null) {
-                    fetchDirectives_.remove(fetchDirectiveKind);
-                }
-                break;
-            }
-        }
-        return true;
-    }
-
     @Override
     public String toString() {
         final StringBuilder out = new StringBuilder();
@@ -462,7 +392,7 @@ public final class Policy {
             if (value) {
                 return;
             }
-            remove("block-all-mixed-content");
+            blockAllMixedContent_ = false;
         }
         else {
             if (!value) {
@@ -510,7 +440,7 @@ public final class Policy {
             if (value) {
                 return;
             }
-            remove("upgrade-insecure-requests");
+            upgradeInsecureRequests_ = false;
         }
         else {
             if (!value) {

@@ -300,19 +300,6 @@ public class HighLevelPolicyManipulationTest extends TestBase {
         assertEquals("", p.toString());
     }
 
-    @Test
-    public void testWarnings() {
-        inTurkey(() -> {
-            final Policy p = Policy.parseSerializedCSP("default-src *", throwIfPolicyError_);
-            final SourceExpressionDirective d = p.getFetchDirective(FetchDirectiveKind.DefaultSrc).get();
-
-//            d.addHost(Host.parseHost("*").get(), manipulationErrorConsumer);
-//            assertErrors(
-//                    e(Directive.ManipulationErrorConsumer.Severity.Warning, "Duplicate host *")
-//            );
-        });
-    }
-
     private RFC7230Token rfc7230Token(final String token) {
         return RFC7230Token.parseRFC7230Token(token).get();
     }
