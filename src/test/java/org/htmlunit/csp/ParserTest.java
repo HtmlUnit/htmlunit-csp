@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 public class ParserTest extends TestBase {
     @Test
-    public void testEmptyPolicy() {
+    public void emptyPolicy() {
         roundTrips("");
         serializesTo(";", "");
 
@@ -34,7 +34,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testList() {
+    public void list() {
         PolicyList p = Policy.parseSerializedCSPList("DEFAULT-SRC 'NONE', default-src 'none'", throwIfPolicyListError_);
         assertEquals("DEFAULT-SRC 'NONE', default-src 'none'", p.toString());
 
@@ -56,7 +56,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testSimpleCases() {
+    public void simpleCases() {
         Policy p;
 
         p = Policy.parseSerializedCSP("base-uri a", throwIfPolicyError_);
@@ -142,7 +142,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testPreservesMalformed() {
+    public void preservesMalformed() {
         roundTrips(
                 "not-a-directive foo",
                 e(Policy.Severity.Warning, "Unrecognized directive not-a-directive", 0, -1)
@@ -261,7 +261,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testPreservesDuplicates() {
+    public void preservesDuplicates() {
         roundTrips(
                 "base-uri a; base-uri a",
                 e(Policy.Severity.Warning, "Duplicate directive base-uri", 1, -1)
@@ -401,7 +401,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testPreservesWeirdness() {
+    public void preservesWeirdness() {
         roundTrips(
                 "deFAult-src 'SeLf'"
         );
@@ -423,7 +423,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testWhitespace() {
+    public void whitespace() {
         serializesTo(
                 " default-src  a  ",
                 "default-src a"
@@ -441,7 +441,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testNone() {
+    public void none() {
         // This asserts that it serializes to the same, uppercased, value
         roundTrips(
                 "default-src 'NONE'"
@@ -469,7 +469,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testCasing() {
+    public void casing() {
         inTurkey(() -> {
             Policy p;
 
@@ -490,7 +490,7 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testWarnings() {
+    public void warnings() {
         inTurkey(() -> {
             roundTrips(
                     "default-src none",
@@ -656,14 +656,14 @@ public class ParserTest extends TestBase {
     }
 
     @Test
-    public void testAssertsAscii() {
+    public void assertsAscii() {
         assertThrows(IllegalArgumentException.class, () -> {
             Policy.parseSerializedCSP("\uD835\uDC9C", Policy.PolicyErrorConsumer.ignored);
         });
     }
 
     @Test
-    public void testAssertsNoCommas() {
+    public void assertsNoCommas() {
         assertThrows(IllegalArgumentException.class, () -> {
             Policy.parseSerializedCSP("a ,", Policy.PolicyErrorConsumer.ignored);
         });

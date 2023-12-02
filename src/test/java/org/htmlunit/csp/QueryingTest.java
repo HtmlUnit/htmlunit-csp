@@ -29,7 +29,7 @@ public class QueryingTest extends TestBase {
     static final String EXAMPLE_SHA = "sha512-O7Eu2jwpjbXeJVl/VNkk8uF+eKJq2JU+2CGO5oLwu76QIeLzAJ0VLJEb8fJexoOpAnFBZnZ6+9jlvQ+wEk7Lig=="; // sha512 of 'example'
 
     @Test
-    public void testAllowsFromSource() {
+    public void allowsFromSource() {
         PolicyInOrigin p;
 
         p = parse(
@@ -107,7 +107,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testSecureSchemes() {
+    public void secureSchemes() {
         PolicyInOrigin p;
 
         p = parse("script-src http:;", "http://example.com");
@@ -199,7 +199,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsUnsafeInline() {
+    public void allowsUnsafeInline() {
         PolicyInOrigin p;
 
         p = parse("script-src https: 'self' http://a", URI.parseURI("https://abc.com").orElse(null));
@@ -227,7 +227,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsPlugin() {
+    public void allowsPlugin() {
         assertTrue(parse("plugin-types a/b c/d").allowsPlugin(MediaType.parseMediaType("A/b")));
         assertTrue(parse("plugin-types a/b c/d").allowsPlugin(MediaType.parseMediaType("a/B")));
         assertTrue(parse("plugin-types a/b c/d").allowsPlugin(MediaType.parseMediaType("A/B")));
@@ -239,7 +239,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsHash() {
+    public void allowsHash() {
         Policy p;
 
         final String wellFormedMatching = "sha512-vSsar3708Jvp9Szi2NWZZ02Bqp1qRCFpbcTZPdBhnWgs5WtNZKnvCXdhztmeD2cmW192CF5bDufKRpayrW/isg==";
@@ -307,7 +307,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsNonce() {
+    public void allowsNonce() {
         Policy p;
 
         p = parse("script-src 'nonce-0gQAAA=='");
@@ -345,7 +345,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsScriptAttributeWithHash() {
+    public void allowsScriptAttributeWithHash() {
         Policy p;
 
         p = parse("script-src 'unsafe-hashes' '" + EXAMPLE_SHA + "'");
@@ -415,7 +415,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsConnect() {
+    public void allowsConnect() {
         PolicyInOrigin p;
 
         p = parse("default-src *:* 'unsafe-inline'; connect-src 'self' http://good.com/", "https://abc.com");
@@ -435,7 +435,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsFrameAncestor() {
+    public void allowsFrameAncestor() {
         PolicyInOrigin p;
 
         p = parse("", "https://abc.com");
@@ -470,7 +470,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testHosts() {
+    public void hosts() {
         PolicyInOrigin p;
 
         p = parse("script-src http://*.example.com/a", "http://example.com");
@@ -519,7 +519,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testPaths() {
+    public void aths() {
         PolicyInOrigin p;
 
         p = parse("script-src example.com/a", "http://example.com");
@@ -602,7 +602,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testLocalSchemes() {
+    public void localSchemes() {
         PolicyInOrigin p;
 
         p = parse("script-src *.example.com data: blob:; frame-ancestors data: about:", "http://example.com");
@@ -644,7 +644,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testStrictDynamic() {
+    public void strictDynamic() {
         PolicyInOrigin p;
 
         p = parse("default-src 'unsafe-inline' 'strict-dynamic'", "http://example.com");
@@ -720,7 +720,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testHashAndNonceInvalidateUnsafeInline() {
+    public void hashAndNonceInvalidateUnsafeInline() {
         PolicyInOrigin p;
 
         p = parse("default-src 'unsafe-inline' 'nonce-123' ", "http://example.com");
@@ -743,7 +743,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testWildcards() {
+    public void wildcards() {
         PolicyInOrigin p;
 
         p = parse("script-src *", "http://example.com");
@@ -1073,7 +1073,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsChild() {
+    public void allowsChild() {
         PolicyInOrigin p;
 
         p = parse("default-src 'none'; child-src 'self'", "http://example.com");
@@ -1108,7 +1108,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsWorker() {
+    public void allowsWorker() {
         PolicyInOrigin p;
 
         p = parse("default-src 'none'; script-src 'self'", "http://example.com");
@@ -1133,7 +1133,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowNavigationTo() {
+    public void allowNavigationTo() {
         PolicyInOrigin p;
 
         p = parse("navigate-to blob:", "http://example.com");
@@ -1174,7 +1174,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testNavigateToWithRedirects() {
+    public void navigateToWithRedirects() {
         Policy p;
 
         // If 'unsafe-allow-redirects' is absent, the post-redirect URL does not matter regardless of whether there is a redirect
@@ -1260,7 +1260,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testJavascriptUrl() {
+    public void javascriptUrl() {
         Policy p;
 
         p = parse("");
@@ -1307,7 +1307,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testAllowsEval() {
+    public void allowsEval() {
         Policy p;
 
         p = parse("");
@@ -1327,7 +1327,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testMissingInfo() {
+    public void missingInfo() {
         Policy p;
 
         p = parse("default-src *");
@@ -1414,7 +1414,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testMissingDirectives() {
+    public void missingDirectives() {
         final Policy p;
 
         p = parse("");
@@ -1446,7 +1446,7 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
-    public void testSandbox() {
+    public void sandbox() {
         Policy p;
 
         p = parse("sandbox");
