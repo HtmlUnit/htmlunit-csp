@@ -18,21 +18,30 @@ import java.util.regex.Pattern;
 
 public final class Constants {
     // https://tools.ietf.org/html/rfc3986#section-3.1
-    public static final String schemePart = "[a-zA-Z][a-zA-Z0-9+\\-.]*";
-    public static final Pattern schemePattern = Pattern.compile("^(?<scheme>" + Constants.schemePart + ":)");
+    /** SCHEME_PART = "[a-zA-Z][a-zA-Z0-9+\\-.]*". */
+    public static final String SCHEME_PART = "[a-zA-Z][a-zA-Z0-9+\\-.]*";
+    /** SCHEME_PATTERN. */
+    public static final Pattern SCHEME_PATTERN = Pattern.compile("^(?<scheme>" + Constants.SCHEME_PART + ":)");
 
     // https://tools.ietf.org/html/rfc7230#section-3.2.6
+    /** rfc7230TokenPattern. */
     public static final Pattern rfc7230TokenPattern = Pattern.compile("^[!#$%&'*+\\-.^_`|~0-9a-zA-Z]+$");
 
     // RFC 2045 appendix A: productions of type and subtype
     // https://tools.ietf.org/html/rfc2045#section-5.1
-    public static final Pattern mediaTypePattern
-                            = Pattern.compile("^(?<type>[a-zA-Z0-9!#$%^&*\\-_+{}|'.`~]+)/(?<subtype>[a-zA-Z0-9!#$%^&*\\-_+{}|'.`~]+)$");
-    public static final Pattern unquotedKeywordPattern
-                            = Pattern.compile("^(?:self|unsafe-inline|unsafe-eval|unsafe-redirect|none|strict-dynamic|unsafe-hashes|report-sample|unsafe-allow-redirects)$");
+    /** MEDIA_TYPE_PATTERN. */
+    public static final Pattern MEDIA_TYPE_PATTERN
+                = Pattern.compile("^(?<type>[a-zA-Z0-9!#$%^&*\\-_+{}|'.`~]+)"
+                        + "/(?<subtype>[a-zA-Z0-9!#$%^&*\\-_+{}|'.`~]+)$");
+    /** UNQUOTED_KEYWORD_PATTERN. */
+    public static final Pattern UNQUOTED_KEYWORD_PATTERN
+                = Pattern.compile("^(?:self|unsafe-inline|unsafe-eval|unsafe-redirect"
+                        + "|none|strict-dynamic|unsafe-hashes|report-sample|unsafe-allow-redirects)$");
 
     // port-part constants
+    /** WILDCARD_PORT = -200. */
     public static final int WILDCARD_PORT = -200;
+    /** EMPTY_PORT = -1. */
     public static final int EMPTY_PORT = -1;
 
     // https://w3c.github.io/webappsec-csp/#grammardef-host-part
@@ -51,18 +60,35 @@ public final class Constants {
 
     private static final String queryFragmentPart = "(?:\\?[^#]*)?(?:#.*)?";
 
-    public static final Pattern hostSourcePattern = Pattern.compile(
-            "^(?<scheme>" + schemePart + "://)?(?<host>" + hostPart + ")(?<port>" + portPart + ")?(?<path>" + pathPart
+    /** hostSourcePattern. */
+    public static final Pattern HOST_SOURCE_PATTERN = Pattern.compile(
+            "^(?<scheme>" + SCHEME_PART + "://)?(?<host>" + hostPart + ")(?<port>" + portPart + ")?(?<path>" + pathPart
                     + ")?" + queryFragmentPart + "$");
-    //    public static final Pattern relativeReportUriPattern =
-    //            Pattern.compile("^(?<path>" + pathPart + ")" + queryFragmentPart + "$");
-    public static final Pattern IPv4address = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+    /** IPv4address. */
+    public static final Pattern IPv4address = Pattern.compile(
+            "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+    /** IPV6loopback. */
     public static final Pattern IPV6loopback = Pattern.compile("^[0:]+:1$");
-    public static final String IPv6address = "(?:(?:(?:[0-9A-Fa-f]{1,4}:){6}|::(?:[0-9A-Fa-f]{1,4}:){5}|(?:[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){4}|(?:(?:[0-9A-Fa-f]{1,4}:){0,1}[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){3}|(?:(?:[0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){2}|(?:(?:[0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]{1,4}:|(?:(?:[0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})?::)(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))|(?:(?:[0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]{1,4}|(?:(?:[0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})?::)";
-    public static final Pattern IPv6addressWithOptionalBracket = Pattern.compile("^(?:\\[" + IPv6address + "\\]|" + IPv6address + ")$");
+    private static final String IPv6address = "(?:(?:(?:[0-9A-Fa-f]{1,4}:){6}"
+            + "|::(?:[0-9A-Fa-f]{1,4}:){5}"
+            + "|(?:[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){4}"
+            + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,1}[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){3}"
+            + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,2}[0-9A-Fa-f]{1,4})?::(?:[0-9A-Fa-f]{1,4}:){2}"
+            + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,3}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]{1,4}:"
+            + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,4}[0-9A-Fa-f]{1,4})?::)(?:[0-9A-Fa-f]{1,4}:[0-9A-Fa-f]{1,4}"
+            + "|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))"
+            + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]{1,4}"
+            + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})?::)";
+    /** IPv6addressWithOptionalBracket. */
+    public static final Pattern IPv6addressWithOptionalBracket =
+            Pattern.compile("^(?:\\[" + IPv6address + "\\]|" + IPv6address + ")$");
 
     // https://infra.spec.whatwg.org/#ascii-whitespace
+    /** WHITESPACE_CHARS = "\t\n\f\r ". */
     public static final String WHITESPACE_CHARS = "\t\n\f\r ";
+
+    /** DIRECTIVE_NAME_PATTERN. */
+    public static final Pattern DIRECTIVE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9\\-]+$");
 
     private Constants() {
         // Utility class

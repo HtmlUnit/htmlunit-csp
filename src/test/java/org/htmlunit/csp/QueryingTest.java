@@ -1473,14 +1473,14 @@ public class QueryingTest extends TestBase {
     }
 
     private Policy parse(final String policy) {
-        return Policy.parseSerializedCSP(policy, throwIfPolicyError);
+        return Policy.parseSerializedCSP(policy, throwIfPolicyError_);
     }
 
     private PolicyInOrigin parse(final String policy, final String origin) {
-        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, throwIfPolicyError), URI.parseURI(origin).orElse(null));
+        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, throwIfPolicyError_), URI.parseURI(origin).orElse(null));
     }
 
     private PolicyInOrigin parse(final String policy, final URLWithScheme origin) {
-        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, throwIfPolicyError), origin);
+        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, throwIfPolicyError_), origin);
     }
 }

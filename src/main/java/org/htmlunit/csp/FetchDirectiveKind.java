@@ -15,22 +15,55 @@
 package org.htmlunit.csp;
 
 public enum FetchDirectiveKind {
+    /** ChildSrc("child-src"). */
     ChildSrc("child-src"),
+
+    /** ConnectSrc("connect-src"). */
     ConnectSrc("connect-src"),
+
+    /** DefaultSrc("default-src"). */
     DefaultSrc("default-src"),
+
+    /** FontSrc("font-src"). */
     FontSrc("font-src"),
+
+    /** FrameSrc("frame-src"). */
     FrameSrc("frame-src"),
+
+    /** ImgSrc("img-src"). */
     ImgSrc("img-src"),
+
+    /** ManifestSrc("manifest-src"). */
     ManifestSrc("manifest-src"),
+
+    /** MediaSrc("media-src"). */
     MediaSrc("media-src"),
+
+    /** ObjectSrc("object-src"). */
     ObjectSrc("object-src"),
+
+    /** PrefetchSrc("prefetch-src"). */
     PrefetchSrc("prefetch-src"),
+
+    /** ScriptSrcAttr("script-src-attr"). */
     ScriptSrcAttr("script-src-attr"),
+
+    /** ScriptSrc("script-src"). */
     ScriptSrc("script-src"),
+
+    /** ScriptSrcElem("script-src-elem"). */
     ScriptSrcElem("script-src-elem"),
+
+    /** StyleSrcAttr("style-src-attr"). */
     StyleSrcAttr("style-src-attr"),
+
+    /** StyleSrc("style-src"). */
     StyleSrc("style-src"),
+
+    /** StyleSrcElem("style-src-elem"). */
     StyleSrcElem("style-src-elem"),
+
+    /** WorkerSrc("worker-src"). */
     WorkerSrc("worker-src");
 
     private final String repr_;

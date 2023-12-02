@@ -39,7 +39,7 @@ public final class MediaType {
     }
 
     public static Optional<MediaType> parseMediaType(final String value) {
-        final Matcher matcher = Constants.mediaTypePattern.matcher(value);
+        final Matcher matcher = Constants.MEDIA_TYPE_PATTERN.matcher(value);
         if (matcher.find()) {
             // plugin type matching is ASCII case-insensitive
             // https://w3c.github.io/webappsec-csp/#plugin-types-post-request-check

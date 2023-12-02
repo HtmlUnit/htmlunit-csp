@@ -28,8 +28,6 @@ public final class Host {
     private final int port_;
     private final String path_;
 
-    public static final Host STAR = new Host(null, "*", Constants.EMPTY_PORT, null);
-
     private Host(final String scheme, final String host, final int port, final String path) {
         this.scheme_ = scheme;
         this.host_ = host;
@@ -54,7 +52,7 @@ public final class Host {
     }
 
     public static Optional<Host> parseHost(final String value) {
-        final Matcher matcher = Constants.hostSourcePattern.matcher(value);
+        final Matcher matcher = Constants.HOST_SOURCE_PATTERN.matcher(value);
         if (matcher.find()) {
             String scheme = matcher.group("scheme");
             if (scheme != null) {

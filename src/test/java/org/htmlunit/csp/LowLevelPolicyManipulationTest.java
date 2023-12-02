@@ -32,7 +32,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
         final Policy p;
 
         // Basic ability to add directives
-        p = Policy.parseSerializedCSP("", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("", throwIfPolicyError_);
         assertFalse(p.getFetchDirective(FetchDirectiveKind.DefaultSrc).isPresent());
         add(
                 p,
@@ -94,7 +94,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     public void testRemove() {
         Policy p;
 
-        p = Policy.parseSerializedCSP("default-src a; script-src b; img-src c", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("default-src a; script-src b; img-src c", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.DefaultSrc).isPresent());
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ScriptSrc).isPresent());
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ImgSrc).isPresent());
@@ -143,7 +143,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
         });
 
         // Returns false if nothing is removed
-        p = Policy.parseSerializedCSP("default-src a; script-src b; img-src c", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("default-src a; script-src b; img-src c", throwIfPolicyError_);
         assertFalse(p.remove("font-src"));
         assertFalse(p.remove("not-a-directive"));
         assertEquals("default-src a; script-src b; img-src c", p.toString());
@@ -154,49 +154,49 @@ public class LowLevelPolicyManipulationTest extends TestBase {
         assertEquals("default-src a", p.toString());
 
         // Every kind of directive is removable
-        p = Policy.parseSerializedCSP("base-uri 'self'", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("base-uri 'self'", throwIfPolicyError_);
         assertTrue(p.baseUri().isPresent());
         assertTrue(p.remove("base-uri"));
         assertFalse(p.remove("base-uri"));
         assertFalse(p.baseUri().isPresent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("block-all-mixed-content", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("block-all-mixed-content", throwIfPolicyError_);
         assertTrue(p.blockAllMixedContent());
         assertTrue(p.remove("block-all-mixed-content"));
         assertFalse(p.remove("block-all-mixed-content"));
         assertFalse(p.blockAllMixedContent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("form-action 'self'", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("form-action 'self'", throwIfPolicyError_);
         assertTrue(p.formAction().isPresent());
         assertTrue(p.remove("form-action"));
         assertFalse(p.remove("form-action"));
         assertFalse(p.formAction().isPresent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("frame-ancestors 'self'", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("frame-ancestors 'self'", throwIfPolicyError_);
         assertTrue(p.frameAncestors().isPresent());
         assertTrue(p.remove("frame-ancestors"));
         assertFalse(p.remove("frame-ancestors"));
         assertFalse(p.frameAncestors().isPresent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("navigate-to 'self'", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("navigate-to 'self'", throwIfPolicyError_);
         assertTrue(p.navigateTo().isPresent());
         assertTrue(p.remove("navigate-to"));
         assertFalse(p.remove("navigate-to"));
         assertFalse(p.navigateTo().isPresent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("plugin-types a/b", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("plugin-types a/b", throwIfPolicyError_);
         assertTrue(p.pluginTypes().isPresent());
         assertTrue(p.remove("plugin-types"));
         assertFalse(p.remove("plugin-types"));
         assertFalse(p.pluginTypes().isPresent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("report-to 'self'", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("report-to 'self'", throwIfPolicyError_);
         assertTrue(p.reportTo().isPresent());
         assertTrue(p.remove("report-to"));
         assertFalse(p.remove("report-to"));
@@ -210,14 +210,14 @@ public class LowLevelPolicyManipulationTest extends TestBase {
         assertFalse(p.reportUri().isPresent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("sandbox allow-downloads", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("sandbox allow-downloads", throwIfPolicyError_);
         assertTrue(p.sandbox().isPresent());
         assertTrue(p.remove("sandbox"));
         assertFalse(p.remove("sandbox"));
         assertFalse(p.sandbox().isPresent());
         assertEquals("", p.toString());
 
-        p = Policy.parseSerializedCSP("upgrade-insecure-requests", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("upgrade-insecure-requests", throwIfPolicyError_);
         assertTrue(p.upgradeInsecureRequests());
         assertTrue(p.remove("upgrade-insecure-requests"));
         assertFalse(p.remove("upgrade-insecure-requests"));
@@ -228,7 +228,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsNonemptyNames() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add("", Collections.emptyList(), Directive.DirectiveErrorConsumer.ignored);
         });
     }
@@ -236,7 +236,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsAsciiInNames() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add("é", Collections.emptyList(), Directive.DirectiveErrorConsumer.ignored);
         });
     }
@@ -244,7 +244,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsNoCommasInNames() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add(",", Collections.emptyList(), Directive.DirectiveErrorConsumer.ignored);
         });
     }
@@ -252,7 +252,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsNoSemisInNames() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add(";", Collections.emptyList(), Directive.DirectiveErrorConsumer.ignored);
         });
     }
@@ -260,7 +260,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsNonemptyValues() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add("default-src", Collections.singletonList(""), Directive.DirectiveErrorConsumer.ignored);
         });
     }
@@ -268,7 +268,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsAsciiInValues() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add("default-src", Collections.singletonList("é"), Directive.DirectiveErrorConsumer.ignored);
         });
     }
@@ -276,7 +276,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsNoCommasInValues() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add("default-src", Collections.singletonList(","), Directive.DirectiveErrorConsumer.ignored);
         });
     }
@@ -284,7 +284,7 @@ public class LowLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testAddAssertsNoSemisInValues() {
         assertThrows(IllegalArgumentException.class, () -> {
-            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
             p.add("default-src", Collections.singletonList(";"), Directive.DirectiveErrorConsumer.ignored);
         });
     }

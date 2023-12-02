@@ -92,7 +92,7 @@ public abstract class HostSourceDirective extends Directive {
                 this.addScheme(asScheme.get(), index, errors);
             }
             else {
-                if (Constants.unquotedKeywordPattern.matcher(token).find()) {
+                if (Constants.UNQUOTED_KEYWORD_PATTERN.matcher(token).find()) {
                     errors.add(Policy.Severity.Warning,
                             "This host name is unusual, and likely meant to be a keyword "
                             + "that is missing the required quotes: \'" + token + "\'.", index);

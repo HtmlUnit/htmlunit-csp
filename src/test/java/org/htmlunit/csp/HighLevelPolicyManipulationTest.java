@@ -91,7 +91,7 @@ public class HighLevelPolicyManipulationTest extends TestBase {
 
             for (final SourceDirectiveKind kind : directives) {
                 final String none = "'NoNe'";
-                final Policy p = Policy.parseSerializedCSP(kind.repr_ + " " + none, throwIfPolicyError);
+                final Policy p = Policy.parseSerializedCSP(kind.repr_ + " " + none, throwIfPolicyError_);
                 final SourceExpressionDirective d = kind.get_.apply(p);
 
                 final ArrayList<Supplier<Boolean>> assertions = new ArrayList<>();
@@ -151,7 +151,7 @@ public class HighLevelPolicyManipulationTest extends TestBase {
     public void testFrameAncestorsDirective() {
         inTurkey(() -> {
             final String none = "'NoNe'";
-            final Policy p = Policy.parseSerializedCSP("frame-ancestors " + none, throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("frame-ancestors " + none, throwIfPolicyError_);
             assertTrue(p.frameAncestors().isPresent());
             final FrameAncestorsDirective d = p.frameAncestors().get();
 
@@ -186,7 +186,7 @@ public class HighLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testPluginTypesDirective() {
         inTurkey(() -> {
-            final Policy p = Policy.parseSerializedCSP("plugin-types", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("plugin-types", throwIfPolicyError_);
             final PluginTypesDirective d = p.pluginTypes().get();
 
             assertTrue(d.getMediaTypes().isEmpty());
@@ -208,7 +208,7 @@ public class HighLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testSandboxDirective() {
         inTurkey(() -> {
-            final Policy p = Policy.parseSerializedCSP("sandbox", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("sandbox", throwIfPolicyError_);
             final SandboxDirective d = p.sandbox().get();
 
             assertFalse(d.allowDownloads());
@@ -231,7 +231,7 @@ public class HighLevelPolicyManipulationTest extends TestBase {
 
     @Test
     public void testReportToDirective() {
-        Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+        Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
 
         // Setting overwrites existing
         p = Policy.parseSerializedCSP("report-to a", Policy.PolicyErrorConsumer.ignored);
@@ -255,7 +255,7 @@ public class HighLevelPolicyManipulationTest extends TestBase {
 
     @Test
     public void testBooleanDirectives() {
-        final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError);
+        final Policy p = Policy.parseSerializedCSP("", throwIfPolicyError_);
         assertFalse(p.blockAllMixedContent());
         assertFalse(p.upgradeInsecureRequests());
 
@@ -303,7 +303,7 @@ public class HighLevelPolicyManipulationTest extends TestBase {
     @Test
     public void testWarnings() {
         inTurkey(() -> {
-            final Policy p = Policy.parseSerializedCSP("default-src *", throwIfPolicyError);
+            final Policy p = Policy.parseSerializedCSP("default-src *", throwIfPolicyError_);
             final SourceExpressionDirective d = p.getFetchDirective(FetchDirectiveKind.DefaultSrc).get();
 
 //            d.addHost(Host.parseHost("*").get(), manipulationErrorConsumer);

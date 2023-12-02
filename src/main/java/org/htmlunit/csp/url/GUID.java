@@ -26,7 +26,7 @@ public class GUID extends URLWithScheme {
     }
 
     public static Optional<GUID> parseGUID(final String value) {
-        final Matcher matcher = Constants.schemePattern.matcher(value);
+        final Matcher matcher = Constants.SCHEME_PATTERN.matcher(value);
         if (!matcher.find()) {
             return Optional.empty();
         }

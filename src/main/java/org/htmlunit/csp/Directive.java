@@ -22,8 +22,11 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class Directive {
+    /** IS_DIRECTIVE_NAME. */
     public static final Predicate<String> IS_DIRECTIVE_NAME = Pattern.compile("^[A-Za-z0-9\\-]+$").asPredicate();
-    public static final Predicate<String> containsNonDirectiveCharacter = Pattern.compile("[" + Constants.WHITESPACE_CHARS + ",;]").asPredicate();
+    /** containsNonDirectiveCharacter. */
+    public static final Predicate<String> containsNonDirectiveCharacter
+                    = Pattern.compile("[" + Constants.WHITESPACE_CHARS + ",;]").asPredicate();
     private List<String> values_;
 
     protected void addValue(final String value) {
@@ -67,6 +70,7 @@ public class Directive {
         void add(Policy.Severity severity, String message,
                 int valueIndex); // index = -1 for errors not pertaining to a value
 
+        /** ignored. */
         DirectiveErrorConsumer ignored = (severity, message, valueIndex) -> { };
     }
 }

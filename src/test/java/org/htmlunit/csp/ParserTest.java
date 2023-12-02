@@ -29,13 +29,13 @@ public class ParserTest extends TestBase {
         roundTrips("");
         serializesTo(";", "");
 
-        final PolicyList p = Policy.parseSerializedCSPList("", throwIfPolicyListError);
+        final PolicyList p = Policy.parseSerializedCSPList("", throwIfPolicyListError_);
         assertEquals("", p.toString());
     }
 
     @Test
     public void testList() {
-        PolicyList p = Policy.parseSerializedCSPList("DEFAULT-SRC 'NONE', default-src 'none'", throwIfPolicyListError);
+        PolicyList p = Policy.parseSerializedCSPList("DEFAULT-SRC 'NONE', default-src 'none'", throwIfPolicyListError_);
         assertEquals("DEFAULT-SRC 'NONE', default-src 'none'", p.toString());
 
         final ArrayList<PolicyListError> observedErrors = new ArrayList<>();
@@ -59,85 +59,85 @@ public class ParserTest extends TestBase {
     public void testSimpleCases() {
         Policy p;
 
-        p = Policy.parseSerializedCSP("base-uri a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("base-uri a", throwIfPolicyError_);
         assertTrue(p.baseUri().isPresent());
 
-        p = Policy.parseSerializedCSP("block-all-mixed-content", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("block-all-mixed-content", throwIfPolicyError_);
         assertTrue(p.blockAllMixedContent());
 
-        p = Policy.parseSerializedCSP("form-action a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("form-action a", throwIfPolicyError_);
         assertTrue(p.formAction().isPresent());
 
-        p = Policy.parseSerializedCSP("frame-ancestors 'none'", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("frame-ancestors 'none'", throwIfPolicyError_);
         assertTrue(p.frameAncestors().isPresent());
 
-        p = Policy.parseSerializedCSP("navigate-to 'none'", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("navigate-to 'none'", throwIfPolicyError_);
         assertTrue(p.navigateTo().isPresent());
 
-        p = Policy.parseSerializedCSP("plugin-types a/b", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("plugin-types a/b", throwIfPolicyError_);
         assertTrue(p.pluginTypes().isPresent());
 
-        p = Policy.parseSerializedCSP("report-to a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("report-to a", throwIfPolicyError_);
         assertTrue(p.reportTo().isPresent());
 
         p = Policy.parseSerializedCSP("report-uri http://example.com", Policy.PolicyErrorConsumer.ignored);
         assertTrue(p.reportUri().isPresent());
 
-        p = Policy.parseSerializedCSP("sandbox", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("sandbox", throwIfPolicyError_);
         assertTrue(p.sandbox().isPresent());
 
-        p = Policy.parseSerializedCSP("upgrade-insecure-requests", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("upgrade-insecure-requests", throwIfPolicyError_);
         assertTrue(p.upgradeInsecureRequests());
 
-        p = Policy.parseSerializedCSP("child-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("child-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ChildSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("connect-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("connect-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ConnectSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("default-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("default-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.DefaultSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("font-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("font-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.FontSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("frame-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("frame-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.FrameSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("img-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("img-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ImgSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("manifest-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("manifest-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ManifestSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("media-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("media-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.MediaSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("object-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("object-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ObjectSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("prefetch-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("prefetch-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.PrefetchSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("script-src-attr a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("script-src-attr a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ScriptSrcAttr).isPresent());
 
-        p = Policy.parseSerializedCSP("script-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("script-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ScriptSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("script-src-elem a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("script-src-elem a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ScriptSrcElem).isPresent());
 
-        p = Policy.parseSerializedCSP("style-src-attr a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("style-src-attr a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.StyleSrcAttr).isPresent());
 
-        p = Policy.parseSerializedCSP("style-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("style-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.StyleSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("style-src-elem a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("style-src-elem a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.StyleSrcElem).isPresent());
 
-        p = Policy.parseSerializedCSP("worker-src a", throwIfPolicyError);
+        p = Policy.parseSerializedCSP("worker-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.WorkerSrc).isPresent());
     }
 
@@ -473,18 +473,18 @@ public class ParserTest extends TestBase {
         inTurkey(() -> {
             Policy p;
 
-            p = Policy.parseSerializedCSP("SCRIPT-SRC 'UNSAFE-INLINE'", throwIfPolicyError);
+            p = Policy.parseSerializedCSP("SCRIPT-SRC 'UNSAFE-INLINE'", throwIfPolicyError_);
             assertTrue(p.getFetchDirective(FetchDirectiveKind.ScriptSrc).isPresent());
             assertTrue(p.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().unsafeInline());
 
-            p = Policy.parseSerializedCSP("sandbox AlLoW-ScRiPtS", throwIfPolicyError);
+            p = Policy.parseSerializedCSP("sandbox AlLoW-ScRiPtS", throwIfPolicyError_);
             assertTrue(p.sandbox().isPresent());
             assertTrue(p.sandbox().get().allowScripts());
 
-            p = Policy.parseSerializedCSP("BLOCK-ALL-MIXED-CONTENT", throwIfPolicyError);
+            p = Policy.parseSerializedCSP("BLOCK-ALL-MIXED-CONTENT", throwIfPolicyError_);
             assertTrue(p.blockAllMixedContent());
 
-            p = Policy.parseSerializedCSP("default-src FILE:", throwIfPolicyError);
+            p = Policy.parseSerializedCSP("default-src FILE:", throwIfPolicyError_);
             assertTrue(p.getFetchDirective(FetchDirectiveKind.DefaultSrc).get().getSchemes().contains(Scheme.parseScheme("file:").get()));
         });
     }

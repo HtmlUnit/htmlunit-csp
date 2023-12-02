@@ -88,8 +88,13 @@ public final class Hash {
     }
 
     public enum Algorithm {
+        /** SHA256("sha256", 44). */
         SHA256("sha256", 44),
+
+        /** SHA384("sha384", 64). */
         SHA384("sha384", 64),
+
+        /** SHA512("sha512", 88). */
         SHA512("sha512", 88);
 
         private final String value_;
