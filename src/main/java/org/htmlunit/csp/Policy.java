@@ -66,6 +66,7 @@ public final class Policy {
     private FrameAncestorsDirective frameAncestors_;
     private SourceExpressionDirective navigateTo_;
     private PluginTypesDirective pluginTypes_;
+    private FetchDirectiveKind prefetchSrc_;
     private RFC7230Token reportTo_;
     private ReportUriDirective reportUri_;
     private SandboxDirective sandbox_;
@@ -244,7 +245,8 @@ public final class Policy {
                 break;
             }
             case "plugin-types": {
-                // https://w3c.github.io/webappsec-csp/#directive-plugin-types
+                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/plugin-types
+                directiveErrorConsumer.add(Severity.Warning,"The plugin-types directive has been deprecated", -1);
                 final PluginTypesDirective thisDirective = new PluginTypesDirective(values, directiveErrorConsumer);
                 if (pluginTypes_ == null) {
                     pluginTypes_ = thisDirective;
@@ -335,6 +337,9 @@ public final class Policy {
                 }
                 final FetchDirectiveKind fetchDirectiveKind = FetchDirectiveKind.fromString(lowcaseDirectiveName);
                 if (fetchDirectiveKind != null) {
+                    if (FetchDirectiveKind.PrefetchSrc == fetchDirectiveKind) {
+                        directiveErrorConsumer.add(Severity.Warning,"The prefetch-src directive has been deprecated", -1);
+                    }
                     final SourceExpressionDirective thisDirective
                                 = new SourceExpressionDirective(values, directiveErrorConsumer);
                     if (fetchDirectives_.containsKey(fetchDirectiveKind)) {
@@ -401,6 +406,10 @@ public final class Policy {
 
     public Optional<PluginTypesDirective> pluginTypes() {
         return Optional.ofNullable(pluginTypes_);
+    }
+
+    public Optional<FetchDirectiveKind> prefetchSrc() {
+        return Optional.ofNullable(prefetchSrc_);
     }
 
     public Optional<RFC7230Token> reportTo() {
