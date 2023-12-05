@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 
+import org.htmlunit.csp.Policy.PolicyErrorConsumer;
 import org.htmlunit.csp.value.Scheme;
 import org.junit.jupiter.api.Test;
 
@@ -74,7 +75,7 @@ public class ParserTest extends TestBase {
         p = Policy.parseSerializedCSP("navigate-to 'none'", throwIfPolicyError_);
         assertTrue(p.navigateTo().isPresent());
 
-        p = Policy.parseSerializedCSP("plugin-types a/b", throwIfPolicyError_);
+        p = Policy.parseSerializedCSP("plugin-types a/b", PolicyErrorConsumer.ignored);
         assertTrue(p.pluginTypes().isPresent());
 
         p = Policy.parseSerializedCSP("report-to a", throwIfPolicyError_);
@@ -116,7 +117,7 @@ public class ParserTest extends TestBase {
         p = Policy.parseSerializedCSP("object-src a", throwIfPolicyError_);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.ObjectSrc).isPresent());
 
-        p = Policy.parseSerializedCSP("prefetch-src a", throwIfPolicyError_);
+        p = Policy.parseSerializedCSP("prefetch-src a", PolicyErrorConsumer.ignored);
         assertTrue(p.getFetchDirective(FetchDirectiveKind.PrefetchSrc).isPresent());
 
         p = Policy.parseSerializedCSP("script-src-attr a", throwIfPolicyError_);
@@ -200,12 +201,18 @@ public class ParserTest extends TestBase {
 
         roundTrips(
                 "plugin-types a",
+                e(Policy.Severity.Warning, "The plugin-types directive has been deprecated", 0, -1),
                 e(Policy.Severity.Error, "Expecting media-type but found \"a\"", 0, 0)
         );
 
         roundTrips(
                 "report-to",
                 e(Policy.Severity.Error, "The report-to directive requires a value", 0, -1)
+        );
+
+        roundTrips(
+                "prefetch-src a",
+                e(Policy.Severity.Warning, "The prefetch-src directive has been deprecated", 0, -1)
         );
 
         roundTrips(
@@ -289,6 +296,8 @@ public class ParserTest extends TestBase {
 
         roundTrips(
                 "plugin-types a/b; plugin-types a/b",
+                e(Policy.Severity.Warning, "The plugin-types directive has been deprecated", 0, -1),
+                e(Policy.Severity.Warning, "The plugin-types directive has been deprecated", 1, -1),
                 e(Policy.Severity.Warning, "Duplicate directive plugin-types", 1, -1)
         );
 
@@ -361,6 +370,8 @@ public class ParserTest extends TestBase {
 
         roundTrips(
                 "prefetch-src a; prefetch-src a",
+                e(Policy.Severity.Warning, "The prefetch-src directive has been deprecated", 0, -1),
+                e(Policy.Severity.Warning, "The prefetch-src directive has been deprecated", 1, -1),
                 e(Policy.Severity.Warning, "Duplicate directive prefetch-src", 1, -1)
         );
 
@@ -650,6 +661,7 @@ public class ParserTest extends TestBase {
 
             roundTrips(
                     "plugin-types */*",
+                    e(Policy.Severity.Warning, "The plugin-types directive has been deprecated", 0, -1),
                     e(Policy.Severity.Warning, "Media types can only be matched literally. Make sure using `*` is not an oversight.", 0, 0)
             );
         });
@@ -679,6 +691,7 @@ public class ParserTest extends TestBase {
             observedErrors.add(e(severity, message, directiveIndex, valueIndex));
         };
         final Policy policy = Policy.parseSerializedCSP(input, consumer);
+        // observedErrors.forEach(error -> System.out.println(error));
         assertEquals(errors.length, observedErrors.size());
         for (int i = 0; i < errors.length; ++i) {
             assertEquals(errors[i], observedErrors.get(i));
