@@ -19,7 +19,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
@@ -246,7 +245,7 @@ public final class Policy {
             }
             case "plugin-types": {
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/plugin-types
-                directiveErrorConsumer.add(Severity.Warning,"The plugin-types directive has been deprecated", -1);
+                directiveErrorConsumer.add(Severity.Warning, "The plugin-types directive has been deprecated", -1);
                 final PluginTypesDirective thisDirective = new PluginTypesDirective(values, directiveErrorConsumer);
                 if (pluginTypes_ == null) {
                     pluginTypes_ = thisDirective;
@@ -338,7 +337,8 @@ public final class Policy {
                 final FetchDirectiveKind fetchDirectiveKind = FetchDirectiveKind.fromString(lowcaseDirectiveName);
                 if (fetchDirectiveKind != null) {
                     if (FetchDirectiveKind.PrefetchSrc == fetchDirectiveKind) {
-                        directiveErrorConsumer.add(Severity.Warning,"The prefetch-src directive has been deprecated", -1);
+                        directiveErrorConsumer.add(Severity.Warning,
+                                                    "The prefetch-src directive has been deprecated", -1);
                     }
                     final SourceExpressionDirective thisDirective
                                 = new SourceExpressionDirective(values, directiveErrorConsumer);
@@ -583,11 +583,9 @@ public final class Policy {
             }
             return true;
         }
-        else {
-            // this isn't implemented like other fallbacks because
-            // it isn't one: form-action does not respect unsafe-allow-redirects
-            return allowsNavigation(to, redirected, redirectedTo, origin);
-        }
+        // this isn't implemented like other fallbacks because
+        // it isn't one: form-action does not respect unsafe-allow-redirects
+        return allowsNavigation(to, redirected, redirectedTo, origin);
     }
 
     // NB: the hashes (for unsafe-hashes) are supposed to include the javascript: part, per spec
@@ -1074,12 +1072,7 @@ public final class Policy {
     }
 
     private static String stripTrailingWhitespace(final String string) {
-        return string.replaceAll("[" + Constants.WHITESPACE_CHARS + "]+$", "");
-    }
-
-    private static boolean containsLeadingWhitespace(final String string) {
-        final Matcher matcher = Pattern.compile("[" + Constants.WHITESPACE_CHARS + "]+").matcher(string);
-        return matcher.find() && matcher.start() == 0;
+        return Constants.TRAILING_WHITESPACE_PATTERN.matcher(string).replaceAll("");
     }
 
     private static String collect(final String input, final String regex) {
@@ -1093,12 +1086,10 @@ public final class Policy {
     private static final class NamedDirective {
         private final String name_;
         private final Directive directive_;
-        private final String lowcaseName_;
 
         private NamedDirective(final String name, final Directive directive) {
             name_ = name;
             directive_ = directive;
-            lowcaseName_ = name_.toLowerCase(Locale.ROOT);
         }
     }
 

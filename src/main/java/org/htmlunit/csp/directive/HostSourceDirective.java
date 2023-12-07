@@ -114,13 +114,12 @@ public abstract class HostSourceDirective extends Directive {
             errors.add(Policy.Severity.Warning, "Duplicate scheme " + scheme, index);
             return false;
         }
-        else {
-            // TODO check if this subsumes or is subsumed by any existing scheme/host
-            // NB we add it even if it subsumes or is subsumed by existing things,
-            // since it's still valid and not a duplicate
-            schemes_.add(scheme);
-            return true;
-        }
+
+        // TODO check if this subsumes or is subsumed by any existing scheme/host
+        // NB we add it even if it subsumes or is subsumed by existing things,
+        // since it's still valid and not a duplicate
+        schemes_.add(scheme);
+        return true;
     }
 
     private boolean addHostSource(final Host source, final int index, final DirectiveErrorConsumer errors) {
@@ -128,11 +127,10 @@ public abstract class HostSourceDirective extends Directive {
             errors.add(Policy.Severity.Warning, "Duplicate host " + source.toString(), index);
             return false;
         }
-        else {
-            // TODO check if this subsumes or is subsumed by any existing scheme/host
-            hosts_.add(source);
-            return true;
-        }
+
+        // TODO check if this subsumes or is subsumed by any existing scheme/host
+        hosts_.add(source);
+        return true;
     }
 
     public boolean star() {

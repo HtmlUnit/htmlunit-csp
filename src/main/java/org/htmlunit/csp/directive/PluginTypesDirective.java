@@ -49,15 +49,14 @@ public class PluginTypesDirective extends Directive {
             errors.add(Policy.Severity.Warning, "Duplicate media type " + type.toString(), index);
             return false;
         }
-        else {
-            if (type.getType().equals("*") || type.getSubtype().equals("*")) {
-                errors.add(Policy.Severity.Warning,
-                            "Media types can only be matched literally. Make sure using `*` is not an oversight.",
-                            index);
-            }
-            mediaTypes_.add(type);
-            return true;
+
+        if (type.getType().equals("*") || type.getSubtype().equals("*")) {
+            errors.add(Policy.Severity.Warning,
+                        "Media types can only be matched literally. Make sure using `*` is not an oversight.",
+                        index);
         }
+        mediaTypes_.add(type);
+        return true;
     }
 
     public List<MediaType> getMediaTypes() {

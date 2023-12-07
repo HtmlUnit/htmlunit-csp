@@ -158,10 +158,9 @@ public class SourceExpressionDirective extends HostSourceDirective {
             errors.add(Policy.Severity.Warning, "Duplicate nonce " + nonce.toString(), index);
             return false;
         }
-        else {
-            nonces_.add(nonce);
-            return true;
-        }
+
+        nonces_.add(nonce);
+        return true;
     }
 
     private boolean addHash(final Hash hash, final int index, final DirectiveErrorConsumer errors) {
@@ -169,21 +168,20 @@ public class SourceExpressionDirective extends HostSourceDirective {
             errors.add(Policy.Severity.Warning, "Duplicate hash " + hash.toString(), index);
             return false;
         }
-        else {
-            if (hash.getBase64ValuePart().length() != hash.getAlgorithm().getLength()) {
-                errors.add(Policy.Severity.Warning,
-                        "Wrong length for " + hash.getAlgorithm().toString()
-                        + ": expected " + hash.getAlgorithm().getLength()
-                        + ", got " + hash.getBase64ValuePart().length(), index);
-            }
 
-            if (hash.getBase64ValuePart().contains("_") || hash.getBase64ValuePart().contains("-")) {
-                errors.add(Policy.Severity.Warning, "'_' and '-' in hashes can never match actual elements", index);
-            }
-
-            hashes_.add(hash);
-            return true;
+        if (hash.getBase64ValuePart().length() != hash.getAlgorithm().getLength()) {
+            errors.add(Policy.Severity.Warning,
+                    "Wrong length for " + hash.getAlgorithm().toString()
+                    + ": expected " + hash.getAlgorithm().getLength()
+                    + ", got " + hash.getBase64ValuePart().length(), index);
         }
+
+        if (hash.getBase64ValuePart().contains("_") || hash.getBase64ValuePart().contains("-")) {
+            errors.add(Policy.Severity.Warning, "'_' and '-' in hashes can never match actual elements", index);
+        }
+
+        hashes_.add(hash);
+        return true;
     }
 
     // Accessors

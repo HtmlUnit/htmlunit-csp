@@ -79,9 +79,8 @@ public final class Host {
             // (IDN isn't that bad because we restrict to ascii)
             return Optional.of(new Host(scheme, host, port, path));
         }
-        else {
-            return Optional.empty();
-        }
+
+        return Optional.empty();
     }
 
     @Override

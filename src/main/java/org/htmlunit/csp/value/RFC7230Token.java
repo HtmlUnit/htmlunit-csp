@@ -36,9 +36,8 @@ public final class RFC7230Token {
         if (matcher.find()) {
             return Optional.of(new RFC7230Token(value));
         }
-        else {
-            return Optional.empty();
-        }
+
+        return Optional.empty();
     }
 
     @Override
