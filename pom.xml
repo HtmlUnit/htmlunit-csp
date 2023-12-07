@@ -254,6 +254,12 @@
             <url>http://www.wetator.org/</url>
             <timezone>+1</timezone>
         </developer>
+        <developer>
+            <name>Sergey Shekyan</name>
+        </developer>
+        <developer>
+            <name>Michael Ficarra</name>
+        </developer>
     </developers>
     <contributors>
         <contributor>
