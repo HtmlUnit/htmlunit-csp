@@ -256,6 +256,9 @@
         </developer>
     </developers>
     <contributors>
+        <contributor>
+            <name>Rick M</name>
+        </contributor>
     </contributors>
 
     <dependencies>
