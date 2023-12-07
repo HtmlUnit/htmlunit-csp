@@ -57,6 +57,14 @@ public class ParserTest extends TestBase {
     }
 
     @Test
+    void referrerDirectiveShouldWarn() {
+        serializesTo(
+                "referrer no-referrer", "referrer",
+                e(Policy.Severity.Warning, "The referrer directive has been deprecated in favor of the Referrer-Policy header", 0, -1)
+        );
+    }
+
+    @Test
     public void simpleCases() {
         Policy p;
 

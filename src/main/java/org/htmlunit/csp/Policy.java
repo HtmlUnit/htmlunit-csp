@@ -19,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
@@ -282,6 +283,15 @@ public final class Policy {
                     wasDupe = true;
                 }
                 newDirective = new Directive(values);
+                break;
+            }
+            case "referrer": {
+                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/referrer
+                directiveErrorConsumer.add(Severity.Warning,
+                        "The referrer directive has been deprecated in favor of the Referrer-Policy header",
+                        -1);
+                // We don't currently handle it further than this.
+                newDirective = new Directive(Collections.emptyList());
                 break;
             }
             case "report-uri": {
