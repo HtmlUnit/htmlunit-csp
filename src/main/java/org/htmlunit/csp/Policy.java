@@ -171,20 +171,20 @@ public final class Policy {
         final Directive newDirective;
         final String lowcaseDirectiveName = name.toLowerCase(Locale.ROOT);
         switch (lowcaseDirectiveName) {
-            case "base-uri": {
+            case "base-uri":
                 // https://w3c.github.io/webappsec-csp/#directive-base-uri
-                final SourceExpressionDirective thisDirective
+                final SourceExpressionDirective baseUriDirective
                         = new SourceExpressionDirective(values, directiveErrorConsumer);
                 if (baseUri_ == null) {
-                    baseUri_ = thisDirective;
+                    baseUri_ = baseUriDirective;
                 }
                 else {
                     wasDupe = true;
                 }
-                newDirective = thisDirective;
+                newDirective = baseUriDirective;
                 break;
-            }
-            case "block-all-mixed-content": {
+
+            case "block-all-mixed-content":
                 // https://www.w3.org/TR/mixed-content/#strict-opt-in
                 if (!blockAllMixedContent_) {
                     if (!values.isEmpty()) {
@@ -198,64 +198,65 @@ public final class Policy {
                 }
                 newDirective = new Directive(values);
                 break;
-            }
-            case "form-action": {
+
+            case "form-action":
                 // https://w3c.github.io/webappsec-csp/#directive-form-action
-                final SourceExpressionDirective thisDirective
-                                = new SourceExpressionDirective(values, directiveErrorConsumer);
+                final SourceExpressionDirective formActionDirective
+                        = new SourceExpressionDirective(values, directiveErrorConsumer);
                 if (formAction_ == null) {
-                    formAction_ = thisDirective;
+                    formAction_ = formActionDirective;
                 }
                 else {
                     wasDupe = true;
                 }
-                newDirective = thisDirective;
+                newDirective = formActionDirective;
                 break;
-            }
-            case "frame-ancestors": {
+
+            case "frame-ancestors":
                 // https://w3c.github.io/webappsec-csp/#directive-frame-ancestors
                 // TODO contemplate warning for paths, which are always ignored: frame-ancestors only matches
                 // against origins: https://w3c.github.io/webappsec-csp/#frame-ancestors-navigation-response
-                final FrameAncestorsDirective thisDirective
-                            = new FrameAncestorsDirective(values, directiveErrorConsumer);
+                final FrameAncestorsDirective frameAncestorsDirective
+                        = new FrameAncestorsDirective(values, directiveErrorConsumer);
                 if (frameAncestors_ == null) {
-                    frameAncestors_ = thisDirective;
+                    frameAncestors_ = frameAncestorsDirective;
                 }
                 else {
                     wasDupe = true;
                 }
-                newDirective = thisDirective;
+                newDirective = frameAncestorsDirective;
                 break;
-            }
-            case "navigate-to": {
+
+            case "navigate-to":
                 // https://w3c.github.io/webappsec-csp/#directive-navigate-to
                 // For some ungodly reason "navigate-to" is a list of source expressions while "frame-ancestors" is not
                 // There is no logic here
-                final SourceExpressionDirective thisDirective
-                            = new SourceExpressionDirective(values, directiveErrorConsumer);
+                final SourceExpressionDirective navigateToDirective
+                        = new SourceExpressionDirective(values, directiveErrorConsumer);
                 if (navigateTo_ == null) {
-                    navigateTo_ = thisDirective;
+                    navigateTo_ = navigateToDirective;
                 }
                 else {
                     wasDupe = true;
                 }
-                newDirective = thisDirective;
+                newDirective = navigateToDirective;
                 break;
-            }
-            case "plugin-types": {
+
+            case "plugin-types":
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/plugin-types
                 directiveErrorConsumer.add(Severity.Warning, "The plugin-types directive has been deprecated", -1);
-                final PluginTypesDirective thisDirective = new PluginTypesDirective(values, directiveErrorConsumer);
+                final PluginTypesDirective pluginTypesDirective
+                        = new PluginTypesDirective(values, directiveErrorConsumer);
                 if (pluginTypes_ == null) {
-                    pluginTypes_ = thisDirective;
+                    pluginTypes_ = pluginTypesDirective;
                 }
                 else {
                     wasDupe = true;
                 }
-                newDirective = thisDirective;
+                newDirective = pluginTypesDirective;
                 break;
-            }
-            case "report-to": {
+
+            case "report-to":
                 // https://w3c.github.io/webappsec-csp/#directive-report-to
                 if (reportTo_ == null) {
                     if (values.isEmpty()) {
@@ -282,8 +283,8 @@ public final class Policy {
                 }
                 newDirective = new Directive(values);
                 break;
-            }
-            case "referrer": {
+
+            case "referrer":
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/referrer
                 directiveErrorConsumer.add(Severity.Warning,
                         "The referrer directive has been deprecated in favor of the Referrer-Policy header",
@@ -291,35 +292,35 @@ public final class Policy {
                 // We don't currently handle it further than this.
                 newDirective = new Directive(Collections.emptyList());
                 break;
-            }
-            case "report-uri": {
+
+            case "report-uri":
                 // https://w3c.github.io/webappsec-csp/#directive-report-uri
                 directiveErrorConsumer.add(Severity.Warning,
                         "The report-uri directive has been deprecated in favor of the new report-to directive", -1);
 
-                final ReportUriDirective thisDirective = new ReportUriDirective(values, directiveErrorConsumer);
+                final ReportUriDirective reportUriDirective = new ReportUriDirective(values, directiveErrorConsumer);
                 if (reportUri_ == null) {
-                    reportUri_ = thisDirective;
+                    reportUri_ = reportUriDirective;
                 }
                 else {
                     wasDupe = true;
                 }
-                newDirective = thisDirective;
+                newDirective = reportUriDirective;
                 break;
-            }
-            case "sandbox": {
+
+            case "sandbox":
                 // https://w3c.github.io/webappsec-csp/#directive-sandbox
-                final SandboxDirective thisDirective = new SandboxDirective(values, directiveErrorConsumer);
+                final SandboxDirective sandboxDirective = new SandboxDirective(values, directiveErrorConsumer);
                 if (sandbox_ == null) {
-                    sandbox_ = thisDirective;
+                    sandbox_ = sandboxDirective;
                 }
                 else {
                     wasDupe = true;
                 }
-                newDirective = thisDirective;
+                newDirective = sandboxDirective;
                 break;
-            }
-            case "upgrade-insecure-requests": {
+
+            case "upgrade-insecure-requests":
                 // https://www.w3.org/TR/upgrade-insecure-requests/#delivery
                 if (!upgradeInsecureRequests_) {
                     if (!values.isEmpty()) {
@@ -333,8 +334,8 @@ public final class Policy {
                 }
                 newDirective = new Directive(values);
                 break;
-            }
-            default: {
+
+            default:
                 if (!Directive.IS_DIRECTIVE_NAME.test(name)) {
                     directiveErrorConsumer.add(Severity.Error,
                                     "Directive name " + name
@@ -362,7 +363,6 @@ public final class Policy {
                 directiveErrorConsumer.add(Severity.Warning, "Unrecognized directive " + lowcaseDirectiveName, -1);
                 newDirective = new Directive(values);
                 break;
-            }
         }
 
         directives_.add(new NamedDirective(name, newDirective));
@@ -1104,21 +1104,29 @@ public final class Policy {
     // Info: strictly informative
     // Warning: it matches the grammar, but is meaningless, duplicated, or otherwise problematic
     // Error: it does not match the grammar
-    public enum Severity { Info, Warning, Error }
+    public enum Severity {
+            /** Severity Info. */
+            Info,
+            /** Severity Warning. */
+            Warning,
+            /** Severity Error. */
+            Error }
 
     @FunctionalInterface
     public interface PolicyErrorConsumer {
-        void add(Severity severity, String message, int directiveIndex,
-                int valueIndex); // valueIndex = -1 for errors not pertaining to a value
+        // valueIndex = -1 for errors not pertaining to a value
+        void add(Severity severity, String message, int directiveIndex, int valueIndex);
 
+        /** PolicyErrorConsumer ignored. */
         PolicyErrorConsumer ignored = (severity, message, directiveIndex, valueIndex) -> { };
     }
 
     @FunctionalInterface
     public interface PolicyListErrorConsumer {
-        void add(Severity severity, String message, int policyIndex, int directiveIndex,
-                int valueIndex); // valueIndex = -1 for errors not pertaining to a value
+        // valueIndex = -1 for errors not pertaining to a value
+        void add(Severity severity, String message, int policyIndex, int directiveIndex, int valueIndex);
 
+        /** PolicyListErrorConsumer ignored. */
         PolicyListErrorConsumer ignored = (severity, message, policyIndex, directiveIndex, valueIndex) -> { };
     }
 }

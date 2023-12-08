@@ -1474,7 +1474,7 @@ public class QueryingTest extends TestBase {
     }
 
     private Policy parse(final String policy) {
-        return Policy.parseSerializedCSP(policy, throwIfPolicyError_);
+        return Policy.parseSerializedCSP(policy, ThrowIfPolicyError);
     }
 
     private Policy parse(final String policy, final PolicyErrorConsumer errorConsumer) {
@@ -1482,11 +1482,11 @@ public class QueryingTest extends TestBase {
     }
 
     private PolicyInOrigin parse(final String policy, final String origin) {
-        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, throwIfPolicyError_), URI.parseURI(origin).orElse(null));
+        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, ThrowIfPolicyError), URI.parseURI(origin).orElse(null));
     }
 
     private PolicyInOrigin parse(final String policy, final URLWithScheme origin) {
-        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, throwIfPolicyError_), origin);
+        return new PolicyInOrigin(Policy.parseSerializedCSP(policy, ThrowIfPolicyError), origin);
     }
 
     private PolicyInOrigin parse(final String policy, final URLWithScheme origin, final PolicyErrorConsumer errorConsumer) {

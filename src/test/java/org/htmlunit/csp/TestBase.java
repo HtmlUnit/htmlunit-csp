@@ -17,18 +17,32 @@ package org.htmlunit.csp;
 import java.util.Locale;
 import java.util.Objects;
 
-public class TestBase {
-    final Policy.PolicyListErrorConsumer throwIfPolicyListError_ = (severity, message, policyIndex, directiveIndex, valueIndex) -> {
-        throw new RuntimeException(new PolicyListError(severity, message, policyIndex, directiveIndex, valueIndex).toString());
-    };
+public abstract class TestBase {
+    /**
+     * Policy.PolicyListErrorConsumer that throws.
+     */
+    public static final Policy.PolicyListErrorConsumer ThrowIfPolicyListError
+                    = (severity, message, policyIndex, directiveIndex, valueIndex) -> {
+                        throw new RuntimeException(
+                                new PolicyListError(severity, message, policyIndex, directiveIndex, valueIndex).toString());
+                    };
 
-    final Policy.PolicyErrorConsumer throwIfPolicyError_ = (severity, message, directiveIndex, valueIndex) -> {
-        throw new RuntimeException(new PolicyError(severity, message, directiveIndex, valueIndex).toString());
-    };
+    /**
+     * Policy.PolicyListErrorConsumer that throws.
+     */
+    public static final Policy.PolicyErrorConsumer ThrowIfPolicyError
+                    = (severity, message, directiveIndex, valueIndex) -> {
+                        throw new RuntimeException(new PolicyError(severity, message, directiveIndex, valueIndex).toString());
+                    };
 
-    final Directive.DirectiveErrorConsumer throwIfDirectiveError_ = (severity, message, valueIndex) -> {
-        throw new RuntimeException(new DirectiveError(severity, message, valueIndex).toString());
-    };
+    /**
+     * Policy.PolicyListErrorConsumer that throws.
+     */
+    public static final Directive.DirectiveErrorConsumer ThrowIfDirectiveError
+                    = (severity, message, valueIndex) -> {
+                        throw new RuntimeException(
+                                new DirectiveError(severity, message, valueIndex).toString());
+                    };
 
     static void inTurkey(final Runnable r) {
         final Locale current = Locale.getDefault();
