@@ -1,12 +1,15 @@
 # HtmlUnit - CSP
 
+This is a general purpose library for working with Content Security Policy policies.
+
+* parse CSP policies into an easy-to-use representation
+* ask questions about what a CSP policy allows or restricts
+* warn about nonsensical CSP policies and deprecated or nonstandard features
+
 This is the code repository of the Content Security Policy support used by HtmlUnit.
 
-The library was created by forking the [salvation][5] project
-as it is apparently no longer maintained.
-
-For HtmlUnit, the code has been adapted to the code style rules used, and support for editing policies has been removed.
-
+The library was created by forking the [salvation][5] project as it is apparently no longer maintained.  
+For HtmlUnit, the code has been adapted to the code style rules used, and support for editing policies has been removed.  
 The code is being expanded, restructured and improved primarily to meet the requirements of this project.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.htmlunit/htmlunit-csp/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.htmlunit/htmlunit-csp)
@@ -37,6 +40,59 @@ Add to your `build.gradle`:
 
 ```groovy
 implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '3.9.0'
+```
+
+### A Note on CSP
+
+The [CSP specification](https://www.w3.org/TR/CSP3/) is fairly complex even if you only care about the latest version. However, in practice you are likely to care that your policy does the things you intend it to on the browsers you care about, which are likely to implement different and potentially broken subsets of the specification (and potentially additional behavior which is not in the specification). And there are inevitable tradeoffs to be made regarding the size of your policy vs the security it provides.
+
+As such, this project does not attempt to provide a one-size-fits-all way to manipulate a policy purely in terms of its effects - the full set of effects across all browsers is too vast to provide an effective API in general. It can help you build up a policy based on the directives and source-expressions you want, but to ensure your policy is correct, for your own definition of correct, there is no alternative to testing it on the real browsers you care about.
+
+
+### Create a Policy
+
+Parse a policy using either `Policy.parseSerializedCSP` or `Policy.parseSerializedCSPList`. The second parameter will be called for each warning or error.
+
+```java
+String policyText = "script-src 'none'";
+Policy policy = Policy.parseSerializedCSP(policyText, (severity, message, directiveIndex, valueIndex) -> {
+  System.err.println(severity.name() + " at directive " + directiveIndex + (valueIndex == -1 ? "" : " at value " + valueIndex) + ": " + message);
+});
+```
+
+### Query a Policy
+
+The high-level querying methods allow you to specify whatever relevant information you have. The missing information will be assumed to be worst-case - that is, these methods will return `true` only if any object which matches the provided characteristics would be allowed, regardless of its other characteristics. 
+
+```java
+Policy policy = Policy.parseSerializedCSP("script-src http://a", Policy.PolicyErrorConsumer.ignored);
+
+// true
+System.out.println(policy.allowsExternalScript(
+  Optional.empty(),
+  Optional.empty(),
+  Optional.of(URI.parse("http://a")),
+  Optional.empty(),
+  Optional.empty()
+));
+
+// false
+System.out.println(policy.allowsExternalScript(
+  Optional.empty(),
+  Optional.empty(),
+  Optional.empty(),
+  Optional.empty(),
+  Optional.empty()
+));
+```
+
+Because the `Policy` objects are rich structures, you can also ask about the presence or absence of specific directives or expressions:
+
+```java
+Policy policy = Policy.parseSerializedCSP("script-src 'strict-dynamic'", Policy.PolicyErrorConsumer.ignored);
+
+// Assumes the policy has a `script-src` directive (or else the `get` would throw), and checks if it contains the `'strict-dynamic'` source expression
+System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().strictDynamic());
 ```
 
 ### Last CI build
