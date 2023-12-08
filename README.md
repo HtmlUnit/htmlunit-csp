@@ -99,7 +99,7 @@ System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().
 The latest builds are available from our
 [Jenkins CI build server][2]
 
-[![Build Status](https://jenkins.wetator.org/buildStatus/icon?job=HtmlUnit+-+csp)](https://jenkins.wetator.org/job/HtmlUnit%20-%20csp/)
+[![Build Status](https://jenkins.wetator.org/buildStatus/icon?job=HtmlUnit+-+CSP)](https://jenkins.wetator.org/job/HtmlUnit%20-%20CSP/)
 
 If you use maven please add:
 
