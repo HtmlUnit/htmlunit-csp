@@ -153,8 +153,6 @@ public final class Policy {
         return policy;
     }
 
-    // Manipulation APIs
-
     // We do not provide a generic method for updating an existing directive in-place.
     // Just remove the existing one and add it back.
     private Directive add(final String name, final List<String> values,
@@ -1078,7 +1076,7 @@ public final class Policy {
     }
 
     private static String stripLeadingWhitespace(final String string) {
-        return string.replaceFirst("^[" + Constants.WHITESPACE_CHARS + "]+", "");
+        return Constants.LEADING_WHITESPACE_PATTERN.matcher(string).replaceFirst("");
     }
 
     private static String stripTrailingWhitespace(final String string) {

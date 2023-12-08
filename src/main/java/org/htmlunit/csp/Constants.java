@@ -88,6 +88,8 @@ public final class Constants {
     public static final String WHITESPACE_CHARS = "\t\n\f\r ";
     /** TRAILING_WHITESPACE_PATTERN. */
     public static final Pattern TRAILING_WHITESPACE_PATTERN = Pattern.compile("[" + Constants.WHITESPACE_CHARS + "]+$");
+    /** LEADING_WHITESPACE_PATTERN. */
+    public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("^[" + Constants.WHITESPACE_CHARS + "]+");
 
     /** DIRECTIVE_NAME_PATTERN. */
     public static final Pattern DIRECTIVE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9\\-]+$");
