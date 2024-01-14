@@ -20,7 +20,7 @@ The code is being expanded, restructured and improved primarily to meet the requ
 
 [HtmlUnit@mastodon][4] | [HtmlUnit@Twitter][3]
 
-### Latest release Version 3.9.0 / December 03, 2023
+### Latest release Version 3.10.0 / January 14, 2024
 
 ### Maven
 
@@ -30,7 +30,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>3.9.0</version>
+    <version>3.10.0</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```groovy
-implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '3.9.0'
+implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '3.10.0'
 ```
 
 ### A Note on CSP
@@ -106,7 +106,7 @@ If you use maven please add:
     <dependency>
         <groupId>org.htmlunit</groupId>
         <artifactId>htmlunit-csp</artifactId>
-        <version>3.10.0-SNAPSHOT</version>
+        <version>3.11.0-SNAPSHOT</version>
     </dependency>
 
 You have to add the sonatype snapshot repository to your pom `repositories` section also:
@@ -178,7 +178,7 @@ This part is intended for committer who are packaging a release.
 * Create the version on Github
     * login to Github and open project https://github.com/HtmlUnit/htmlunit-csp
     * click Releases > Draft new release
-    * fill the tag and title field with the release number (e.g. 3.9.0)
+    * fill the tag and title field with the release number (e.g. 3.10.0)
     * append 
         * htmlunit-csp-3.x.x.jar
         * htmlunit-csp-3.x.x.jar.asc 
