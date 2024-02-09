@@ -20,7 +20,7 @@ The code is being expanded, restructured and improved primarily to meet the requ
 
 [HtmlUnit@mastodon][4] | [HtmlUnit@Twitter][3]
 
-### Latest release Version 3.10.0 / January 14, 2024
+### Latest release Version 3.11.0 / February 10, 2024
 
 ### Maven
 
@@ -30,7 +30,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>3.10.0</version>
+    <version>3.11.0</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```groovy
-implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '3.10.0'
+implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '3.11.0'
 ```
 
 ### A Note on CSP
@@ -106,7 +106,7 @@ If you use maven please add:
     <dependency>
         <groupId>org.htmlunit</groupId>
         <artifactId>htmlunit-csp</artifactId>
-        <version>3.11.0-SNAPSHOT</version>
+        <version>3.12.0-SNAPSHOT</version>
     </dependency>
 
 You have to add the sonatype snapshot repository to your pom `repositories` section also:
