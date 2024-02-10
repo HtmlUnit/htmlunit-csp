@@ -36,7 +36,8 @@ public final class Constants {
     /** UNQUOTED_KEYWORD_PATTERN. */
     public static final Pattern UNQUOTED_KEYWORD_PATTERN
                 = Pattern.compile("^(?:self|unsafe-inline|unsafe-eval|unsafe-redirect"
-                        + "|none|strict-dynamic|unsafe-hashes|report-sample|unsafe-allow-redirects)$");
+                        + "|none|strict-dynamic|unsafe-hashes|report-sample|unsafe-allow-redirects|"
+                        + "wasm-unsafe-eval)$");
 
     // port-part constants
     /** WILDCARD_PORT = -200. */
