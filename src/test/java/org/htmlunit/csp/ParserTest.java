@@ -532,6 +532,11 @@ public class ParserTest extends TestBase {
             );
 
             roundTrips(
+                    "script-src 'wasm-unsafe-eval' 'WASM-UNSAFE-EVAL'",
+                    e(Policy.Severity.Warning, "Duplicate source-expression 'wasm-unsafe-eval'", 0, 1)
+            );
+
+            roundTrips(
                     "default-src 'unsafe-hashes' 'UNSAFE-HASHES'",
                     e(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-hashes'", 0, 1)
             );

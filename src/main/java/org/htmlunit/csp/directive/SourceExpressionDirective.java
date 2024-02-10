@@ -31,12 +31,15 @@ public class SourceExpressionDirective extends HostSourceDirective {
     private static final String UNSAFE_ALLOW_REDIRECTS = "'unsafe-allow-redirects'";
     private static final String UNSAFE_EVAL = "'unsafe-eval'";
     private static final String UNSAFE_HASHES = "'unsafe-hashes'";
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_webassembly_execution
+    private static final String WASM_UNSAFE_EVAL = "'wasm-unsafe-eval'";
     private boolean unsafeInline_;
     private boolean unsafeEval_;
     private boolean strictDynamic_;
     private boolean unsafeHashes_;
     private boolean reportSample_;
     private boolean unsafeAllowRedirects_;
+    private boolean unsafeWasm_;
 
     // In practice, these are probably small enough for Lists to be faster than LinkedHashSets
     private final List<Nonce> nonces_ = new ArrayList<>();
@@ -82,6 +85,14 @@ public class SourceExpressionDirective extends HostSourceDirective {
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-hashes'", index);
+                    }
+                    break;
+                case WASM_UNSAFE_EVAL:
+                    if (!unsafeWasm_) {
+                        unsafeWasm_ = true;
+                    }
+                    else {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression " + WASM_UNSAFE_EVAL, index);
                     }
                     break;
                 case REPORT_SAMPLE:
