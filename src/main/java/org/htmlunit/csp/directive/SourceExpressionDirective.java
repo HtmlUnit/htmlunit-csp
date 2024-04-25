@@ -31,7 +31,12 @@ public class SourceExpressionDirective extends HostSourceDirective {
     private static final String UNSAFE_ALLOW_REDIRECTS = "'unsafe-allow-redirects'";
     private static final String UNSAFE_EVAL = "'unsafe-eval'";
     private static final String UNSAFE_HASHES = "'unsafe-hashes'";
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src#unsafe_webassembly_execution
+
+    /**
+     * <a href="https://developer.mozilla.org/en-US/docs/Web/
+     * HTTP/Headers/Content-Security-Policy/script-src#unsafe_webassembly_execution">
+     * Unsafe WebAssembly execution</a>
+     */
     private static final String WASM_UNSAFE_EVAL = "'wasm-unsafe-eval'";
     private boolean unsafeInline_;
     private boolean unsafeEval_;
