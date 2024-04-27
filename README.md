@@ -20,7 +20,7 @@ The code is being expanded, restructured and improved primarily to meet the requ
 
 [HtmlUnit@mastodon][4] | [HtmlUnit@Twitter][3]
 
-### Latest release Version 4.1.0 / April 8, 2024
+### Latest release Version 4.1.0 / April 28, 2024
 
 ### Maven
 
