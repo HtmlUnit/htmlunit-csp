@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -20,11 +20,11 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
 
-        <dependencycheck.version>8.4.0</dependencycheck.version>
-        <spotbugs.version>4.8.4</spotbugs.version>
+        <checkstyle.version>10.17.0</checkstyle.version>
+        <spotbugs.version>4.8.5</spotbugs.version>
         <pmd.version>6.55.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
-        <dependencycheck.version>9.1.0</dependencycheck.version>
+        <dependencycheck.version>9.2.0</dependencycheck.version>
     </properties>
 
     <build>
@@ -32,7 +32,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <id>enforce-maven</id>
@@ -77,7 +77,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>9.3</version>
+                        <version>${checkstyle.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -114,7 +114,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.3</version>
+                <version>3.7.0</version>
                 <configuration>
                     <additionalparam>--allow-script-in-comments</additionalparam>
                     <excludePackageNames>org.htmlunit.cssparser.parser.javacc</excludePackageNames>
@@ -182,7 +182,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.4.0</version>
+                <version>4.8.5.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.github.spotbugs</groupId>
@@ -222,6 +222,7 @@
                 <version>${dependencycheck.version}</version>
                 <configuration>
                     <failBuildOnCVSS>0</failBuildOnCVSS>
+                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                 </configuration>
                 <executions>
                     <execution>
