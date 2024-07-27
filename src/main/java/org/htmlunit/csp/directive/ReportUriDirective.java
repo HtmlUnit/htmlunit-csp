@@ -22,7 +22,7 @@ import org.htmlunit.csp.Directive;
 import org.htmlunit.csp.Policy;
 
 public class ReportUriDirective extends Directive {
-    private List<String> uris_ = new ArrayList<>();
+    private final List<String> uris_ = new ArrayList<>();
 
     public ReportUriDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);

@@ -24,7 +24,7 @@ import org.htmlunit.csp.Policy;
 import org.htmlunit.csp.value.MediaType;
 
 public class PluginTypesDirective extends Directive {
-    private List<MediaType> mediaTypes_ = new ArrayList<>();
+    private final List<MediaType> mediaTypes_ = new ArrayList<>();
 
     public PluginTypesDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);

@@ -8,53 +8,70 @@
     <description>HtmlUnit rules</description>
     <exclude-pattern>.*/src/test/resources/.*</exclude-pattern>
 
-    <rule ref="category/java/bestpractices.xml" />
+    <rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName">
+        <properties>
+            <property name="reportStaticMethods" value="false" />
+            <property name="reportStaticFields" value="false" />
+        </properties>
+    </rule>
+
+    <!-- i think there is no need to guard error log statements -->
+    <rule ref="category/java/bestpractices.xml/GuardLogStatement">
+        <properties>
+            <property name="logLevels" value="trace,debug,info,warn,log,finest,finer,fine,info,warning" />
+        </properties>
+    </rule>
+
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="AccessorMethodGeneration"/>
+    </rule>
 
     <rule ref="category/java/codestyle.xml">
         <exclude name="AtLeastOneConstructor"/>
-        <exclude name="AvoidFinalLocalVariable"/>
-        <exclude name="AtLeastOneConstructor"/>
-        <exclude name="CallSuperInConstructor"/>
         <exclude name="ClassNamingConventions"/>
         <exclude name="CommentDefaultAccessModifier"/>
-        <exclude name="DefaultPackage"/>
         <exclude name="FieldNamingConventions"/>
+        <exclude name="IdenticalCatchBranches"/>
         <exclude name="LongVariable"/>
         <exclude name="MethodNamingConventions"/>
         <exclude name="OnlyOneReturn"/>
+        <exclude name="ShortClassName"/>
+        <exclude name="ShortMethodName"/>
         <exclude name="ShortVariable"/>
-        <exclude name="TooManyStaticImports"/>
-        <exclude name="UnnecessaryLocalBeforeReturn"/>
-        <exclude name="UnnecessaryConstructor"/>
-        <exclude name="UnnecessaryFullyQualifiedName"/>
-        <exclude name="UselessParentheses"/>
+        <exclude name="UnnecessaryBoxing"/>
     </rule>
 
     <rule ref="category/java/design.xml">
+        <exclude name="AvoidDeeplyNestedIfStmts"/>
+        <exclude name="CognitiveComplexity"/>
+        <exclude name="CollapsibleIfStatements"/>
+        <exclude name="CouplingBetweenObjects"/>
         <exclude name="CyclomaticComplexity"/>
-        <exclude name="ExcessiveClassLength"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="ExcessivePublicCount"/>
+        <exclude name="GodClass"/>
         <exclude name="LawOfDemeter"/>
+        <exclude name="NcssCount"/>
         <exclude name="NPathComplexity"/>
+        <exclude name="SimplifyBooleanReturns"/>
+        <exclude name="TooManyMethods"/>
     </rule>
 
     <rule ref="category/java/documentation.xml">
         <exclude name="CommentSize"/>
         <exclude name="CommentRequired"/>
-        <exclude name="UncommentedEmptyConstructor"/>
     </rule>
 
     <rule ref="category/java/errorprone.xml">
-        <exclude name="AvoidDuplicateLiterals"/>
         <exclude name="AvoidLiteralsInIfCondition"/>
-        <exclude name="BeanMembersShouldSerialize"/>
-        <exclude name="DataflowAnomalyAnalysis"/>
         <exclude name="MissingSerialVersionUID"/>
     </rule>
 
     <rule ref="category/java/multithreading.xml" />
 
     <rule ref="category/java/performance.xml">
-        <exclude name="AvoidUsingShortType"/>
+        <!-- todo reenable this and check -->
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
     </rule>
 
     <rule ref="category/java/security.xml" />

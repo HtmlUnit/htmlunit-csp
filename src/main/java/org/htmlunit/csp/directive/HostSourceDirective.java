@@ -28,8 +28,8 @@ import org.htmlunit.csp.value.Scheme;
 public abstract class HostSourceDirective extends Directive {
     private static final String NONE_SRC = "'none'";
     private static final String SELF_SRC = "'self'";
-    private List<Scheme> schemes_ = new ArrayList<>();
-    private List<Host> hosts_ = new ArrayList<>();
+    private final List<Scheme> schemes_ = new ArrayList<>();
+    private final List<Host> hosts_ = new ArrayList<>();
     private boolean star_;
     private boolean self_;
 

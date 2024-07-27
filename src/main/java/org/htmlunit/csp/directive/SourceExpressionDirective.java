@@ -61,60 +61,60 @@ public class SourceExpressionDirective extends HostSourceDirective {
             final String lowcaseToken = token.toLowerCase(Locale.ROOT);
             switch (lowcaseToken) {
                 case UNSAFE_INLINE:
-                    if (!unsafeInline_) {
-                        unsafeInline_ = true;
+                    if (unsafeInline_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-inline'", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-inline'", index);
+                        unsafeInline_ = true;
                     }
                     break;
                 case UNSAFE_EVAL:
-                    if (!unsafeEval_) {
-                        unsafeEval_ = true;
+                    if (unsafeEval_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-eval'", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-eval'", index);
+                        unsafeEval_ = true;
                     }
                     break;
                 case STRICT_DYNAMIC:
-                    if (!strictDynamic_) {
-                        strictDynamic_ = true;
+                    if (strictDynamic_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'strict-dynamic'", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'strict-dynamic'", index);
+                        strictDynamic_ = true;
                     }
                     break;
                 case UNSAFE_HASHES:
-                    if (!unsafeHashes_) {
-                        unsafeHashes_ = true;
+                    if (unsafeHashes_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-hashes'", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-hashes'", index);
+                        unsafeHashes_ = true;
                     }
                     break;
                 case WASM_UNSAFE_EVAL:
-                    if (!unsafeWasm_) {
-                        unsafeWasm_ = true;
+                    if (unsafeWasm_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression " + WASM_UNSAFE_EVAL, index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate source-expression " + WASM_UNSAFE_EVAL, index);
+                        unsafeWasm_ = true;
                     }
                     break;
                 case REPORT_SAMPLE:
-                    if (!reportSample_) {
-                        reportSample_ = true;
+                    if (reportSample_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'report-sample'", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate source-expression 'report-sample'", index);
+                        reportSample_ = true;
                     }
                     break;
                 case UNSAFE_ALLOW_REDIRECTS:
-                    if (!unsafeAllowRedirects_) {
-                        unsafeAllowRedirects_ = true;
+                    if (unsafeAllowRedirects_) {
+                        errors.add(Policy.Severity.Warning,
+                                "Duplicate source-expression 'unsafe-allow-redirects'", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning,
-                                    "Duplicate source-expression 'unsafe-allow-redirects'", index);
+                        unsafeAllowRedirects_ = true;
                     }
                     break;
                 case "'unsafe-redirect'":

@@ -22,19 +22,19 @@ import org.htmlunit.csp.Policy;
 
 public class SandboxDirective extends Directive {
     private static final String ALLOW_DOWNLOADS = "allow-downloads";
-    private boolean allowDownloads_ = false;
-    private boolean allowForms_ = false;
-    private boolean allowModals_ = false;
-    private boolean allowOrientationLock_ = false;
-    private boolean allowPointerLock_ = false;
-    private boolean allowPopups_ = false;
-    private boolean allowPopupsToEscapeSandbox_ = false;
-    private boolean allowPresentation_ = false;
-    private boolean allowSameOrigin_ = false;
-    private boolean allowScripts_ = false;
-    private boolean allowStorageAccessByUserActivation_ = false;
-    private boolean allowTopNavigation_ = false;
-    private boolean allowTopNavigationByUserActivation_ = false;
+    private boolean allowDownloads_;
+    private boolean allowForms_;
+    private boolean allowModals_;
+    private boolean allowOrientationLock_;
+    private boolean allowPointerLock_;
+    private boolean allowPopups_;
+    private boolean allowPopupsToEscapeSandbox_;
+    private boolean allowPresentation_;
+    private boolean allowSameOrigin_;
+    private boolean allowScripts_;
+    private boolean allowStorageAccessByUserActivation_;
+    private boolean allowTopNavigation_;
+    private boolean allowTopNavigationByUserActivation_;
 
     public SandboxDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);
@@ -46,110 +46,110 @@ public class SandboxDirective extends Directive {
             final String lowcaseToken = token.toLowerCase(Locale.ROOT);
             switch (lowcaseToken) {
                 case ALLOW_DOWNLOADS:
-                    if (!allowDownloads_) {
-                        allowDownloads_ = true;
+                    if (allowDownloads_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-downloads", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-downloads", index);
+                        allowDownloads_ = true;
                     }
                     break;
                 case "allow-forms":
-                    if (!allowForms_) {
-                        allowForms_ = true;
+                    if (allowForms_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-forms", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-forms", index);
+                        allowForms_ = true;
                     }
                     break;
                 case "allow-modals":
-                    if (!allowModals_) {
-                        allowModals_ = true;
+                    if (allowModals_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-modals", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-modals", index);
+                        allowModals_ = true;
                     }
                     break;
                 case "allow-orientation-lock":
-                    if (!allowOrientationLock_) {
-                        allowOrientationLock_ = true;
+                    if (allowOrientationLock_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-orientation-lock", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-orientation-lock", index);
+                        allowOrientationLock_ = true;
                     }
                     break;
                 case "allow-pointer-lock":
-                    if (!allowPointerLock_) {
-                        allowPointerLock_ = true;
+                    if (allowPointerLock_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-pointer-lock", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-pointer-lock", index);
+                        allowPointerLock_ = true;
                     }
                     break;
                 case "allow-popups":
-                    if (!allowPopups_) {
-                        allowPopups_ = true;
+                    if (allowPopups_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-popups", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-popups", index);
+                        allowPopups_ = true;
                     }
                     break;
                 case "allow-popups-to-escape-sandbox":
-                    if (!allowPopupsToEscapeSandbox_) {
-                        allowPopupsToEscapeSandbox_ = true;
-                    }
-                    else {
+                    if (allowPopupsToEscapeSandbox_) {
                         errors.add(Policy.Severity.Warning,
                                 "Duplicate sandbox keyword allow-popups-to-escape-sandbox", index);
                     }
+                    else {
+                        allowPopupsToEscapeSandbox_ = true;
+                    }
                     break;
                 case "allow-presentation":
-                    if (!allowPresentation_) {
-                        allowPresentation_ = true;
+                    if (allowPresentation_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-presentation", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-presentation", index);
+                        allowPresentation_ = true;
                     }
                     break;
                 case "allow-same-origin":
-                    if (!allowSameOrigin_) {
-                        allowSameOrigin_ = true;
+                    if (allowSameOrigin_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-same-origin", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-same-origin", index);
+                        allowSameOrigin_ = true;
                     }
                     break;
                 case "allow-scripts":
-                    if (!allowScripts_) {
-                        allowScripts_ = true;
+                    if (allowScripts_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-scripts", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-scripts", index);
+                        allowScripts_ = true;
                     }
                     break;
                 case "allow-storage-access-by-user-activation":
-                    if (!allowStorageAccessByUserActivation_) {
-                        allowStorageAccessByUserActivation_ = true;
-                    }
-                    else {
+                    if (allowStorageAccessByUserActivation_) {
                         errors.add(Policy.Severity.Warning,
                                 "Duplicate sandbox keyword allow-storage-access-by-user-activation", index);
                     }
+                    else {
+                        allowStorageAccessByUserActivation_ = true;
+                    }
                     break;
                 case "allow-top-navigation":
-                    if (!allowTopNavigation_) {
-                        allowTopNavigation_ = true;
+                    if (allowTopNavigation_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-top-navigation", index);
                     }
                     else {
-                        errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-top-navigation", index);
+                        allowTopNavigation_ = true;
                     }
                     break;
                 case "allow-top-navigation-by-user-activation":
-                    if (!allowTopNavigationByUserActivation_) {
-                        allowTopNavigationByUserActivation_ = true;
-                    }
-                    else {
+                    if (allowTopNavigationByUserActivation_) {
                         errors.add(Policy.Severity.Warning,
                                 "Duplicate sandbox keyword allow-top-navigation-by-user-activation", index);
+                    }
+                    else {
+                        allowTopNavigationByUserActivation_ = true;
                     }
                     break;
                 default:

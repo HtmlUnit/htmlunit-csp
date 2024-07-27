@@ -58,7 +58,7 @@ public final class Policy {
     // - Duplicate values
     // - Unrecognized values
 
-    private List<NamedDirective> directives_ = new ArrayList<>();
+    private final List<NamedDirective> directives_ = new ArrayList<>();
 
     private SourceExpressionDirective baseUri_;
     private boolean blockAllMixedContent_;

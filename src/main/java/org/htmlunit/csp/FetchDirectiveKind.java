@@ -66,6 +66,29 @@ public enum FetchDirectiveKind {
     /** WorkerSrc("worker-src"). */
     WorkerSrc("worker-src");
 
+    // https://w3c.github.io/webappsec-csp/#directive-fallback-list
+    // Note the oddity that worker-src falls back to child-src then script-src
+    // then directive-src, but frame-src falls back to child-src then directly default-src
+    // Also note that `script-src` falls back to `default-src` for "unsafe-eval", but this
+    // is done manually in prose rather than in this table
+    // (in https://w3c.github.io/webappsec-csp/#can-compile-strings )
+    // It is included here only for completeness
+    private static final FetchDirectiveKind[] ScriptSrcFallback = {ScriptSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] ScriptSrcElemFallback = {ScriptSrcElem, ScriptSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] ScriptSrcAttrFallback = {ScriptSrcAttr, ScriptSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] StyleSrcFallback = {StyleSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] StyleSrcElemFallback = {StyleSrcElem, StyleSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] StyleSrcAttrFallback = {StyleSrcAttr, StyleSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] WorkerSrcFallback = {WorkerSrc, ChildSrc, ScriptSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] ConnectSrcFallback = {ConnectSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] ManifestSrcFallback = {ManifestSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] PrefetchSrcFallback = {PrefetchSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] ObjectSrcFallback = {ObjectSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] FrameSrcFallback = {FrameSrc, ChildSrc, DefaultSrc };
+    private static final FetchDirectiveKind[] MediaSrcFallback = {MediaSrc, DefaultSrc };
+    private static final FetchDirectiveKind[] FontSrcFallback = {FontSrc, DefaultSrc };
+    private static final FetchDirectiveKind[] ImgSrcFallback = {ImgSrc, DefaultSrc };
+
     private final String repr_;
 
     FetchDirectiveKind(final String repr) {
@@ -117,44 +140,6 @@ public enum FetchDirectiveKind {
                 return null;
         }
     }
-
-    // https://w3c.github.io/webappsec-csp/#directive-fallback-list
-    // Note the oddity that worker-src falls back to child-src then script-src
-    // then directive-src, but frame-src falls back to child-src then directly default-src
-    // Also note that `script-src` falls back to `default-src` for "unsafe-eval", but this
-    // is done manually in prose rather than in this table
-    // (in https://w3c.github.io/webappsec-csp/#can-compile-strings )
-    // It is included here only for completeness
-    private static final FetchDirectiveKind[] ScriptSrcFallback
-                            = new FetchDirectiveKind[] {ScriptSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] ScriptSrcElemFallback
-                            = new FetchDirectiveKind[] {ScriptSrcElem, ScriptSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] ScriptSrcAttrFallback
-                            = new FetchDirectiveKind[] {ScriptSrcAttr, ScriptSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] StyleSrcFallback
-                            = new FetchDirectiveKind[] {StyleSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] StyleSrcElemFallback
-                            = new FetchDirectiveKind[] {StyleSrcElem, StyleSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] StyleSrcAttrFallback
-                            = new FetchDirectiveKind[] {StyleSrcAttr, StyleSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] WorkerSrcFallback
-                            = new FetchDirectiveKind[] {WorkerSrc, ChildSrc, ScriptSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] ConnectSrcFallback
-                            = new FetchDirectiveKind[] {ConnectSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] ManifestSrcFallback
-                            = new FetchDirectiveKind[] {ManifestSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] PrefetchSrcFallback
-                            = new FetchDirectiveKind[] {PrefetchSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] ObjectSrcFallback
-                            = new FetchDirectiveKind[] {ObjectSrc, DefaultSrc};
-    private static final FetchDirectiveKind[] FrameSrcFallback
-                            = new FetchDirectiveKind[] {FrameSrc, ChildSrc, DefaultSrc };
-    private static final FetchDirectiveKind[] MediaSrcFallback
-                            = new FetchDirectiveKind[] {MediaSrc, DefaultSrc };
-    private static final FetchDirectiveKind[] FontSrcFallback
-                            = new FetchDirectiveKind[] {FontSrc, DefaultSrc };
-    private static final FetchDirectiveKind[] ImgSrcFallback
-                            = new FetchDirectiveKind[] {ImgSrc, DefaultSrc };
 
     static FetchDirectiveKind[] getFetchDirectiveFallbackList(final FetchDirectiveKind directive) {
         switch (directive) {
