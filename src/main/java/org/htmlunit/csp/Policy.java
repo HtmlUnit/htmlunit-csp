@@ -186,15 +186,15 @@ public final class Policy {
 
             case "block-all-mixed-content":
                 // https://www.w3.org/TR/mixed-content/#strict-opt-in
-                if (!blockAllMixedContent_) {
+                if (blockAllMixedContent_) {
+                    wasDupe = true;
+                }
+                else {
                     if (!values.isEmpty()) {
                         directiveErrorConsumer.add(Severity.Error,
                                         "The block-all-mixed-content directive does not support values", 0);
                     }
                     blockAllMixedContent_ = true;
-                }
-                else {
-                    wasDupe = true;
                 }
                 newDirective = new Directive(values);
                 break;
@@ -322,15 +322,15 @@ public final class Policy {
 
             case "upgrade-insecure-requests":
                 // https://www.w3.org/TR/upgrade-insecure-requests/#delivery
-                if (!upgradeInsecureRequests_) {
+                if (upgradeInsecureRequests_) {
+                    wasDupe = true;
+                }
+                else {
                     if (!values.isEmpty()) {
                         directiveErrorConsumer.add(Severity.Error,
                                 "The upgrade-insecure-requests directive does not support values", 0);
                     }
                     upgradeInsecureRequests_ = true;
-                }
-                else {
-                    wasDupe = true;
                 }
                 newDirective = new Directive(values);
                 break;
@@ -383,8 +383,7 @@ public final class Policy {
             first = false;
             out.append(directive.name_);
             for (final String value : directive.directive_.getValues()) {
-                out.append(' ');
-                out.append(value);
+                out.append(' ').append(value);
             }
         }
         return out.toString();

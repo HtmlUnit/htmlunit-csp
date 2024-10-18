@@ -71,19 +71,19 @@ public abstract class HostSourceDirective extends Directive {
         }
         else if ("*".equals(lowcaseToken)) {
             // Technically this is just a specific kind of host-source, but it's worth handling explicitly
-            if (!star_) {
-                star_ = true;
+            if (star_) {
+                errors.add(Policy.Severity.Warning, "Duplicate " + kind + " *", index);
             }
             else {
-                errors.add(Policy.Severity.Warning, "Duplicate " + kind + " *", index);
+                star_ = true;
             }
         }
         else if (lowcaseToken.equals(SELF_SRC)) {
-            if (!self_) {
-                self_ = true;
+            if (self_) {
+                errors.add(Policy.Severity.Warning, "Duplicate " + kind + " 'self'", index);
             }
             else {
-                errors.add(Policy.Severity.Warning, "Duplicate " + kind + " 'self'", index);
+                self_ = true;
             }
         }
         else {
