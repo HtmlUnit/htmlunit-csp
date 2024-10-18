@@ -18,6 +18,8 @@ The code is being expanded, restructured and improved primarily to meet the requ
 
 ### Project News
 
+**[Developer Blog][5]**
+
 [HtmlUnit@mastodon][4] | [HtmlUnit@Twitter][3]
 
 ### Latest release Version 4.5.0 / October 20, 2024
