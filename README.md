@@ -189,8 +189,12 @@ This part is intended for committer who are packaging a release.
     * append 
         * htmlunit-csp-4.x.x.jar
         * htmlunit-csp-4.x.x.jar.asc 
+        * htmlunit-csp-4.x.x.pom
+        * htmlunit-csp-4.x.x.pom.asc 
         * htmlunit-csp-4.x.x-javadoc.jar
         * htmlunit-csp-4.x.x-javadoc.jar.asc
+        * htmlunit-csp-4.x.x-sources.jar
+        * htmlunit-csp-4.x.x-sources.jar.asc
     * and publish the release 
 
 * Update the version number in pom.xml to start next snapshot development
@@ -199,7 +203,7 @@ This part is intended for committer who are packaging a release.
 ## Authors
 
 * **RBRi**
-* all the contributors to [salvation][5]
+* all the contributors to [salvation][6]
 
 ## License
 
@@ -213,4 +217,5 @@ Many thanks to all of you contributing to HtmlUnit/CSSParser/Rhino and [salvatio
 [2]: https://jenkins.wetator.org/job/HtmlUnit%20-%20CSP/ "HtmlUnit - CSP CI"
 [3]: https://twitter.com/HtmlUnit "https://twitter.com/HtmlUnit"
 [4]: https://fosstodon.org/@HtmlUnit
-[5]: https://github.com/shapesecurity/salvation
+[5]: https://htmlunit.github.io/htmlunit-blog/
+[6]: https://github.com/shapesecurity/salvation

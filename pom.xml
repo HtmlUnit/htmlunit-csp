@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.4.0</version>
+    <version>4.5.0-SNAPSHOT</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -20,11 +20,11 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
 
-        <checkstyle.version>10.17.0</checkstyle.version>
+        <checkstyle.version>10.18.2</checkstyle.version>
         <spotbugs.version>4.8.6</spotbugs.version>
-        <pmd.version>7.4.0</pmd.version>
+        <pmd.version>7.6.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
-        <dependencycheck.version>10.0.3</dependencycheck.version>
+        <dependencycheck.version>10.0.4</dependencycheck.version>
     </properties>
 
     <build>
@@ -55,7 +55,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.5.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -65,7 +65,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <suppressionsLocation>checkstyle_suppressions.xml</suppressionsLocation>
@@ -114,7 +114,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.10.1</version>
                 <configuration>
                     <additionalparam>--allow-script-in-comments</additionalparam>
                     <excludePackageNames>org.htmlunit.cssparser.parser.javacc</excludePackageNames>
@@ -130,7 +130,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.2.7</version>
                 <executions>
                     <execution>
                         <phase>verify</phase>
@@ -182,7 +182,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.6.2</version>
+                <version>4.8.6.4</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.github.spotbugs</groupId>
@@ -197,7 +197,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.24.0</version>
+                <version>3.25.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>net.sourceforge.pmd</groupId>
@@ -239,7 +239,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.10.1</version>
                 <configuration>
                     <additionalparam>--allow-script-in-comments</additionalparam>
                     <links>
