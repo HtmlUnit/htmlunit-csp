@@ -20,9 +20,9 @@ The code is being expanded, restructured and improved primarily to meet the requ
 
 **[Developer Blog](https://htmlunit.github.io/htmlunit-blog/)**
 
-[HtmlUnit@mastodon][4] | [HtmlUnit@Twitter][3]
+[HtmlUnit@mastodon](https://fosstodon.org/@HtmlUnit) | [HtmlUnit@bsky](https://bsky.app/profile/htmlunit.bsky.social) | [HtmlUnit@Twitter](https://twitter.com/HtmlUnit)
 
-### Latest release Version 4.7.0 / November 29, 2024
+### Latest release Version 4.8.0 / January 12, 2024
 
 ### Maven
 
@@ -32,7 +32,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.7.0</version>
+    <version>4.8.0</version>
 </dependency>
 ```
 
@@ -41,7 +41,7 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```groovy
-implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '4.7.0'
+implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '4.8.0'
 ```
 
 ### A Note on CSP
@@ -108,7 +108,7 @@ If you use maven please add:
     <dependency>
         <groupId>org.htmlunit</groupId>
         <artifactId>htmlunit-csp</artifactId>
-        <version>4.8.0-SNAPSHOT</version>
+        <version>4.9.0-SNAPSHOT</version>
     </dependency>
 
 You have to add the sonatype snapshot repository to your pom `repositories` section also:
@@ -213,10 +213,4 @@ This project is licensed under the Apache 2.0 License
 
 ## Acknowledgments
 
-Many thanks to all of you contributing to HtmlUnit/CSSParser/Rhino and [salvation][5] in the past.
-
-
-[2]: https://jenkins.wetator.org/job/HtmlUnit%20-%20CSP/ "HtmlUnit - CSP CI"
-[3]: https://twitter.com/HtmlUnit "https://twitter.com/HtmlUnit"
-[4]: https://fosstodon.org/@HtmlUnit
-[6]: https://github.com/shapesecurity/salvation
+Many thanks to all of you contributing to [salvation](https://github.com/shapesecurity/salvation) in the past.
