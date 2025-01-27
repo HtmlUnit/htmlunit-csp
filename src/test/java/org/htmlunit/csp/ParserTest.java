@@ -711,4 +711,29 @@ public class ParserTest extends TestBase {
         }
         assertEquals(output, policy.toString());
     }
+
+    /**
+     * Test for https://github.com/shapesecurity/salvation/issues/244.
+     */
+    @Test
+    public void invalidHashSyntax() {
+        final ArrayList<PolicyListError> observedErrors = new ArrayList<>();
+        final Policy.PolicyListErrorConsumer consumer = (severity, message, policyIndex, directiveIndex, valueIndex) -> {
+            observedErrors.add(e(severity, message, policyIndex, directiveIndex, valueIndex));
+        };
+
+        final PolicyList p = Policy.parseSerializedCSPList(
+                "default-src 'none'; script-src 'sha256- RFWPLDbv2BY+rCkDzsE+0fr8ylGr2R2faWMhq4lfEQc=';", consumer);
+        assertEquals("default-src 'none'; script-src 'sha256- RFWPLDbv2BY+rCkDzsE+0fr8ylGr2R2faWMhq4lfEQc='", p.toString());
+
+        final PolicyListError[] errors = {
+                e(Policy.Severity.Error, "'sha...' source-expression uses an unrecognized algorithm "
+                        + "or does not match the base64-value grammar (or is missing its trailing \"'\")", 0, 1, 0),
+                e(Policy.Severity.Error, "Unrecognized source-expression RFWPLDbv2BY+rCkDzsE+0fr8ylGr2R2faWMhq4lfEQc='", 0, 1, 1)
+        };
+        assertEquals(errors.length, observedErrors.size());
+        for (int i = 0; i < errors.length; ++i) {
+            assertEquals(errors[i], observedErrors.get(i));
+        }
+    }
 }
