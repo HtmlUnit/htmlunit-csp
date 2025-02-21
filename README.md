@@ -8,7 +8,7 @@ This is a general purpose library for working with Content Security Policy polic
 
 This is the code repository of the Content Security Policy support used by HtmlUnit.
 
-The library was created by forking the [salvation][5] project as it is apparently no longer maintained.  
+The library was created by forking the [salvation](https://github.com/shapesecurity/salvation) project as it is apparently no longer maintained.  
 For HtmlUnit, the code has been adapted to the code style rules used, and support for editing policies has been removed.  
 The code is being expanded, restructured and improved primarily to meet the requirements of this project.
 
@@ -22,7 +22,7 @@ The code is being expanded, restructured and improved primarily to meet the requ
 
 [HtmlUnit@mastodon](https://fosstodon.org/@HtmlUnit) | [HtmlUnit@bsky](https://bsky.app/profile/htmlunit.bsky.social) | [HtmlUnit@Twitter](https://twitter.com/HtmlUnit)
 
-### Latest release Version 4.9.0 / January 22, 2025
+### Latest release Version 4.10.0 / February 22, 2025
 
 ### Maven
 
@@ -32,7 +32,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.9.0</version>
+    <version>4.10.0</version>
 </dependency>
 ```
 
@@ -41,7 +41,7 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```groovy
-implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '4.9.0'
+implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '4.10.0'
 ```
 
 ### A Note on CSP
@@ -99,7 +99,7 @@ System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().
 
 ### Last CI build
 The latest builds are available from our
-[Jenkins CI build server][2]
+[Jenkins CI build server](https://jenkins.wetator.org/job/HtmlUnit%20-%20CSS%20Parser/ "HtmlUnit - CSS Parser CI")
 
 [![Build Status](https://jenkins.wetator.org/buildStatus/icon?job=HtmlUnit+-+CSP)](https://jenkins.wetator.org/job/HtmlUnit%20-%20CSP/)
 
@@ -108,7 +108,7 @@ If you use maven please add:
     <dependency>
         <groupId>org.htmlunit</groupId>
         <artifactId>htmlunit-csp</artifactId>
-        <version>4.10.0-SNAPSHOT</version>
+        <version>4.11.0-SNAPSHOT</version>
     </dependency>
 
 You have to add the sonatype snapshot repository to your pom `repositories` section also:
@@ -205,7 +205,7 @@ This part is intended for committer who are packaging a release.
 ## Authors
 
 * **RBRi**
-* all the contributors to [salvation][6]
+* all the contributors to [salvation](https://github.com/shapesecurity/salvation)
 
 ## License
 

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.10.0-SNAPSHOT</version>
+    <version>4.10.0</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -21,8 +21,8 @@
         <maven.compiler.target>8</maven.compiler.target>
 
         <checkstyle.version>10.21.1</checkstyle.version>
-        <spotbugs.version>4.8.6</spotbugs.version>
-        <pmd.version>7.9.0</pmd.version>
+        <spotbugs.version>4.9.1</spotbugs.version>
+        <pmd.version>7.10.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
         <dependencycheck.version>10.0.4</dependencycheck.version>
     </properties>
@@ -60,7 +60,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -182,7 +182,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.6.6</version>
+                <version>4.9.1.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.github.spotbugs</groupId>
