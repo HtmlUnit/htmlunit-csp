@@ -5,6 +5,9 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
 
 <suppressions>
+    <suppress checks="MissingJavadocMethod" files=".*[\\/]src[\\/]test"/>
+    <suppress checks="MissingJavadocPackage" files=".*[\\/]src[\\/]test"/>
+    <suppress checks="MissingJavadocType" files=".*[\\/]src[\\/]test"/>
     <suppress checks="JavadocPackage" files=".*[\\/]src[\\/]test"/>
     <suppress checks="JavadocMethod" files=".*[\\/]src[\\/]test"/>
     <suppress checks="LineLength" files=".*[\\/]src[\\/]test"/>

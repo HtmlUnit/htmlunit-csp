@@ -704,7 +704,6 @@ public class ParserTest extends TestBase {
             observedErrors.add(e(severity, message, directiveIndex, valueIndex));
         };
         final Policy policy = Policy.parseSerializedCSP(input, consumer);
-        // observedErrors.forEach(error -> System.out.println(error));
         assertEquals(errors.length, observedErrors.size());
         for (int i = 0; i < errors.length; ++i) {
             assertEquals(errors[i], observedErrors.get(i));
