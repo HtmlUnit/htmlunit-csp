@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.14.0-SNAPSHOT</version>
+    <version>4.14.0</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -32,11 +32,13 @@
 
         <!-- plugins -->
         <central-publishing-plugin.version>0.8.0</central-publishing-plugin.version>
+        <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
         <pmd-plugin.version>3.27.0</pmd-plugin.version>
         <spotbugs-plugin.version>4.9.3.2</spotbugs-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
         <enforcer-plugin.version>3.6.1</enforcer-plugin.version>
         <changes-plugin.version>2.12.1</changes-plugin.version>
+        <jar-plugin.version>3.4.2</jar-plugin.version>
     </properties>
 
     <build>
@@ -77,7 +79,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>${checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>checkstyle.xml</configLocation>
                     <suppressionsLocation>checkstyle_suppressions.xml</suppressionsLocation>
@@ -96,7 +98,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
+                <version>${jar-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -338,20 +340,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <!-- for snapshots of our dependencies -->
-    <repositories>
-        <repository>
-            <name>Central Portal Snapshots</name>
-            <id>central-portal-snapshots</id>
-            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
 </project>
