@@ -38,6 +38,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
      * Unsafe WebAssembly execution</a>
      */
     private static final String WASM_UNSAFE_EVAL = "'wasm-unsafe-eval'";
+
     private boolean unsafeInline_;
     private boolean unsafeEval_;
     private boolean strictDynamic_;
@@ -229,6 +230,10 @@ public class SourceExpressionDirective extends HostSourceDirective {
 
     public boolean unsafeAllowRedirects() {
         return unsafeAllowRedirects_;
+    }
+
+    public boolean unsafeWasm() {
+        return unsafeWasm_;
     }
 
     public List<Nonce> getNonces() {
