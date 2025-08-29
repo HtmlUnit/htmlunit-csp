@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.15.0</version>
+    <version>4.16.0</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -34,11 +34,12 @@
         <central-publishing-plugin.version>0.8.0</central-publishing-plugin.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
         <pmd-plugin.version>3.27.0</pmd-plugin.version>
-        <spotbugs-plugin.version>4.9.3.2</spotbugs-plugin.version>
+        <spotbugs-plugin.version>4.9.4.0</spotbugs-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
         <enforcer-plugin.version>3.6.1</enforcer-plugin.version>
         <changes-plugin.version>2.12.1</changes-plugin.version>
         <jar-plugin.version>3.4.2</jar-plugin.version>
+        <javadoc-plugin.version>3.11.3</javadoc-plugin.version>
     </properties>
 
     <build>
@@ -128,7 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.11.2</version>
+                <version>${javadoc-plugin.version}</version>
                 <configuration>
                     <quiet>true</quiet>
                     <show>protected</show>
