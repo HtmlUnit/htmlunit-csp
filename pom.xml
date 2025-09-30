@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.16.0</version>
+    <version>4.17.0-SNAPSHOT</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -25,21 +25,23 @@
 
         <!-- quality -->
         <checkstyle.version>10.26.1</checkstyle.version>
-        <spotbugs.version>4.9.4</spotbugs.version>
+        <spotbugs.version>4.9.6</spotbugs.version>
         <pmd.version>7.16.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
         <dependencycheck.version>10.0.4</dependencycheck.version>
 
         <!-- plugins -->
-        <central-publishing-plugin.version>0.8.0</central-publishing-plugin.version>
+        <central-publishing-plugin.version>0.9.0</central-publishing-plugin.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
         <pmd-plugin.version>3.27.0</pmd-plugin.version>
-        <spotbugs-plugin.version>4.9.4.0</spotbugs-plugin.version>
+        <spotbugs-plugin.version>4.9.6.0</spotbugs-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
         <enforcer-plugin.version>3.6.1</enforcer-plugin.version>
         <changes-plugin.version>2.12.1</changes-plugin.version>
+        <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <jar-plugin.version>3.4.2</jar-plugin.version>
-        <javadoc-plugin.version>3.11.3</javadoc-plugin.version>
+        <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
+        <surefire-plugin.version>3.5.4</surefire-plugin.version>
     </properties>
 
     <build>
@@ -70,12 +72,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.3</version>
+                <version>${surefire-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.0</version>
+                <version>${compiler-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
