@@ -24,9 +24,9 @@
         <junit.version>5.13.4</junit.version>
 
         <!-- quality -->
-        <checkstyle.version>10.26.1</checkstyle.version>
+        <checkstyle.version>11.1.0</checkstyle.version>
         <spotbugs.version>4.9.6</spotbugs.version>
-        <pmd.version>7.16.0</pmd.version>
+        <pmd.version>7.17.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
         <dependencycheck.version>10.0.4</dependencycheck.version>
 
@@ -36,7 +36,7 @@
         <pmd-plugin.version>3.27.0</pmd-plugin.version>
         <spotbugs-plugin.version>4.9.6.0</spotbugs-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
-        <enforcer-plugin.version>3.6.1</enforcer-plugin.version>
+        <enforcer-plugin.version>3.6.2</enforcer-plugin.version>
         <changes-plugin.version>2.12.1</changes-plugin.version>
         <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <jar-plugin.version>3.4.2</jar-plugin.version>
