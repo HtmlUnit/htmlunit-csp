@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.17.0</version>
+    <version>4.18.0</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -24,8 +24,8 @@
         <junit.version>5.13.4</junit.version>
 
         <!-- quality -->
-        <checkstyle.version>11.1.0</checkstyle.version>
-        <spotbugs.version>4.9.6</spotbugs.version>
+        <checkstyle.version>12.1.1</checkstyle.version>
+        <spotbugs.version>4.9.8</spotbugs.version>
         <pmd.version>7.17.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
         <dependencycheck.version>10.0.4</dependencycheck.version>
@@ -33,8 +33,8 @@
         <!-- plugins -->
         <central-publishing-plugin.version>0.9.0</central-publishing-plugin.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
-        <pmd-plugin.version>3.27.0</pmd-plugin.version>
-        <spotbugs-plugin.version>4.9.6.0</spotbugs-plugin.version>
+        <pmd-plugin.version>3.28.0</pmd-plugin.version>
+        <spotbugs-plugin.version>4.9.8.1</spotbugs-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
         <enforcer-plugin.version>3.6.2</enforcer-plugin.version>
         <changes-plugin.version>2.12.1</changes-plugin.version>
