@@ -12,7 +12,7 @@ The library was created by forking the [salvation](https://github.com/shapesecur
 For HtmlUnit, the code has been adapted to the code style rules used, and support for editing policies has been removed.  
 The code is being expanded, restructured and improved primarily to meet the requirements of this project.
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.htmlunit/htmlunit-csp/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.htmlunit/htmlunit-csp)
+[![Maven Central Version](https://img.shields.io/maven-central/v/org.htmlunit/htmlunit-csp))](https://central.sonatype.com/artifact/org.htmlunit/htmlunit-csp)
 
 :heart: [Sponsor](https://github.com/sponsors/rbri)
 
