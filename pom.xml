@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.18.0</version>
+    <version>4.19.0</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -24,9 +24,9 @@
         <junit.version>5.13.4</junit.version>
 
         <!-- quality -->
-        <checkstyle.version>12.1.1</checkstyle.version>
+        <checkstyle.version>12.1.2</checkstyle.version>
         <spotbugs.version>4.9.8</spotbugs.version>
-        <pmd.version>7.17.0</pmd.version>
+        <pmd.version>7.18.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
         <dependencycheck.version>10.0.4</dependencycheck.version>
 
@@ -39,7 +39,8 @@
         <enforcer-plugin.version>3.6.2</enforcer-plugin.version>
         <changes-plugin.version>2.12.1</changes-plugin.version>
         <compiler-plugin.version>3.14.1</compiler-plugin.version>
-        <jar-plugin.version>3.4.2</jar-plugin.version>
+        <jar-plugin.version>3.5.0</jar-plugin.version>
+        <release-plugin.version>3.2.0</release-plugin.version>
         <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
     </properties>
@@ -197,7 +198,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>${release-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
@@ -245,6 +246,7 @@
                     <publishingServerId>central</publishingServerId>
                 </configuration>
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
@@ -262,6 +264,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
     <reporting>
