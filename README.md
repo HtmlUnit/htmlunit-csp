@@ -135,7 +135,9 @@ See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
-You simply only need a local maven installation.
+You need:
+* Java 17 or later
+* A local Maven installation
 
 
 ### Building
