@@ -478,7 +478,7 @@ public final class Policy {
             // https://www.w3.org/TR/SRI/#parse-metadata
             for (final String source : Utils.splitOnAsciiWhitespace(integritySources)) {
                 final Optional<Hash> parsedIntegritySource = Hash.parseHash("'" + source + "'");
-                if (!parsedIntegritySource.isPresent()) {
+                if (parsedIntegritySource.isEmpty()) {
                     continue;
                 }
                 if (!directive.getHashes().contains(parsedIntegritySource.get())) {
@@ -544,7 +544,7 @@ public final class Policy {
         if (navigateTo_.unsafeAllowRedirects()) {
             // if unsafe-allow-redirects is present, check `to` in non-redirect or maybe-non-redirect cases
             if (!redirected.orElse(false)) {
-                if (!to.isPresent()) {
+                if (to.isEmpty()) {
                     return false;
                 }
                 if (!doesUrlMatchSourceListInOrigin(to.get(), navigateTo_, origin)) {
@@ -553,7 +553,7 @@ public final class Policy {
             }
             // if unsafe-allow-redirects is present, check `redirectedTo` in redirect or maybe-redirect cases
             if (redirected.orElse(true)) {
-                if (!redirectedTo.isPresent()) {
+                if (redirectedTo.isEmpty()) {
                     return false;
                 }
                 if (!doesUrlMatchSourceListInOrigin(redirectedTo.get(), navigateTo_, origin)) {
@@ -563,7 +563,7 @@ public final class Policy {
         }
         else {
             // if unsafe-allow-redirects is absent, always and only check `to`
-            if (!to.isPresent()) {
+            if (to.isEmpty()) {
                 return false;
             }
             if (!doesUrlMatchSourceListInOrigin(to.get(), navigateTo_, origin)) {
@@ -582,7 +582,7 @@ public final class Policy {
             return false;
         }
         if (formAction_ != null) {
-            if (!to.isPresent()) {
+            if (to.isEmpty()) {
                 return false;
             }
             if (!doesUrlMatchSourceListInOrigin(to.get(), formAction_, origin)) {
@@ -645,7 +645,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -655,7 +655,7 @@ public final class Policy {
         if (frameAncestors_ == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), frameAncestors_, origin);
@@ -668,7 +668,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         // See https://fetch.spec.whatwg.org/#concept-websocket-establish
@@ -694,7 +694,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -706,7 +706,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -719,7 +719,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -731,7 +731,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -743,7 +743,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -756,7 +756,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -768,7 +768,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (!source.isPresent()) {
+        if (source.isEmpty()) {
             return false;
         }
         return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
@@ -778,7 +778,7 @@ public final class Policy {
         if (pluginTypes_ == null) {
             return true;
         }
-        if (!mediaType.isPresent()) {
+        if (mediaType.isEmpty()) {
             return false;
         }
         return pluginTypes_.getMediaTypes().contains(mediaType.get());
@@ -933,7 +933,7 @@ public final class Policy {
                 }
             }
             else {
-                if (!origin.isPresent() || !schemePartMatches(origin.get().getScheme(), urlScheme)) {
+                if (origin.isEmpty() || !schemePartMatches(origin.get().getScheme(), urlScheme)) {
                     continue;
                 }
             }
