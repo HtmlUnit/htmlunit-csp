@@ -46,7 +46,8 @@ public abstract class HostSourceDirective extends Directive {
     @Override
     protected void addValue(final String value) {
         if (none_ != null) {
-            super.removeValueIgnoreCase(NONE_SRC); // super so as to not immediately add it back
+            // super, to not immediately add it back
+            super.removeValueIgnoreCase(NONE_SRC);
             none_ = null;
         }
         super.addValue(value);

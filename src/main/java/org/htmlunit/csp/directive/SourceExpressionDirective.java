@@ -58,7 +58,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
         for (final String token : values) {
             // The CSP grammar uses ABNF grammars, whose strings
             // are case-insensitive: https://tools.ietf.org/html/rfc5234
-            // This needs to be ASCII-lowercase, so that `'strIct-dynamic''` still parses in Turkey
+            // This needs to be ASCII-lowercase, so that `'strIct-dynamic'` still parses in Turkey
             final String lowercaseToken = token.toLowerCase(Locale.ROOT);
             switch (lowercaseToken) {
                 case UNSAFE_INLINE:
