@@ -52,10 +52,9 @@ public abstract class URLWithScheme {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof URLWithScheme)) {
+        if (!(o instanceof URLWithScheme that)) {
             return false;
         }
-        final URLWithScheme that = (URLWithScheme) o;
         return scheme_.equals(that.scheme_)
                 && Objects.equals(host_, that.host_)
                 && Objects.equals(port_, that.port_)

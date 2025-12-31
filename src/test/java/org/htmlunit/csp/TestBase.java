@@ -15,7 +15,6 @@
 package org.htmlunit.csp;
 
 import java.util.Locale;
-import java.util.Objects;
 
 public abstract class TestBase {
     /**
@@ -70,122 +69,76 @@ public abstract class TestBase {
         return new DirectiveError(severity, message, valueIndex);
     }
 
-    static class PolicyListError {
-        private final Policy.Severity severity_;
-        private final String message_;
-        private final int policyIndex_;
-        private final int directiveIndex_;
-        private final int valueIndex_;
-
-        PolicyListError(final Policy.Severity severity, final String message, final int policyIndex,
-                final int directiveIndex, final int valueIndex) {
-            severity_ = severity;
-            message_ = message;
-            policyIndex_ = policyIndex;
-            directiveIndex_ = directiveIndex;
-            valueIndex_ = valueIndex;
-        }
+    record PolicyListError(Policy.Severity severity_, String message_, int policyIndex_, int directiveIndex_,
+                           int valueIndex_) {
 
         @Override
-        public String toString() {
-            return "(" + severity_.name() + ") " + message_ + " at policy " + policyIndex_ + " at directive " + directiveIndex_ + " at value " + valueIndex_;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
+            public String toString() {
+                return "(" + severity_.name() + ") " + message_ + " at policy " + policyIndex_ + " at directive " + directiveIndex_ + " at value " + valueIndex_;
             }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            final PolicyListError that = (PolicyListError) o;
-            return policyIndex_ == that.policyIndex_
-                    && directiveIndex_ == that.directiveIndex_
-                    && valueIndex_ == that.valueIndex_
-                    && severity_ == that.severity_
-                    && message_.equals(that.message_);
-        }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(severity_, message_, policyIndex_, directiveIndex_, valueIndex_);
-        }
+            @Override
+            public boolean equals(final Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (o == null || getClass() != o.getClass()) {
+                    return false;
+                }
+                final PolicyListError that = (PolicyListError) o;
+                return policyIndex_ == that.policyIndex_
+                        && directiveIndex_ == that.directiveIndex_
+                        && valueIndex_ == that.valueIndex_
+                        && severity_ == that.severity_
+                        && message_.equals(that.message_);
+            }
+
     }
 
-    static class PolicyError {
-        private final Policy.Severity severity_;
-        private final String message_;
-        private final int directiveIndex_;
-        private final int valueIndex_;
-
-        PolicyError(final Policy.Severity severity, final String message,
-                final int directiveIndex, final int valueIndex) {
-            severity_ = severity;
-            message_ = message;
-            directiveIndex_ = directiveIndex;
-            valueIndex_ = valueIndex;
-        }
+    record PolicyError(Policy.Severity severity_, String message_, int directiveIndex_, int valueIndex_) {
 
         @Override
-        public String toString() {
-            return "(" + severity_.name() + ") " + message_ + " at directive " + directiveIndex_ + " at value " + valueIndex_;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
+            public String toString() {
+                return "(" + severity_.name() + ") " + message_ + " at directive " + directiveIndex_ + " at value " + valueIndex_;
             }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            final PolicyError that = (PolicyError) o;
-            return directiveIndex_ == that.directiveIndex_
-                    && valueIndex_ == that.valueIndex_
-                    && severity_ == that.severity_
-                    && message_.equals(that.message_);
-        }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(severity_, message_, directiveIndex_, valueIndex_);
-        }
+            @Override
+            public boolean equals(final Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (o == null || getClass() != o.getClass()) {
+                    return false;
+                }
+                final PolicyError that = (PolicyError) o;
+                return directiveIndex_ == that.directiveIndex_
+                        && valueIndex_ == that.valueIndex_
+                        && severity_ == that.severity_
+                        && message_.equals(that.message_);
+            }
+
     }
 
-    static class DirectiveError {
-        private final Policy.Severity severity_;
-        private final String message_;
-        private final int valueIndex_;
-
-        DirectiveError(final Policy.Severity severity, final String message, final int valueIndex) {
-            severity_ = severity;
-            message_ = message;
-            valueIndex_ = valueIndex;
-        }
+    record DirectiveError(Policy.Severity severity_, String message_, int valueIndex_) {
 
         @Override
-        public String toString() {
-            return "(" + severity_.name() + ") " + message_ + " at value " + valueIndex_;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
+            public String toString() {
+                return "(" + severity_.name() + ") " + message_ + " at value " + valueIndex_;
             }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            final DirectiveError that = (DirectiveError) o;
-            return valueIndex_ == that.valueIndex_
-                    && severity_ == that.severity_
-                    && message_.equals(that.message_);
-        }
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(severity_, message_, valueIndex_);
-        }
+            @Override
+            public boolean equals(final Object o) {
+                if (this == o) {
+                    return true;
+                }
+                if (o == null || getClass() != o.getClass()) {
+                    return false;
+                }
+                final DirectiveError that = (DirectiveError) o;
+                return valueIndex_ == that.valueIndex_
+                        && severity_ == that.severity_
+                        && message_.equals(that.message_);
+            }
+
     }
 }

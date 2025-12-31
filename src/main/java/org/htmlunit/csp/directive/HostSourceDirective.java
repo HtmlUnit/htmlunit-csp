@@ -62,48 +62,46 @@ public abstract class HostSourceDirective extends Directive {
     }
 
     void addHostOrSchemeDuringConstruction(final String token,
-                final String lowcaseToken, final String kind, final int index,
+                final String lowercaseToken, final String kind, final int index,
                 final DirectiveErrorConsumer errors) {
-        if (lowcaseToken.equals(NONE_SRC)) {
-            if (none_ == null) {
-                none_ = token;
-            }
-        }
-        else if ("*".equals(lowcaseToken)) {
-            // Technically this is just a specific kind of host-source, but it's worth handling explicitly
-            if (star_) {
-                errors.add(Policy.Severity.Warning, "Duplicate " + kind + " *", index);
-            }
-            else {
-                star_ = true;
-            }
-        }
-        else if (lowcaseToken.equals(SELF_SRC)) {
-            if (self_) {
-                errors.add(Policy.Severity.Warning, "Duplicate " + kind + " 'self'", index);
-            }
-            else {
-                self_ = true;
-            }
-        }
-        else {
-            final Optional<Scheme> asScheme = Scheme.parseScheme(token);
-            if (asScheme.isPresent()) {
-                addScheme(asScheme.get(), index, errors);
-            }
-            else {
-                if (Constants.UNQUOTED_KEYWORD_PATTERN.matcher(token).find()) {
-                    errors.add(Policy.Severity.Warning,
-                            "This host name is unusual, and likely meant to be a keyword "
-                            + "that is missing the required quotes: \'" + token + "\'.", index);
+        switch (lowercaseToken) {
+            case NONE_SRC -> {
+                if (none_ == null) {
+                    none_ = token;
                 }
+            }
+            case "*" -> {
+                // Technically this is just a specific kind of host-source, but it's worth handling explicitly
+                if (star_) {
+                    errors.add(Policy.Severity.Warning, "Duplicate " + kind + " *", index);
+                } else {
+                    star_ = true;
+                }
+            }
+            case SELF_SRC -> {
+                if (self_) {
+                    errors.add(Policy.Severity.Warning, "Duplicate " + kind + " 'self'", index);
+                } else {
+                    self_ = true;
+                }
+            }
+            default -> {
+                final Optional<Scheme> asScheme = Scheme.parseScheme(token);
+                if (asScheme.isPresent()) {
+                    addScheme(asScheme.get(), index, errors);
+                } else {
+                    if (Constants.UNQUOTED_KEYWORD_PATTERN.matcher(token).find()) {
+                        errors.add(Policy.Severity.Warning,
+                                "This host name is unusual, and likely meant to be a keyword "
+                                        + "that is missing the required quotes: '" + token + "'.", index);
+                    }
 
-                final Optional<Host> asHost = Host.parseHost(token);
-                if (asHost.isPresent()) {
-                    addHostSource(asHost.get(), index, errors);
-                }
-                else {
-                    errors.add(Policy.Severity.Error, "Unrecognized " + kind + " " + token, index);
+                    final Optional<Host> asHost = Host.parseHost(token);
+                    if (asHost.isPresent()) {
+                        addHostSource(asHost.get(), index, errors);
+                    } else {
+                        errors.add(Policy.Severity.Error, "Unrecognized " + kind + " " + token, index);
+                    }
                 }
             }
         }

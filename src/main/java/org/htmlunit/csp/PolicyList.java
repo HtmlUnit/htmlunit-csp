@@ -16,12 +16,7 @@ package org.htmlunit.csp;
 
 import java.util.List;
 
-public class PolicyList {
-    private final List<Policy> policies_;
-
-    public PolicyList(final List<Policy> policies) {
-        policies_ = policies;
-    }
+public record PolicyList(List<Policy> policies_) {
 
     @Override
     public String toString() {

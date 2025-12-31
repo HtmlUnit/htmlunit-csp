@@ -90,9 +90,7 @@ public final class Policy {
         // java's lambdas are dumb
         final int[] index = {0};
         final PolicyErrorConsumer policyErrorConsumer =
-                (Severity severity, String message, int directiveIndex, int valueIndex) -> {
-                    policyListErrorConsumer.add(severity, message, index[0], directiveIndex, valueIndex);
-                };
+                (Severity severity, String message, int directiveIndex, int valueIndex) -> policyListErrorConsumer.add(severity, message, index[0], directiveIndex, valueIndex);
 
         // https://infra.spec.whatwg.org/#split-on-commas
         for (final String token : serialized.split(",")) {
@@ -122,9 +120,7 @@ public final class Policy {
         // java's lambdas are dumb
         final int[] index = {0};
         final Directive.DirectiveErrorConsumer directiveErrorConsumer =
-                (Severity severity, String message, int valueIndex) -> {
-                    policyErrorConsumer.add(severity, message, index[0], valueIndex);
-                };
+                (Severity severity, String message, int valueIndex) -> policyErrorConsumer.add(severity, message, index[0], valueIndex);
 
         final Policy policy = new Policy();
 
@@ -169,8 +165,8 @@ public final class Policy {
 
         boolean wasDupe = false;
         final Directive newDirective;
-        final String lowcaseDirectiveName = name.toLowerCase(Locale.ROOT);
-        switch (lowcaseDirectiveName) {
+        final String lowercaseDirectiveName = name.toLowerCase(Locale.ROOT);
+        switch (lowercaseDirectiveName) {
             case "base-uri":
                 // https://w3c.github.io/webappsec-csp/#directive-base-uri
                 final SourceExpressionDirective baseUriDirective
@@ -343,7 +339,7 @@ public final class Policy {
                     newDirective = new Directive(values);
                     break;
                 }
-                final FetchDirectiveKind fetchDirectiveKind = FetchDirectiveKind.fromString(lowcaseDirectiveName);
+                final FetchDirectiveKind fetchDirectiveKind = FetchDirectiveKind.fromString(lowercaseDirectiveName);
                 if (fetchDirectiveKind != null) {
                     if (FetchDirectiveKind.PrefetchSrc == fetchDirectiveKind) {
                         directiveErrorConsumer.add(Severity.Warning,
@@ -360,14 +356,14 @@ public final class Policy {
                     newDirective = thisDirective;
                     break;
                 }
-                directiveErrorConsumer.add(Severity.Warning, "Unrecognized directive " + lowcaseDirectiveName, -1);
+                directiveErrorConsumer.add(Severity.Warning, "Unrecognized directive " + lowercaseDirectiveName, -1);
                 newDirective = new Directive(values);
                 break;
         }
 
         directives_.add(new NamedDirective(name, newDirective));
         if (wasDupe) {
-            directiveErrorConsumer.add(Severity.Warning, "Duplicate directive " + lowcaseDirectiveName, -1);
+            directiveErrorConsumer.add(Severity.Warning, "Duplicate directive " + lowercaseDirectiveName, -1);
         }
         return newDirective;
     }
@@ -495,10 +491,7 @@ public final class Policy {
             // if not the parameter is not supplied, we have to assume the worst case
             return !parserInserted.orElse(true);
         }
-        if (scriptUrl.isPresent()) {
-            return doesUrlMatchSourceListInOrigin(scriptUrl.get(), directive, origin);
-        }
-        return false;
+        return scriptUrl.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
     }
 
     // https://w3c.github.io/webappsec-csp/#script-src-elem-inline
@@ -624,10 +617,7 @@ public final class Policy {
             }
         }
         // integrity is not used: https://github.com/w3c/webappsec-csp/issues/430
-        if (styleUrl.isPresent()) {
-            return doesUrlMatchSourceListInOrigin(styleUrl.get(), directive, origin);
-        }
-        return false;
+        return styleUrl.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
     }
 
     public boolean allowsInlineStyle(final Optional<String> nonce, final Optional<String> source) {
@@ -645,20 +635,14 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsFrameAncestor(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
         if (frameAncestors_ == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), frameAncestors_, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, frameAncestors_, origin)).isPresent();
     }
 
     // This assumes that a `ws:` or `wss:` URL is being used with `new WebSocket` specifically
@@ -694,10 +678,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsImage(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -706,10 +687,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsApplicationManifest(final Optional<URLWithScheme> source,
@@ -719,10 +697,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsMedia(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -731,10 +706,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsObject(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -743,10 +715,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     // Not actually spec'd properly; see https://github.com/whatwg/fetch/issues/1008
@@ -756,10 +725,7 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsWorker(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -768,20 +734,14 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        if (source.isEmpty()) {
-            return false;
-        }
-        return doesUrlMatchSourceListInOrigin(source.get(), sourceList, origin);
+        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsPlugin(final Optional<MediaType> mediaType) {
         if (pluginTypes_ == null) {
             return true;
         }
-        if (mediaType.isEmpty()) {
-            return false;
-        }
-        return pluginTypes_.getMediaTypes().contains(mediaType.get());
+        return mediaType.filter(type -> pluginTypes_.getMediaTypes().contains(type)).isPresent();
     }
 
     // https://w3c.github.io/webappsec-csp/#should-directive-execute
@@ -975,7 +935,7 @@ public final class Policy {
 
     // https://w3c.github.io/webappsec-csp/#scheme-part-match
     private static boolean schemePartMatches(final String a, final String b) {
-        // Assumes inputs are already lowcased
+        // Assumes inputs are already lowercased
         return a.equals(b)
                 || "http".equals(a) && "https".equals(b)
                 || "ws".equals(a) && ("wss".equals(b) || "http".equals(b) || "https".equals(b))
@@ -1090,14 +1050,7 @@ public final class Policy {
         return input.substring(0, matcher.end());
     }
 
-    private static final class NamedDirective {
-        private final String name_;
-        private final Directive directive_;
-
-        private NamedDirective(final String name, final Directive directive) {
-            name_ = name;
-            directive_ = directive;
-        }
+    private record NamedDirective(String name_, Directive directive_) {
     }
 
     // Info: strictly informative

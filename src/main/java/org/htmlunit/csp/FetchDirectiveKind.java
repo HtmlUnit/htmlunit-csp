@@ -101,80 +101,46 @@ public enum FetchDirectiveKind {
 
     // returns null if not matched
     public static FetchDirectiveKind fromString(final String name) {
-        switch (name) {
-            case "child-src":
-                return ChildSrc;
-            case "connect-src":
-                return ConnectSrc;
-            case "default-src":
-                return DefaultSrc;
-            case "font-src":
-                return FontSrc;
-            case "frame-src":
-                return FrameSrc;
-            case "img-src":
-                return ImgSrc;
-            case "manifest-src":
-                return ManifestSrc;
-            case "media-src":
-                return MediaSrc;
-            case "object-src":
-                return ObjectSrc;
-            case "prefetch-src":
-                return PrefetchSrc;
-            case "script-src-attr":
-                return ScriptSrcAttr;
-            case "script-src":
-                return ScriptSrc;
-            case "script-src-elem":
-                return ScriptSrcElem;
-            case "style-src-attr":
-                return StyleSrcAttr;
-            case "style-src":
-                return StyleSrc;
-            case "style-src-elem":
-                return StyleSrcElem;
-            case "worker-src":
-                return WorkerSrc;
-            default:
-                return null;
-        }
+        return switch (name) {
+            case "child-src" -> ChildSrc;
+            case "connect-src" -> ConnectSrc;
+            case "default-src" -> DefaultSrc;
+            case "font-src" -> FontSrc;
+            case "frame-src" -> FrameSrc;
+            case "img-src" -> ImgSrc;
+            case "manifest-src" -> ManifestSrc;
+            case "media-src" -> MediaSrc;
+            case "object-src" -> ObjectSrc;
+            case "prefetch-src" -> PrefetchSrc;
+            case "script-src-attr" -> ScriptSrcAttr;
+            case "script-src" -> ScriptSrc;
+            case "script-src-elem" -> ScriptSrcElem;
+            case "style-src-attr" -> StyleSrcAttr;
+            case "style-src" -> StyleSrc;
+            case "style-src-elem" -> StyleSrcElem;
+            case "worker-src" -> WorkerSrc;
+            default -> null;
+        };
     }
 
     static FetchDirectiveKind[] getFetchDirectiveFallbackList(final FetchDirectiveKind directive) {
-        switch (directive) {
-            case ScriptSrc:
-                return ScriptSrcFallback;
-            case ScriptSrcElem:
-                return ScriptSrcElemFallback;
-            case ScriptSrcAttr:
-                return ScriptSrcAttrFallback;
-            case StyleSrc:
-                return StyleSrcFallback;
-            case StyleSrcElem:
-                return StyleSrcElemFallback;
-            case StyleSrcAttr:
-                return StyleSrcAttrFallback;
-            case WorkerSrc:
-                return WorkerSrcFallback;
-            case ConnectSrc:
-                return ConnectSrcFallback;
-            case ManifestSrc:
-                return ManifestSrcFallback;
-            case PrefetchSrc:
-                return PrefetchSrcFallback;
-            case ObjectSrc:
-                return ObjectSrcFallback;
-            case FrameSrc:
-                return FrameSrcFallback;
-            case MediaSrc:
-                return MediaSrcFallback;
-            case FontSrc:
-                return FontSrcFallback;
-            case ImgSrc:
-                return ImgSrcFallback;
-            default:
-                throw new IllegalArgumentException("Unknown fetch directive " + directive);
-        }
+        return switch (directive) {
+            case ScriptSrc -> ScriptSrcFallback;
+            case ScriptSrcElem -> ScriptSrcElemFallback;
+            case ScriptSrcAttr -> ScriptSrcAttrFallback;
+            case StyleSrc -> StyleSrcFallback;
+            case StyleSrcElem -> StyleSrcElemFallback;
+            case StyleSrcAttr -> StyleSrcAttrFallback;
+            case WorkerSrc -> WorkerSrcFallback;
+            case ConnectSrc -> ConnectSrcFallback;
+            case ManifestSrc -> ManifestSrcFallback;
+            case PrefetchSrc -> PrefetchSrcFallback;
+            case ObjectSrc -> ObjectSrcFallback;
+            case FrameSrc -> FrameSrcFallback;
+            case MediaSrc -> MediaSrcFallback;
+            case FontSrc -> FontSrcFallback;
+            case ImgSrc -> ImgSrcFallback;
+            default -> throw new IllegalArgumentException("Unknown fetch directive " + directive);
+        };
     }
 }

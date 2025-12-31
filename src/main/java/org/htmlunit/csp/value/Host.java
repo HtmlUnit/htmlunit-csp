@@ -15,25 +15,13 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import org.htmlunit.csp.Constants;
 import org.htmlunit.csp.url.URI;
 
-public final class Host {
-    private final String scheme_;
-    private final String host_;
-    private final int port_;
-    private final String path_;
-
-    private Host(final String scheme, final String host, final int port, final String path) {
-        scheme_ = scheme;
-        host_ = host;
-        port_ = port;
-        path_ = path;
-    }
+public record Host(String scheme_, String host_, int port_, String path_) {
 
     public String getScheme() {
         return scheme_;
@@ -62,8 +50,7 @@ public final class Host {
             final int port;
             if (portString == null) {
                 port = Constants.EMPTY_PORT;
-            }
-            else {
+            } else {
                 port = ":*".equals(portString) ? Constants.WILDCARD_PORT : Integer.parseInt(portString.substring(1));
             }
             // Hosts are only consumed lowercase: https://w3c.github.io/webappsec-csp/#host-part-match
@@ -94,24 +81,4 @@ public final class Host {
                 + (path_ == null ? "" : path_);
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final Host that = (Host) o;
-        return port_ == that.port_
-                && Objects.equals(scheme_, that.scheme_)
-                && Objects.equals(host_, that.host_)
-                && Objects.equals(path_, that.path_);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(scheme_, host_, port_, path_);
-    }
 }

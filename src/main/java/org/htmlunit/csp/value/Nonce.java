@@ -15,25 +15,19 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Utils;
 
-public final class Nonce {
-    private final String base64ValuePart_;
-
-    private Nonce(final String base64Valuepart) {
-        base64ValuePart_ = base64Valuepart;
-    }
+public record Nonce(String base64ValuePart_) {
 
     public String getBase64ValuePart() {
         return base64ValuePart_;
     }
 
     public static Optional<Nonce> parseNonce(final String value) {
-        final String lowcaseValue = value.toLowerCase(Locale.ROOT);
-        if (lowcaseValue.startsWith("'nonce-") && lowcaseValue.endsWith("'")) {
+        final String lowercaseValue = value.toLowerCase(Locale.ROOT);
+        if (lowercaseValue.startsWith("'nonce-") && lowercaseValue.endsWith("'")) {
             final String nonce = value.substring(7, value.length() - 1);
             if (Utils.IS_BASE64_VALUE.test(nonce)) {
                 // Note that nonces _are_ case-sensitive, even though the grammar is not
@@ -60,8 +54,4 @@ public final class Nonce {
         return base64ValuePart_.equals(nonce.base64ValuePart_);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(base64ValuePart_);
-    }
 }

@@ -55,23 +55,15 @@ public class URI extends URLWithScheme {
     // http://www.w3.org/TR/url/#default-port
     public static int defaultPortForProtocol(final String scheme) {
         // NB this should just only be called with lowercase'd schemes
-        switch (scheme) {
-            case "ftp":
-                return 21;
-            case "file":
-                return Constants.EMPTY_PORT;
-            case "gopher":
-                return 70;
-            case "http":
-                return 80;
-            case "https":
-                return 443;
-            case "ws":
-                return 80;
-            case "wss":
-                return 443;
-            default:
-                return Constants.EMPTY_PORT;
-        }
+        return switch (scheme) {
+            case "ftp" -> 21;
+            case "file" -> Constants.EMPTY_PORT;
+            case "gopher" -> 70;
+            case "http" -> 80;
+            case "https" -> 443;
+            case "ws" -> 80;
+            case "wss" -> 443;
+            default -> Constants.EMPTY_PORT;
+        };
     }
 }

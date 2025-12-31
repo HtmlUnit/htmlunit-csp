@@ -59,8 +59,8 @@ public class SourceExpressionDirective extends HostSourceDirective {
             // The CSP grammar uses ABNF grammars, whose strings
             // are case-insensitive: https://tools.ietf.org/html/rfc5234
             // This needs to be ASCII-lowercase, so that `'strIct-dynamic''` still parses in Turkey
-            final String lowcaseToken = token.toLowerCase(Locale.ROOT);
-            switch (lowcaseToken) {
+            final String lowercaseToken = token.toLowerCase(Locale.ROOT);
+            switch (lowercaseToken) {
                 case UNSAFE_INLINE:
                     if (unsafeInline_) {
                         errors.add(Policy.Severity.Warning, "Duplicate source-expression 'unsafe-inline'", index);
@@ -127,7 +127,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
                             "'unsafe-hashed-attributes' was renamed to 'unsafe-hashes' in June 2018", index);
                     break;
                 default:
-                    if (lowcaseToken.startsWith("'nonce-")) {
+                    if (lowercaseToken.startsWith("'nonce-")) {
                         // the above check is not strictly necessary, but allows us to
                         // give a better message for nonce-likes which don't match the base64 grammar
                         final Optional<Nonce> nonce = Nonce.parseNonce(token);
@@ -139,7 +139,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
                         }
                         break;
                     }
-                    else if (lowcaseToken.startsWith("'sha")) {
+                    else if (lowercaseToken.startsWith("'sha")) {
                         // the above check is not strictly necessary, but allows us to give
                         // a better message for hash-likes which don't match the base64 grammar
                         final Optional<Hash> hash = Hash.parseHash(token);
@@ -155,7 +155,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
                         break;
                     }
                     else {
-                        addHostOrSchemeDuringConstruction(token, lowcaseToken, "source-expression", index, errors);
+                        addHostOrSchemeDuringConstruction(token, lowercaseToken, "source-expression", index, errors);
                     }
             }
             ++index;
@@ -188,7 +188,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
 
         if (hash.getBase64ValuePart().length() != hash.getAlgorithm().getLength()) {
             errors.add(Policy.Severity.Warning,
-                    "Wrong length for " + hash.getAlgorithm().toString()
+                    "Wrong length for " + hash.getAlgorithm()
                     + ": expected " + hash.getAlgorithm().getLength()
                     + ", got " + hash.getBase64ValuePart().length(), index);
         }

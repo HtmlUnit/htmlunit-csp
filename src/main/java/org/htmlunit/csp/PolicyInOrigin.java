@@ -18,14 +18,7 @@ import java.util.Optional;
 
 import org.htmlunit.csp.url.URLWithScheme;
 
-public class PolicyInOrigin {
-    private final Policy policy_;
-    private final URLWithScheme origin_;
-
-    public PolicyInOrigin(final Policy policy, final URLWithScheme origin) {
-        policy_ = policy;
-        origin_ = origin;
-    }
+public record PolicyInOrigin(Policy policy_, URLWithScheme origin_) {
 
     public Policy getPolicy() {
         return policy_;
@@ -88,7 +81,7 @@ public class PolicyInOrigin {
 
     public boolean allowsNavigation(final URLWithScheme url) {
         return policy_.allowsNavigation(Optional.of(url),
-                            Optional.empty(), Optional.empty(), Optional.of(origin_));
+                Optional.empty(), Optional.empty(), Optional.of(origin_));
     }
 
     public boolean allowsFrameAncestor(final URLWithScheme url) {
@@ -97,6 +90,6 @@ public class PolicyInOrigin {
 
     public boolean allowsFormAction(final URLWithScheme url) {
         return policy_.allowsFormAction(Optional.of(url),
-                            Optional.empty(), Optional.empty(), Optional.of(origin_));
+                Optional.empty(), Optional.empty(), Optional.of(origin_));
     }
 }

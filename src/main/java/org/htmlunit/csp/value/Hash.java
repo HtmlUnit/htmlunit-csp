@@ -15,20 +15,11 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Utils;
 
-public final class Hash {
-
-    private final Algorithm algorithm_;
-    private final String base64ValuePart_;
-
-    private Hash(final Algorithm algorithm, final String base64ValuePart) {
-        algorithm_ = algorithm;
-        base64ValuePart_ = base64ValuePart;
-    }
+public record Hash(Algorithm algorithm_, String base64ValuePart_) {
 
     public Algorithm getAlgorithm() {
         return algorithm_;
@@ -39,10 +30,10 @@ public final class Hash {
     }
 
     public static Optional<Hash> parseHash(final String value) {
-        final String lowcaseValue = value.toLowerCase(Locale.ROOT);
+        final String lowercaseValue = value.toLowerCase(Locale.ROOT);
         final Algorithm algorithm;
-        if (lowcaseValue.startsWith("'sha") && lowcaseValue.endsWith("'")) {
-            switch (lowcaseValue.substring(4, 7)) {
+        if (lowercaseValue.startsWith("'sha") && lowercaseValue.endsWith("'")) {
+            switch (lowercaseValue.substring(4, 7)) {
                 case "256":
                     algorithm = Algorithm.SHA256;
                     break;
@@ -82,19 +73,20 @@ public final class Hash {
         return algorithm_ == hash.algorithm_ && base64ValuePart_.equals(hash.base64ValuePart_);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(algorithm_, base64ValuePart_);
-    }
-
     public enum Algorithm {
-        /** SHA256("sha256", 44). */
+        /**
+         * SHA256("sha256", 44).
+         */
         SHA256("sha256", 44),
 
-        /** SHA384("sha384", 64). */
+        /**
+         * SHA384("sha384", 64).
+         */
         SHA384("sha384", 64),
 
-        /** SHA512("sha512", 88). */
+        /**
+         * SHA512("sha512", 88).
+         */
         SHA512("sha512", 88);
 
         private final String value_;

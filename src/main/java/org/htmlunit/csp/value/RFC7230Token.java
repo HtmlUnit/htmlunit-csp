@@ -14,18 +14,12 @@
  */
 package org.htmlunit.csp.value;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import org.htmlunit.csp.Constants;
 
-public final class RFC7230Token {
-    private final String value_;
-
-    private RFC7230Token(final String value) {
-        value_ = value;
-    }
+public record RFC7230Token(String value_) {
 
     public String getValue() {
         return value_;
@@ -45,16 +39,10 @@ public final class RFC7230Token {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof RFC7230Token)) {
+        if (!(o instanceof RFC7230Token that)) {
             return false;
         }
-        final RFC7230Token that = (RFC7230Token) o;
         return value_.equals(that.value_);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value_);
     }
 
     @Override

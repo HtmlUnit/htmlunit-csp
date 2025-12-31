@@ -15,17 +15,11 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Constants;
 
-public final class Scheme {
-    private final String value_;
-
-    private Scheme(final String value) {
-        value_ = value;
-    }
+public record Scheme(String value_) {
 
     public static Optional<Scheme> parseScheme(final String value) {
         if (value.matches("^" + Constants.SCHEME_PART + ":$")) {
@@ -57,8 +51,4 @@ public final class Scheme {
         return value_.equals(scheme.value_);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(value_);
-    }
 }

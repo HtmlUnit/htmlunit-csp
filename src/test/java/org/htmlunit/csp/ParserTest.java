@@ -40,9 +40,7 @@ public class ParserTest extends TestBase {
         assertEquals("DEFAULT-SRC 'NONE', default-src 'none'", p.toString());
 
         final ArrayList<PolicyListError> observedErrors = new ArrayList<>();
-        final Policy.PolicyListErrorConsumer consumer = (severity, message, policyIndex, directiveIndex, valueIndex) -> {
-            observedErrors.add(e(severity, message, policyIndex, directiveIndex, valueIndex));
-        };
+        final Policy.PolicyListErrorConsumer consumer = (severity, message, policyIndex, directiveIndex, valueIndex) -> observedErrors.add(e(severity, message, policyIndex, directiveIndex, valueIndex));
         p = Policy.parseSerializedCSPList("default-src 'none', default-src 'not-a-keyword'; script-src asdf asdf", consumer);
         assertEquals("default-src 'none', default-src 'not-a-keyword'; script-src asdf asdf", p.toString());
 
@@ -682,16 +680,12 @@ public class ParserTest extends TestBase {
 
     @Test
     public void assertsAscii() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Policy.parseSerializedCSP("\uD835\uDC9C", Policy.PolicyErrorConsumer.ignored);
-        });
+        assertThrows(IllegalArgumentException.class, () -> Policy.parseSerializedCSP("\uD835\uDC9C", PolicyErrorConsumer.ignored));
     }
 
     @Test
     public void assertsNoCommas() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Policy.parseSerializedCSP("a ,", Policy.PolicyErrorConsumer.ignored);
-        });
+        assertThrows(IllegalArgumentException.class, () -> Policy.parseSerializedCSP("a ,", PolicyErrorConsumer.ignored));
     }
 
     private static void roundTrips(final String input, final PolicyError... errors) {
@@ -700,9 +694,7 @@ public class ParserTest extends TestBase {
 
     private static void serializesTo(final String input, final String output, final PolicyError... errors) {
         final ArrayList<PolicyError> observedErrors = new ArrayList<>();
-        final Policy.PolicyErrorConsumer consumer = (severity, message, directiveIndex, valueIndex) -> {
-            observedErrors.add(e(severity, message, directiveIndex, valueIndex));
-        };
+        final Policy.PolicyErrorConsumer consumer = (severity, message, directiveIndex, valueIndex) -> observedErrors.add(e(severity, message, directiveIndex, valueIndex));
         final Policy policy = Policy.parseSerializedCSP(input, consumer);
         assertEquals(errors.length, observedErrors.size());
         for (int i = 0; i < errors.length; ++i) {
@@ -717,9 +709,7 @@ public class ParserTest extends TestBase {
     @Test
     public void invalidHashSyntax() {
         final ArrayList<PolicyListError> observedErrors = new ArrayList<>();
-        final Policy.PolicyListErrorConsumer consumer = (severity, message, policyIndex, directiveIndex, valueIndex) -> {
-            observedErrors.add(e(severity, message, policyIndex, directiveIndex, valueIndex));
-        };
+        final Policy.PolicyListErrorConsumer consumer = (severity, message, policyIndex, directiveIndex, valueIndex) -> observedErrors.add(e(severity, message, policyIndex, directiveIndex, valueIndex));
 
         final PolicyList p = Policy.parseSerializedCSPList(
                 "default-src 'none'; script-src 'sha256- RFWPLDbv2BY+rCkDzsE+0fr8ylGr2R2faWMhq4lfEQc=';", consumer);

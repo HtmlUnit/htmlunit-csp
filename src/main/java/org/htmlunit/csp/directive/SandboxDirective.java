@@ -43,8 +43,8 @@ public class SandboxDirective extends Directive {
         for (final String token : values) {
             // HTML attribute keywords are ascii-case-insensitive:
             // https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#keywords-and-enumerated-attributes
-            final String lowcaseToken = token.toLowerCase(Locale.ROOT);
-            switch (lowcaseToken) {
+            final String lowercaseToken = token.toLowerCase(Locale.ROOT);
+            switch (lowercaseToken) {
                 case ALLOW_DOWNLOADS:
                     if (allowDownloads_) {
                         errors.add(Policy.Severity.Warning, "Duplicate sandbox keyword allow-downloads", index);

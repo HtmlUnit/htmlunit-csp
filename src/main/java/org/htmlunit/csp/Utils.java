@@ -14,8 +14,8 @@
  */
 package org.htmlunit.csp;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -53,12 +53,7 @@ public final class Utils {
     }
 
     static String decodeString(final String s) {
-        try {
-            return URLDecoder.decode(s, "UTF-8");
-        }
-        catch (final UnsupportedEncodingException e) {
-            return s;
-        }
+        return URLDecoder.decode(s, StandardCharsets.UTF_8);
     }
 
     private Utils() {
