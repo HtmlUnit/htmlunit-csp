@@ -205,16 +205,16 @@ public class QueryingTest extends TestBase {
 
         p = parse("script-src https: 'self' http://a", URI.parseURI("https://abc.com").orElse(null));
         assertFalse(p.allowsUnsafeInlineScript());
-        assertTrue(p.allowsUnsafeInlineStyle()); // NB changed
+        assertTrue(p.allowsUnsafeInlineStyle());
         p = parse("script-src https: 'self' http://a 'unsafe-inline'", URI.parseURI("https://abc.com").orElse(null));
         assertTrue(p.allowsUnsafeInlineScript());
-        assertTrue(p.allowsUnsafeInlineStyle()); // NB changed
+        assertTrue(p.allowsUnsafeInlineStyle());
 
         p = parse("style-src https: 'self' http://a", URI.parseURI("https://abc.com").orElse(null));
         assertTrue(p.allowsUnsafeInlineScript()); // NB chagned
         assertFalse(p.allowsUnsafeInlineStyle());
         p = parse("style-src https: 'self' http://a 'unsafe-inline'", URI.parseURI("https://abc.com").orElse(null));
-        assertTrue(p.allowsUnsafeInlineScript()); // NB changed
+        assertTrue(p.allowsUnsafeInlineScript());
         assertTrue(p.allowsUnsafeInlineStyle());
 
         p = parse("default-src *:* 'unsafe-inline'; connect-src 'self' http://good.com/", "https://abc.com");
@@ -233,7 +233,7 @@ public class QueryingTest extends TestBase {
         assertTrue(parse("plugin-types a/b c/d", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("a/B")), "plugin is allowed");
         assertTrue(parse("plugin-types a/b c/d", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("A/B")), "plugin is allowed");
         assertTrue(parse("plugin-types a/b c/d", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("a/b")), "plugin is allowed");
-        assertTrue(parse("default-src 'none'", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("z/b")), "plugin is allowed"); // NB changed
+        assertTrue(parse("default-src 'none'", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("z/b")), "plugin is allowed");
         assertFalse(parse("plugin-types a/b c/d", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("z/b")), "plugin is not allowed");
         assertFalse(parse("plugin-types a/b c/d", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("a/d")), "plugin is not allowed");
         assertFalse(parse("plugin-types a/b c/d", PolicyErrorConsumer.ignored).allowsPlugin(MediaType.parseMediaType("/b")), "plugin is not allowed");
@@ -424,7 +424,7 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsConnection(URI.parseURI("http://good.com/").orElse(null)));
         assertTrue(p.allowsConnection(URI.parseURI("https://good.com/").orElse(null)));
         assertFalse(p.allowsConnection(URI.parseURI("http://aaa.good.com/").orElse(null)));
-        assertTrue(p.allowsConnection(URI.parseURI("wss://abc.com/").orElse(null))); // NB changed, see https://github.com/w3c/webappsec-csp/issues/429
+        assertTrue(p.allowsConnection(URI.parseURI("wss://abc.com/").orElse(null)));
         assertFalse(p.allowsConnection(URI.parseURI("http://abc.com/").orElse(null)));
         assertFalse(p.allowsConnection(URI.parseURI("ws://abc.com/").orElse(null)));
 
@@ -755,8 +755,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsScriptFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB chagned
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsScriptFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsScriptFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -768,8 +768,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsScriptFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsScriptFromSource(GUID.parseGUID("data:").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("applewebdata://resource").orElse(null)));
         assertFalse(p.allowsScriptFromSource(URI.parseURI("somethingelse://resource").orElse(null)));
@@ -782,8 +782,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsScriptFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsScriptFromSource(GUID.parseGUID("data:").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("file://anotherresource").orElse(null)));
         assertFalse(p.allowsScriptFromSource(URI.parseURI("applewebdata://resource").orElse(null)));
@@ -797,8 +797,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsScriptFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsScriptFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertTrue(p.allowsScriptFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsScriptFromSource(URI.parseURI("somethingelse://resource").orElse(null)));
 
@@ -823,8 +823,8 @@ public class QueryingTest extends TestBase {
         assertFalse(p.allowsStyleFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsStyleFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsStyleFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -835,8 +835,8 @@ public class QueryingTest extends TestBase {
         assertFalse(p.allowsStyleFromSource(URI.parseURI("ftp://example.com").orElse(null)));
         assertFalse(p.allowsStyleFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertFalse(p.allowsStyleFromSource(URI.parseURI("http://example.com/path").orElse(null)));
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -847,8 +847,8 @@ public class QueryingTest extends TestBase {
         assertFalse(p.allowsStyleFromSource(URI.parseURI("ftp://example.com").orElse(null)));
         assertTrue(p.allowsStyleFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertFalse(p.allowsStyleFromSource(URI.parseURI("http://example.com/path").orElse(null)));
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -859,8 +859,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsImageFromSource(URI.parseURI("ftp://example.com").orElse(null)));
         assertFalse(p.allowsImageFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertFalse(p.allowsImageFromSource(URI.parseURI("http://example.com/path").orElse(null)));
-        assertFalse(p.allowsImageFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsImageFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsImageFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsImageFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsImageFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsImageFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -871,8 +871,8 @@ public class QueryingTest extends TestBase {
         assertFalse(p.allowsStyleFromSource(URI.parseURI("ftp://example.com").orElse(null)));
         assertFalse(p.allowsStyleFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsStyleFromSource(URI.parseURI("http://example.com/path").orElse(null)));
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsStyleFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsStyleFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -932,8 +932,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsFontFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsFontFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsFontFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsFontFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsFontFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsFontFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsFontFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsFontFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsFontFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -969,8 +969,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsObjectFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsObjectFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsObjectFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsObjectFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsObjectFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsObjectFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsObjectFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsObjectFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsObjectFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -1006,8 +1006,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsMediaFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsMediaFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsMediaFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsMediaFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsMediaFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsMediaFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsMediaFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsMediaFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsMediaFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -1043,8 +1043,8 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsManifestFromSource(URI.parseURI("ftp://example.com:80").orElse(null)));
         assertTrue(p.allowsManifestFromSource(URI.parseURI("http://example.com/path").orElse(null)));
         assertTrue(p.allowsManifestFromSource(URI.parseURI("http://example.com/PATH").orElse(null)));
-        assertFalse(p.allowsManifestFromSource(URI.parseURI("ws://example.com/PATH").orElse(null))); // NB changed
-        assertFalse(p.allowsManifestFromSource(URI.parseURI("wss://example.com/PATH").orElse(null))); // NB changed
+        assertFalse(p.allowsManifestFromSource(URI.parseURI("ws://example.com/PATH").orElse(null)));
+        assertFalse(p.allowsManifestFromSource(URI.parseURI("wss://example.com/PATH").orElse(null)));
         assertFalse(p.allowsManifestFromSource(GUID.parseGUID("data:").orElse(null)));
         assertFalse(p.allowsManifestFromSource(GUID.parseGUID("custom.scheme:").orElse(null)));
 
@@ -1079,12 +1079,12 @@ public class QueryingTest extends TestBase {
 
         p = parse("default-src 'none'; child-src 'self'", "http://example.com");
         assertTrue(p.allowsFrameFromSource(URI.parseURI("http://example.com").orElse(null)));
-        assertTrue(p.allowsWorkerFromSource(URI.parseURI("http://example.com").orElse(null))); // NB changed
+        assertTrue(p.allowsWorkerFromSource(URI.parseURI("http://example.com").orElse(null)));
         assertFalse(p.allowsScriptFromSource(URI.parseURI("http://example.com").orElse(null)));
 
         p = parse("child-src 'none'; default-src 'self'", "http://example.com");
         assertFalse(p.allowsFrameFromSource(URI.parseURI("http://example.com").orElse(null)));
-        assertFalse(p.allowsWorkerFromSource(URI.parseURI("http://example.com").orElse(null))); // NB changed
+        assertFalse(p.allowsWorkerFromSource(URI.parseURI("http://example.com").orElse(null)));
         assertTrue(p.allowsScriptFromSource(URI.parseURI("http://example.com").orElse(null)));
 
         p = parse("default-src 'self'", "http://example.com");

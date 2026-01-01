@@ -54,7 +54,7 @@ public class URI extends URLWithScheme {
 
     // http://www.w3.org/TR/url/#default-port
     public static int defaultPortForProtocol(final String scheme) {
-        // NB this should just only be called with lowercase'd schemes
+        // NB this should just only be called with lowercased schemes
         return switch (scheme) {
             case "ftp" -> 21;
             case "file" -> Constants.EMPTY_PORT;
