@@ -13,4 +13,7 @@
  */
 module org.htmlunit.csp {
     exports org.htmlunit.csp;
+    exports org.htmlunit.csp.directive;
+    exports org.htmlunit.csp.value;
+    exports org.htmlunit.csp.url;
 }
