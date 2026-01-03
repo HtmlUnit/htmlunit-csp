@@ -15,6 +15,7 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Utils;
@@ -71,6 +72,11 @@ public record Hash(Algorithm algorithm_, String base64ValuePart_) {
         }
         final Hash hash = (Hash) o;
         return algorithm_ == hash.algorithm_ && base64ValuePart_.equals(hash.base64ValuePart_);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(algorithm_, base64ValuePart_);
     }
 
     public enum Algorithm {

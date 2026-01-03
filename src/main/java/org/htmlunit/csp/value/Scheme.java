@@ -15,6 +15,7 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Constants;
@@ -51,4 +52,8 @@ public record Scheme(String value_) {
         return value_.equals(scheme.value_);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value_);
+    }
 }

@@ -15,6 +15,7 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -52,6 +53,11 @@ public record MediaType(String type_, String subtype_) {
         }
         final MediaType mediaType = (MediaType) o;
         return type_.equals(mediaType.type_) && subtype_.equals(mediaType.subtype_);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type_, subtype_);
     }
 
     @Override

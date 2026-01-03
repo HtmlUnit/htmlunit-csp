@@ -15,6 +15,7 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Utils;
@@ -54,4 +55,8 @@ public record Nonce(String base64ValuePart_) {
         return base64ValuePart_.equals(nonce.base64ValuePart_);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(base64ValuePart_);
+    }
 }

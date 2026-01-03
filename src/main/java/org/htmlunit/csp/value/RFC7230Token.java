@@ -14,6 +14,7 @@
  */
 package org.htmlunit.csp.value;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -43,6 +44,11 @@ public record RFC7230Token(String value_) {
             return false;
         }
         return value_.equals(that.value_);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(value_);
     }
 
     @Override
