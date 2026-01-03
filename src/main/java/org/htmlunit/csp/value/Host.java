@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Ronald Brill.
+ * Copyright (c) 2023-2026 Ronald Brill.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,8 @@ public record Host(String scheme_, String host_, int port_, String path_) {
             final int port;
             if (portString == null) {
                 port = Constants.EMPTY_PORT;
-            } else {
+            }
+            else {
                 port = ":*".equals(portString) ? Constants.WILDCARD_PORT : Integer.parseInt(portString.substring(1));
             }
             // Hosts are only consumed lowercase: https://w3c.github.io/webappsec-csp/#host-part-match

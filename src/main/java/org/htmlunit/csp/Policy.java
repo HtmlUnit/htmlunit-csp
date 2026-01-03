@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Ronald Brill.
+ * Copyright (c) 2023-2026 Ronald Brill.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,8 @@ public final class Policy {
         // java's lambdas are dumb
         final int[] index = {0};
         final PolicyErrorConsumer policyErrorConsumer =
-                (Severity severity, String message, int directiveIndex, int valueIndex) -> policyListErrorConsumer.add(severity, message, index[0], directiveIndex, valueIndex);
+                (Severity severity, String message, int directiveIndex, int valueIndex) ->
+                        policyListErrorConsumer.add(severity, message, index[0], directiveIndex, valueIndex);
 
         // https://infra.spec.whatwg.org/#split-on-commas
         for (final String token : serialized.split(",")) {
@@ -120,7 +121,8 @@ public final class Policy {
         // java's lambdas are dumb
         final int[] index = {0};
         final Directive.DirectiveErrorConsumer directiveErrorConsumer =
-                (Severity severity, String message, int valueIndex) -> policyErrorConsumer.add(severity, message, index[0], valueIndex);
+                (Severity severity, String message, int valueIndex) ->
+                        policyErrorConsumer.add(severity, message, index[0], valueIndex);
 
         final Policy policy = new Policy();
 
@@ -491,7 +493,8 @@ public final class Policy {
             // if not the parameter is not supplied, we have to assume the worst case
             return !parserInserted.orElse(true);
         }
-        return scriptUrl.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
+        return scriptUrl.filter(urlWithScheme ->
+                doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
     }
 
     // https://w3c.github.io/webappsec-csp/#script-src-elem-inline
@@ -617,7 +620,8 @@ public final class Policy {
             }
         }
         // integrity is not used: https://github.com/w3c/webappsec-csp/issues/430
-        return styleUrl.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
+        return styleUrl.filter(urlWithScheme ->
+                doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
     }
 
     public boolean allowsInlineStyle(final Optional<String> nonce, final Optional<String> source) {
@@ -635,14 +639,16 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsFrameAncestor(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
         if (frameAncestors_ == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, frameAncestors_, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, frameAncestors_, origin)).isPresent();
     }
 
     // This assumes that a `ws:` or `wss:` URL is being used with `new WebSocket` specifically
@@ -678,7 +684,8 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsImage(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -687,7 +694,8 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsApplicationManifest(final Optional<URLWithScheme> source,
@@ -697,7 +705,8 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsMedia(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -706,7 +715,8 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsObject(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -715,7 +725,8 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     // Not actually spec'd properly; see https://github.com/whatwg/fetch/issues/1008
@@ -725,7 +736,8 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsWorker(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
@@ -734,7 +746,8 @@ public final class Policy {
         if (sourceList == null) {
             return true;
         }
-        return source.filter(urlWithScheme -> doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+        return source.filter(urlWithScheme ->
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
     public boolean allowsPlugin(final Optional<MediaType> mediaType) {

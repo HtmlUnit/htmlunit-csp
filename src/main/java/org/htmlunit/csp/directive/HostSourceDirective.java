@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Ronald Brill.
+ * Copyright (c) 2023-2026 Ronald Brill.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,14 +75,16 @@ public abstract class HostSourceDirective extends Directive {
                 // Technically this is just a specific kind of host-source, but it's worth handling explicitly
                 if (star_) {
                     errors.add(Policy.Severity.Warning, "Duplicate " + kind + " *", index);
-                } else {
+                }
+                else {
                     star_ = true;
                 }
             }
             case SELF_SRC -> {
                 if (self_) {
                     errors.add(Policy.Severity.Warning, "Duplicate " + kind + " 'self'", index);
-                } else {
+                }
+                else {
                     self_ = true;
                 }
             }
@@ -90,7 +92,8 @@ public abstract class HostSourceDirective extends Directive {
                 final Optional<Scheme> asScheme = Scheme.parseScheme(token);
                 if (asScheme.isPresent()) {
                     addScheme(asScheme.get(), index, errors);
-                } else {
+                }
+                else {
                     if (Constants.UNQUOTED_KEYWORD_PATTERN.matcher(token).find()) {
                         errors.add(Policy.Severity.Warning,
                                 "This host name is unusual, and likely meant to be a keyword "
@@ -100,7 +103,8 @@ public abstract class HostSourceDirective extends Directive {
                     final Optional<Host> asHost = Host.parseHost(token);
                     if (asHost.isPresent()) {
                         addHostSource(asHost.get(), index, errors);
-                    } else {
+                    }
+                    else {
                         errors.add(Policy.Severity.Error, "Unrecognized " + kind + " " + token, index);
                     }
                 }
