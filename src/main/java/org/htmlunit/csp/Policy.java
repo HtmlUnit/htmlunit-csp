@@ -33,8 +33,10 @@ import org.htmlunit.csp.directive.FrameAncestorsDirective;
 import org.htmlunit.csp.directive.HostSourceDirective;
 import org.htmlunit.csp.directive.PluginTypesDirective;
 import org.htmlunit.csp.directive.ReportUriDirective;
+import org.htmlunit.csp.directive.RequireTrustedTypesForDirective;
 import org.htmlunit.csp.directive.SandboxDirective;
 import org.htmlunit.csp.directive.SourceExpressionDirective;
+import org.htmlunit.csp.directive.TrustedTypesDirective;
 import org.htmlunit.csp.url.GUID;
 import org.htmlunit.csp.url.URI;
 import org.htmlunit.csp.url.URLWithScheme;
@@ -70,6 +72,8 @@ public final class Policy {
     private RFC7230Token reportTo_;
     private ReportUriDirective reportUri_;
     private SandboxDirective sandbox_;
+    private TrustedTypesDirective trustedTypes_;
+    private RequireTrustedTypesForDirective requireTrustedTypes_;
     private boolean upgradeInsecureRequests_;
 
     private final EnumMap<FetchDirectiveKind, SourceExpressionDirective> fetchDirectives_
@@ -316,6 +320,32 @@ public final class Policy {
                     wasDupe = true;
                 }
                 newDirective = sandboxDirective;
+                break;
+
+            case "trusted-types":
+                // https://www.w3.org/TR/trusted-types/
+                final TrustedTypesDirective trustedTypesDirective = new TrustedTypesDirective(
+                        values, directiveErrorConsumer);
+                if (trustedTypes_  == null) {
+                    trustedTypes_ = trustedTypesDirective;
+                }
+                else {
+                    wasDupe = true;
+                }
+                newDirective = trustedTypesDirective;
+                break;
+
+            case "require-trusted-types-for":
+                // https://www.w3.org/TR/trusted-types/#require-trusted-types-for-csp-directive
+                final RequireTrustedTypesForDirective requireTrustedTypesDirective = new RequireTrustedTypesForDirective(
+                        values, directiveErrorConsumer);
+                if (requireTrustedTypes_  == null) {
+                    requireTrustedTypes_ = requireTrustedTypesDirective;
+                }
+                else {
+                    wasDupe = true;
+                }
+                newDirective = requireTrustedTypesDirective;
                 break;
 
             case "upgrade-insecure-requests":
