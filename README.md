@@ -93,7 +93,7 @@ Policy policy = Policy.parseSerializedCSP("script-src http://a", Policy.PolicyEr
 System.out.println(policy.allowsExternalScript(
   Optional.empty(),
   Optional.empty(),
-  Optional.of(URI.parse("http://a")),
+  URI.parse("http://a"),
   Optional.empty(),
   Optional.empty()
 ));
