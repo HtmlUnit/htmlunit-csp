@@ -465,6 +465,16 @@ public class Policy {
         return Optional.ofNullable(trustedTypes_);
     }
 
+    /**
+     * Indicates if wildcard policy names are permitted in the trusted-types directive.
+     * When true, any policy name is allowed, which may reduce security.
+     *
+     * @return true if wildcard policy names (*) are permitted, false if not present or not permitted
+     */
+    public boolean allowsWildcardPolicyNames() {
+        return trustedTypes_ != null && trustedTypes_.allowsWildcardPolicyNames();
+    }
+
     public Optional<RequireTrustedTypesForDirective> requireTrustedTypesFor() {
         return Optional.ofNullable(requireTrustedTypesFor_);
     }
