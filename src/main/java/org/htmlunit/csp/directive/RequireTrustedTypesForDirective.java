@@ -42,17 +42,20 @@ public class RequireTrustedTypesForDirective extends Directive {
         for (final String token : values) {
             // ABNF strings are case-insensitive
             final String lowerCaseToken = token.toLowerCase(Locale.ROOT);
-            if (lowerCaseToken.equals("'script'")) {
+            if ("'script'".equals(lowerCaseToken)) {
                 if (script_) {
                     errors.add(Policy.Severity.Warning, "Duplicate keyword 'script'", index);
-                } else {
+                }
+                else {
                     script_ = true;
                 }
-            } else {
+            }
+            else {
                 if (token.startsWith("'") && token.endsWith("'")) {
                     errors.add(Policy.Severity.Error,
                             "Unrecognized require-trusted-types-for keyword " + token, index);
-                } else {
+                }
+                else {
                     errors.add(Policy.Severity.Error,
                             "Unrecognized require-trusted-types-for value " + token
                                     + " - keywords must be wrapped in single quotes", index);

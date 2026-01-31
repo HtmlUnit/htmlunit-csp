@@ -46,7 +46,7 @@ import org.htmlunit.csp.value.MediaType;
 import org.htmlunit.csp.value.RFC7230Token;
 import org.htmlunit.csp.value.Scheme;
 
-public class Policy {
+public final class Policy {
     // Things we don't preserve:
     // - Whitespace
     // - Empty directives or policies (as in `; ;` or `, ,`)

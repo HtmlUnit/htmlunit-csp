@@ -50,21 +50,24 @@ public class TrustedTypesDirective extends Directive {
                 case "'none'":
                     if (none_) {
                         errors.add(Policy.Severity.Warning, "Duplicate keyword 'none'", index);
-                    } else {
+                    }
+                    else {
                         none_ = true;
                     }
                     break;
                 case "'allow-duplicates'":
                     if (allowDuplicates_) {
                         errors.add(Policy.Severity.Warning, "Duplicate keyword 'allow-duplicates'", index);
-                    } else {
+                    }
+                    else {
                         allowDuplicates_ = true;
                     }
                     break;
                 case "*":
                     if (star_) {
                         errors.add(Policy.Severity.Warning, "Duplicate wildcard *", index);
-                    } else {
+                    }
+                    else {
                         star_ = true;
                         errors.add(Policy.Severity.Warning,
                                 "Wildcard policy names (*) permit any policy name, which may reduce security", index);
