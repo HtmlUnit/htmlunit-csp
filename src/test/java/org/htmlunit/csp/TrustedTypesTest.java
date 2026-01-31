@@ -155,98 +155,137 @@ public class TrustedTypesTest extends TestBase {
     }
 
     @Test
-    public void testTrustedTypesErrors() {
-        // 'none' combined with other values
+    public void testTrustedTypesErrorsNoneCombined() {
         roundTrips(
                 "trusted-types 'none' myPolicy",
                 e(Policy.Severity.Error, "'none' must not be combined with any other trusted-types expression", 0, -1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsNoneStar() {
         roundTrips(
                 "trusted-types 'none' *",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 1),
                 e(Policy.Severity.Error, "'none' must not be combined with any other trusted-types expression", 0, -1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsNoneTwoOthers() {
         roundTrips(
                 "trusted-types 'none' 'allow-duplicates'",
-                e(Policy.Severity.Error, "'none' must not be combined with any other trusted-types expression", 0, -1)
+                e(Policy.Severity.Error, "'none' must not be combined with any other trusted-types expression", 0, -1),
+                e(Policy.Severity.Warning, "'allow-duplicates' has no effect without policy names or wildcard", 0, -1)
         );
+    }
 
-        // Invalid keyword
+    @Test
+    public void testTrustedTypesErrorsInvalidKeyword() {
         roundTrips(
                 "trusted-types 'invalid-keyword'",
                 e(Policy.Severity.Error, "Unrecognized trusted-types keyword 'invalid-keyword'", 0, 0)
         );
+    }
 
-        // Invalid policy name
+    @Test
+    public void testTrustedTypesErrorsInvalidPolicyName() {
         roundTrips(
                 "trusted-types policy!name",
                 e(Policy.Severity.Error, "Invalid trusted-types policy name policy!name", 0, 0)
         );
+    }
 
-        // Duplicate policy name
+    @Test
+    public void testTrustedTypesErrorsDuplicatePolicyName() {
         roundTrips(
                 "trusted-types myPolicy myPolicy",
                 e(Policy.Severity.Warning, "Duplicate policy name myPolicy", 0, 1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsDifferentCasePolicyNotDuplicates() {
         // Different case policy names are NOT duplicates (case-sensitive per browser behavior)
         roundTrips(
                 "trusted-types myPolicy MYPOLICY"
         );
+    }
 
-        // Duplicate keyword
+    @Test
+    public void testTrustedTypesErrorsDuplicateKeywords() {
         roundTrips(
                 "trusted-types 'allow-duplicates' 'allow-duplicates'",
-                e(Policy.Severity.Warning, "Duplicate keyword 'allow-duplicates'", 0, 1)
+                e(Policy.Severity.Warning, "Duplicate keyword 'allow-duplicates'", 0, 1),
+                e(Policy.Severity.Warning, "'allow-duplicates' has no effect without policy names or wildcard", 0, -1)
         );
+    }
 
-        // Duplicate wildcard
+    @Test
+    public void testTrustedTypesErrorsDuplicateWildcard() {
         roundTrips(
                 "trusted-types * *",
                 e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
                 e(Policy.Severity.Warning, "Duplicate wildcard *", 0, 1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsPolicyNameWithWildcard() {
         // Policy name with wildcard (wildcard makes policy names redundant)
         roundTrips(
                 "trusted-types myPolicy *",
                 e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 1),
                 e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1)
         );
+    }
 
-        // Multiple policy names with wildcard
+    @Test
+    public void testTrustedTypesErrorsMultiplePlolicyNamesWithWildcard() {
         roundTrips(
                 "trusted-types one two *",
                 e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 2),
                 e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1)
         );
+    }
 
-        // Duplicate directive
+    @Test
+    public void testTrustedTypesErrorsDuplicateDirective() {
         roundTrips(
                 "trusted-types one; trusted-types two",
                 e(Policy.Severity.Warning, "Duplicate directive trusted-types", 1, -1)
         );
+    }
 
-        // Empty directive
+    @Test
+    public void testTrustedTypesErrorsEmptyDirective() {
         roundTrips(
                 "trusted-types",
                 e(Policy.Severity.Warning, "Empty trusted-types directive allows all policy names (use '*' or 'none' to be explicit)", 0, -1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsAllowDuplicatesalone() {
         // 'allow-duplicates' alone (no policy names or wildcard)
         roundTrips(
                 "trusted-types 'allow-duplicates'",
                 e(Policy.Severity.Warning, "'allow-duplicates' has no effect without policy names or wildcard", 0, -1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsWildcardWithAllowDuplicates() {
         // Wildcard with allow-duplicates (redundant)
         roundTrips(
                 "trusted-types * 'allow-duplicates'",
                 e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
                 e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsPolicyNameWithWildcardAndAllowDuplicates() {
         // Policy names with wildcard and allow-duplicates (multiple redundancies)
         roundTrips(
                 "trusted-types myPolicy * 'allow-duplicates'",
@@ -254,7 +293,10 @@ public class TrustedTypesTest extends TestBase {
                 e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1),
                 e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1)
         );
+    }
 
+    @Test
+    public void testTrustedTypesErrorsWildcardBeforePolicyName() {
         // Order independence: wildcard before policy name
         roundTrips(
                 "trusted-types * myPolicy",
@@ -426,10 +468,6 @@ public class TrustedTypesTest extends TestBase {
     // Helper methods
 
     private static void roundTrips(String input, PolicyError... errors) {
-        serializesTo(input, input, errors);
-    }
-
-    private static void serializesTo(String input, String output, PolicyError... errors) {
         ArrayList<PolicyError> observedErrors = new ArrayList<>();
         Policy.PolicyErrorConsumer consumer = (severity, message, directiveIndex, valueIndex) -> {
             observedErrors.add(e(severity, message, directiveIndex, valueIndex));
@@ -439,6 +477,6 @@ public class TrustedTypesTest extends TestBase {
         for (int i = 0; i < errors.length; ++i) {
             assertEquals(errors[i], observedErrors.get(i));
         }
-        assertEquals(output, policy.toString());
+        assertEquals(input, policy.toString());
     }
 }
