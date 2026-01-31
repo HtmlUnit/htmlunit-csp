@@ -14,17 +14,10 @@
  */
 package org.htmlunit.csp;
 
-import org.htmlunit.csp.Policy.PolicyErrorConsumer;
 import org.htmlunit.csp.url.URI;
-import org.htmlunit.csp.value.Scheme;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReadmeTest extends TestBase {
 
