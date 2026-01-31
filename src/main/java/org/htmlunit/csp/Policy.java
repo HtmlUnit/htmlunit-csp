@@ -1153,19 +1153,19 @@ public class Policy {
 
     @FunctionalInterface
     public interface PolicyErrorConsumer {
-        // valueIndex = -1 for errors not pertaining to a value
-        void add(Severity severity, String message, int directiveIndex, int valueIndex);
-
         /** PolicyErrorConsumer ignored. */
         PolicyErrorConsumer ignored = (severity, message, directiveIndex, valueIndex) -> { };
+
+        // valueIndex = -1 for errors not pertaining to a value
+        void add(Severity severity, String message, int directiveIndex, int valueIndex);
     }
 
     @FunctionalInterface
     public interface PolicyListErrorConsumer {
-        // valueIndex = -1 for errors not pertaining to a value
-        void add(Severity severity, String message, int policyIndex, int directiveIndex, int valueIndex);
-
         /** PolicyListErrorConsumer ignored. */
         PolicyListErrorConsumer ignored = (severity, message, policyIndex, directiveIndex, valueIndex) -> { };
+
+        // valueIndex = -1 for errors not pertaining to a value
+        void add(Severity severity, String message, int policyIndex, int directiveIndex, int valueIndex);
     }
 }

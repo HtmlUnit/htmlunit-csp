@@ -28,7 +28,7 @@ public class RequireTrustedTypesForDirective extends Directive {
     // Currently only 'script' is defined
     private static final String SCRIPT = "'script'";
 
-    private boolean script_ = false;
+    private boolean script_;
 
     public RequireTrustedTypesForDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);
@@ -41,26 +41,22 @@ public class RequireTrustedTypesForDirective extends Directive {
         int index = 0;
         for (final String token : values) {
             // ABNF strings are case-insensitive
-            final String lowcaseToken = token.toLowerCase(Locale.ROOT);
-            switch (lowcaseToken) {
-                case "'script'":
-                    if (!script_) {
-                        script_ = true;
-                    }
-                    else {
-                        errors.add(Policy.Severity.Warning, "Duplicate keyword 'script'", index);
-                    }
-                    break;
-                default:
-                    if (token.startsWith("'") && token.endsWith("'")) {
-                        errors.add(Policy.Severity.Error,
-                                "Unrecognized require-trusted-types-for keyword " + token, index);
-                    }
-                    else {
-                        errors.add(Policy.Severity.Error,
-                                "Unrecognized require-trusted-types-for value " + token
-                                        + " - keywords must be wrapped in single quotes", index);
-                    }
+            final String lowerCaseToken = token.toLowerCase(Locale.ROOT);
+            if (lowerCaseToken.equals("'script'")) {
+                if (script_) {
+                    errors.add(Policy.Severity.Warning, "Duplicate keyword 'script'", index);
+                } else {
+                    script_ = true;
+                }
+            } else {
+                if (token.startsWith("'") && token.endsWith("'")) {
+                    errors.add(Policy.Severity.Error,
+                            "Unrecognized require-trusted-types-for keyword " + token, index);
+                } else {
+                    errors.add(Policy.Severity.Error,
+                            "Unrecognized require-trusted-types-for value " + token
+                                    + " - keywords must be wrapped in single quotes", index);
+                }
             }
             ++index;
         }

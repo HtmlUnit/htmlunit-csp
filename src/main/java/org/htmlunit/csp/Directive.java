@@ -67,10 +67,11 @@ public class Directive {
 
     @FunctionalInterface
     public interface DirectiveErrorConsumer {
+        /** ignored. */
+        DirectiveErrorConsumer ignored = (severity, message, valueIndex) -> { };
+
         void add(Policy.Severity severity, String message,
                 int valueIndex); // index = -1 for errors not pertaining to a value
 
-        /** ignored. */
-        DirectiveErrorConsumer ignored = (severity, message, valueIndex) -> { };
     }
 }

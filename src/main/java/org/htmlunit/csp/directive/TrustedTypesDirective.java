@@ -31,9 +31,9 @@ public class TrustedTypesDirective extends Directive {
     // tt-policy-name = 1*( ALPHA / DIGIT / "-" / "#" / "=" / "_" / "/" / "@" / "." / "%" )
     private static final Pattern TT_POLICY_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9\\-#=_/@.%]+$");
 
-    private boolean none_ = false;
-    private boolean allowDuplicates_ = false;
-    private boolean star_ = false;
+    private boolean none_;
+    private boolean allowDuplicates_;
+    private boolean star_;
     private final List<String> policyNames_ = new ArrayList<>();
 
     public TrustedTypesDirective(final List<String> values, final DirectiveErrorConsumer errors) {
@@ -48,29 +48,26 @@ public class TrustedTypesDirective extends Directive {
             final String lowcaseToken = token.toLowerCase(Locale.ROOT);
             switch (lowcaseToken) {
                 case "'none'":
-                    if (!none_) {
-                        none_ = true;
-                    }
-                    else {
+                    if (none_) {
                         errors.add(Policy.Severity.Warning, "Duplicate keyword 'none'", index);
+                    } else {
+                        none_ = true;
                     }
                     break;
                 case "'allow-duplicates'":
-                    if (!allowDuplicates_) {
-                        allowDuplicates_ = true;
-                    }
-                    else {
+                    if (allowDuplicates_) {
                         errors.add(Policy.Severity.Warning, "Duplicate keyword 'allow-duplicates'", index);
+                    } else {
+                        allowDuplicates_ = true;
                     }
                     break;
                 case "*":
-                    if (!star_) {
+                    if (star_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate wildcard *", index);
+                    } else {
                         star_ = true;
                         errors.add(Policy.Severity.Warning,
                                 "Wildcard policy names (*) permit any policy name, which may reduce security", index);
-                    }
-                    else {
-                        errors.add(Policy.Severity.Warning, "Duplicate wildcard *", index);
                     }
                     break;
                 default:
