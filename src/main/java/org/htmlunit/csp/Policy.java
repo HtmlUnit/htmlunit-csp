@@ -448,9 +448,12 @@ public final class Policy {
     https://w3c.github.io/webappsec-csp/#script-pre-request
     https://w3c.github.io/webappsec-csp/#script-post-request
      */
-    public boolean allowsExternalScript(final Optional<String> nonce, final Optional<String> integrity,
-            final Optional<URLWithScheme> scriptUrl, final Optional<Boolean> parserInserted,
-            final Optional<URLWithScheme> origin) {
+    public boolean allowsExternalScript(
+            final Optional<String> nonce,
+            final Optional<String> integrity,
+            final Optional<? extends URLWithScheme> scriptUrl,
+            final Optional<Boolean> parserInserted,
+            final Optional<? extends URLWithScheme> origin) {
         if (sandbox_ != null && !sandbox_.allowScripts()) {
             return false;
         }
@@ -532,8 +535,11 @@ public final class Policy {
     // But we are maybe not going to worry about that.
     // Note: it is nonsensical to provide redirectedTo if redirected is Optional.of(false)
     // Note: this also does not handle `javascript:` navigation; there's an explicit API for that
-    public boolean allowsNavigation(final Optional<URLWithScheme> to, final Optional<Boolean> redirected,
-            final Optional<URLWithScheme> redirectedTo, final Optional<URLWithScheme> origin) {
+    public boolean allowsNavigation(
+            final Optional<? extends URLWithScheme> to,
+            final Optional<Boolean> redirected,
+            final Optional<? extends URLWithScheme> redirectedTo,
+            final Optional<? extends URLWithScheme> origin) {
         if (navigateTo_ == null) {
             return true;
         }
@@ -572,8 +578,11 @@ public final class Policy {
     // https://w3c.github.io/webappsec-csp/#navigate-to-pre-navigate
     // https://w3c.github.io/webappsec-csp/#navigate-to-navigation-response
     // Note: it is nonsensical to provide redirectedTo if redirected is Optional.of(false)
-    public boolean allowsFormAction(final Optional<URLWithScheme> to, final Optional<Boolean> redirected,
-            final Optional<URLWithScheme> redirectedTo, final Optional<URLWithScheme> origin) {
+    public boolean allowsFormAction(
+            final Optional<? extends URLWithScheme> to,
+            final Optional<Boolean> redirected,
+            final Optional<? extends URLWithScheme> redirectedTo,
+            final Optional<? extends URLWithScheme> origin) {
         if (sandbox_ != null && !sandbox_.allowForms()) {
             return false;
         }
@@ -592,7 +601,9 @@ public final class Policy {
     }
 
     // NB: the hashes (for unsafe-hashes) are supposed to include the javascript: part, per spec
-    public boolean allowsJavascriptUrlNavigation(final Optional<String> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsJavascriptUrlNavigation(
+            final Optional<String> source,
+            final Optional<? extends URLWithScheme> origin) {
         return allowsNavigation(
                 Optional.of(
                             new GUID("javascript", source.orElse(""))),
@@ -603,8 +614,10 @@ public final class Policy {
                                             source.map(s -> "javascript:" + s), Optional.of(false));
     }
 
-    public boolean allowsExternalStyle(final Optional<String> nonce,
-            final Optional<URLWithScheme> styleUrl, final Optional<URLWithScheme> origin) {
+    public boolean allowsExternalStyle(
+            final Optional<String> nonce,
+            final Optional<? extends URLWithScheme> styleUrl,
+            final Optional<? extends URLWithScheme> origin) {
         // Effective directive is "script-src-elem" per
         // https://w3c.github.io/webappsec-csp/#effective-directive-for-a-request
         final SourceExpressionDirective directive
@@ -633,7 +646,8 @@ public final class Policy {
                 InlineType.StyleAttribute, Optional.empty(), source, Optional.empty());
     }
 
-    public boolean allowsFrame(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsFrame(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
             = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.FrameSrc).orElse(null);
         if (sourceList == null) {
@@ -643,7 +657,8 @@ public final class Policy {
                 doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    public boolean allowsFrameAncestor(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsFrameAncestor(final Optional<? extends URLWithScheme> source,
+                                       final Optional<? extends URLWithScheme> origin) {
         if (frameAncestors_ == null) {
             return true;
         }
@@ -652,7 +667,8 @@ public final class Policy {
     }
 
     // This assumes that a `ws:` or `wss:` URL is being used with `new WebSocket` specifically
-    public boolean allowsConnection(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
+                                    final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ConnectSrc).orElse(null);
         if (sourceList == null) {
@@ -678,7 +694,8 @@ public final class Policy {
         return doesUrlMatchSourceListInOrigin(usedSource, sourceList, origin);
     }
 
-    public boolean allowsFont(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsFont(final Optional<? extends URLWithScheme> source,
+                              final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.FontSrc).orElse(null);
         if (sourceList == null) {
@@ -688,7 +705,8 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    public boolean allowsImage(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsImage(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ImgSrc).orElse(null);
         if (sourceList == null) {
@@ -698,8 +716,8 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    public boolean allowsApplicationManifest(final Optional<URLWithScheme> source,
-                    final Optional<URLWithScheme> origin) {
+    public boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
+                                             final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ManifestSrc).orElse(null);
         if (sourceList == null) {
@@ -709,7 +727,8 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    public boolean allowsMedia(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsMedia(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.MediaSrc).orElse(null);
         if (sourceList == null) {
@@ -719,7 +738,8 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    public boolean allowsObject(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsObject(final Optional<? extends URLWithScheme> source,
+                                final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ObjectSrc).orElse(null);
         if (sourceList == null) {
@@ -730,7 +750,8 @@ public final class Policy {
     }
 
     // Not actually spec'd properly; see https://github.com/whatwg/fetch/issues/1008
-    public boolean allowsPrefetch(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsPrefetch(final Optional<? extends URLWithScheme> source,
+                                  final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.PrefetchSrc).orElse(null);
         if (sourceList == null) {
@@ -740,7 +761,8 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    public boolean allowsWorker(final Optional<URLWithScheme> source, final Optional<URLWithScheme> origin) {
+    public boolean allowsWorker(final Optional<? extends URLWithScheme> source,
+                                final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.WorkerSrc).orElse(null);
         if (sourceList == null) {
@@ -750,7 +772,7 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    public boolean allowsPlugin(final Optional<MediaType> mediaType) {
+    public boolean allowsPlugin(final Optional<? extends MediaType> mediaType) {
         if (pluginTypes_ == null) {
             return true;
         }
@@ -791,7 +813,8 @@ public final class Policy {
     // Note: this assumes the element is nonceable. See https://w3c.github.io/webappsec-csp/#is-element-nonceable
     // https://w3c.github.io/webappsec-csp/#match-element-to-source-list
     private boolean doesElementMatchSourceListForTypeAndSource(final InlineType type,
-                        final Optional<String> nonce, final Optional<String> source,
+                        final Optional<String> nonce,
+                        final Optional<String> source,
                         final Optional<Boolean> parserInserted) {
         final SourceExpressionDirective directive
                 = getGoverningDirectiveForEffectiveDirective(type.effectiveDirective_).orElse(null);
@@ -879,7 +902,8 @@ public final class Policy {
 
     // https://w3c.github.io/webappsec-csp/#match-url-to-source-list
     public static boolean doesUrlMatchSourceListInOrigin(final URLWithScheme url,
-            final HostSourceDirective list, final Optional<URLWithScheme> origin) {
+            final HostSourceDirective list,
+            final Optional<? extends URLWithScheme> origin) {
         final String urlScheme = url.getScheme();
         if (list.star()) {
             // https://fetch.spec.whatwg.org/#network-scheme
