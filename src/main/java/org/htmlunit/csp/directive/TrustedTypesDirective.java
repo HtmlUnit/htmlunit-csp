@@ -66,6 +66,8 @@ public class TrustedTypesDirective extends Directive {
                 case "*":
                     if (!star_) {
                         star_ = true;
+                        errors.add(Policy.Severity.Warning,
+                                "Wildcard policy names (*) permit any policy name, which may reduce security", index);
                     }
                     else {
                         errors.add(Policy.Severity.Warning, "Duplicate wildcard *", index);
@@ -91,10 +93,34 @@ public class TrustedTypesDirective extends Directive {
             ++index;
         }
 
+        // Empty directive validation - if no values were provided, warn
+        if (values.isEmpty()) {
+            errors.add(Policy.Severity.Warning,
+                    "Empty trusted-types directive allows all policy names (use '*' or 'none' to be explicit)", -1);
+        }
+
         // 'none' must not be combined with other values
         if (none_ && (star_ || allowDuplicates_ || !policyNames_.isEmpty())) {
             errors.add(Policy.Severity.Error,
                     "'none' must not be combined with any other trusted-types expression", -1);
+        }
+
+        // Wildcard makes specific policy names redundant
+        if (star_ && !policyNames_.isEmpty()) {
+            errors.add(Policy.Severity.Warning,
+                    "Wildcard (*) permits any policy name, making specific policy names redundant", -1);
+        }
+
+        // 'allow-duplicates' is redundant with wildcard (wildcard already allows everything)
+        if (star_ && allowDuplicates_) {
+            errors.add(Policy.Severity.Warning,
+                    "'allow-duplicates' is redundant when wildcard (*) is present", -1);
+        }
+
+        // 'allow-duplicates' without policy names or wildcard has no effect
+        if (allowDuplicates_ && !star_ && policyNames_.isEmpty()) {
+            errors.add(Policy.Severity.Warning,
+                    "'allow-duplicates' has no effect without policy names or wildcard", -1);
         }
     }
 
@@ -133,6 +159,16 @@ public class TrustedTypesDirective extends Directive {
     }
 
     public boolean star() {
+        return star_;
+    }
+
+    /**
+     * Indicates if wildcard policy names are permitted.
+     * When true, any policy name is allowed, which may reduce security.
+     *
+     * @return true if wildcard policy names (*) are permitted, false otherwise
+     */
+    public boolean allowsWildcardPolicyNames() {
         return star_;
     }
 
