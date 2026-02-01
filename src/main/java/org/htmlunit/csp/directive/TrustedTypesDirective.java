@@ -188,4 +188,32 @@ public class TrustedTypesDirective extends Directive {
     public List<String> getPolicyNames_() {
         return Collections.unmodifiableList(policyNames_);
     }
+
+    /**
+     * Add a policy name.
+     * @param policyName the policy name to add
+     * @param errors the error consumer
+     */
+    public void addPolicyName(final String policyName, final ManipulationErrorConsumer errors) {
+        if (!TT_POLICY_NAME_PATTERN.matcher(policyName).matches()) {
+            throw new IllegalArgumentException("Invalid policy name: " + policyName);
+        }
+        // Policy names are case-sensitive per browser behavior
+        if (policyNames_.contains(policyName)) {
+            errors.add(ManipulationErrorConsumer.Severity.Warning, "Duplicate policy name " + policyName);
+            return;
+        }
+        policyNames_.add(policyName);
+        addValue(policyName);
+    }
+
+    /**
+     * Remove a policy name.
+     * @param policyName the policy name to remove
+     */
+    public void removePolicyName(final String policyName) {
+        // Policy names are case-sensitive per browser behavior
+        policyNames_.remove(policyName);
+        removeValueExact(policyName);
+    }
 }

@@ -14,6 +14,7 @@
  */
 package org.htmlunit.csp;
 
+import org.htmlunit.csp.Directive;
 import org.htmlunit.csp.directive.RequireTrustedTypesForDirective;
 import org.htmlunit.csp.directive.TrustedTypesDirective;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -422,6 +424,161 @@ public class TrustedTypesTest extends TestBase {
         assertTrue(tt.getPolicyNames_().contains("myPolicy"));
         assertTrue(tt.getPolicyNames_().contains("MYPOLICY"));
         assertTrue(tt.getPolicyNames_().contains("MyPolicy"));
+    }
+
+    @Test
+    public void testTrustedTypesManipulation() {
+        Policy p = Policy.parseSerializedCSP("trusted-types one", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        // Add policy name
+        tt.addPolicyName("two", Directive.ManipulationErrorConsumer.ignored);
+        assertEquals(2, tt.getPolicyNames_().size());
+        assertTrue(tt.getPolicyNames_().contains("one"));
+        assertTrue(tt.getPolicyNames_().contains("two"));
+
+        // Adding same name with different case should work (case-sensitive)
+        tt.addPolicyName("ONE", Directive.ManipulationErrorConsumer.ignored);
+        assertEquals(3, tt.getPolicyNames_().size());
+        assertTrue(tt.getPolicyNames_().contains("ONE"));
+
+        // Remove policy name (case-sensitive)
+        tt.removePolicyName("one");
+        assertEquals(2, tt.getPolicyNames_().size());
+        assertFalse(tt.getPolicyNames_().contains("one"));
+        assertTrue(tt.getPolicyNames_().contains("ONE"));  // ONE should still be there
+        assertTrue(tt.getPolicyNames_().contains("two"));
+
+        // Set allow-duplicates
+        assertFalse(tt.allowDuplicates());
+        tt.setAllowDuplicates_(true);
+        assertTrue(tt.allowDuplicates());
+        tt.setAllowDuplicates_(false);
+        assertFalse(tt.allowDuplicates());
+
+        // Set star
+        assertFalse(tt.star());
+        tt.setStar_(true);
+        assertTrue(tt.star());
+        tt.setStar_(false);
+        assertFalse(tt.star());
+    }
+
+    @Test
+    public void testAddPolicyNameInvalidThrows() {
+        Policy p = Policy.parseSerializedCSP("trusted-types one", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> tt.addPolicyName("policy!name", Directive.ManipulationErrorConsumer.ignored));
+        assertThrows(IllegalArgumentException.class,
+                () -> tt.addPolicyName("policy name", Directive.ManipulationErrorConsumer.ignored));
+        assertThrows(IllegalArgumentException.class,
+                () -> tt.addPolicyName("policy(name)", Directive.ManipulationErrorConsumer.ignored));
+        assertThrows(IllegalArgumentException.class,
+                () -> tt.addPolicyName("", Directive.ManipulationErrorConsumer.ignored));
+
+        // Original policy name unchanged
+        assertEquals(1, tt.getPolicyNames_().size());
+        assertTrue(tt.getPolicyNames_().contains("one"));
+    }
+
+    @Test
+    public void testAddPolicyNameDuplicateWarning() {
+        Policy p = Policy.parseSerializedCSP("trusted-types one", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        ArrayList<String> warnings = new ArrayList<>();
+        Directive.ManipulationErrorConsumer consumer = (severity, message) -> {
+            warnings.add(message);
+        };
+
+        // Adding duplicate should trigger warning, not add
+        tt.addPolicyName("one", consumer);
+        assertEquals(1, warnings.size());
+        assertTrue(warnings.get(0).contains("Duplicate policy name one"));
+        assertEquals(1, tt.getPolicyNames_().size());
+    }
+
+    @Test
+    public void testAddPolicyNameSpecialCharacters() {
+        Policy p = Policy.parseSerializedCSP("trusted-types base", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        tt.addPolicyName("my-policy", Directive.ManipulationErrorConsumer.ignored);
+        tt.addPolicyName("policy#1", Directive.ManipulationErrorConsumer.ignored);
+        tt.addPolicyName("path/to/policy", Directive.ManipulationErrorConsumer.ignored);
+        tt.addPolicyName("policy@domain", Directive.ManipulationErrorConsumer.ignored);
+        tt.addPolicyName("policy.v2", Directive.ManipulationErrorConsumer.ignored);
+        tt.addPolicyName("policy%20", Directive.ManipulationErrorConsumer.ignored);
+        tt.addPolicyName("policy=val", Directive.ManipulationErrorConsumer.ignored);
+        tt.addPolicyName("policy_name", Directive.ManipulationErrorConsumer.ignored);
+
+        assertEquals(9, tt.getPolicyNames_().size());
+    }
+
+    @Test
+    public void testRemovePolicyNameNonExistent() {
+        Policy p = Policy.parseSerializedCSP("trusted-types one two", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        // Removing a name that doesn't exist should be a no-op
+        tt.removePolicyName("three");
+        assertEquals(2, tt.getPolicyNames_().size());
+        assertTrue(tt.getPolicyNames_().contains("one"));
+        assertTrue(tt.getPolicyNames_().contains("two"));
+    }
+
+    @Test
+    public void testRemovePolicyNameCaseSensitive() {
+        Policy p = Policy.parseSerializedCSP("trusted-types myPolicy", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        // Removing with wrong case should not remove
+        tt.removePolicyName("MYPOLICY");
+        assertEquals(1, tt.getPolicyNames_().size());
+        assertTrue(tt.getPolicyNames_().contains("myPolicy"));
+
+        tt.removePolicyName("mypolicy");
+        assertEquals(1, tt.getPolicyNames_().size());
+
+        // Exact case should remove
+        tt.removePolicyName("myPolicy");
+        assertEquals(0, tt.getPolicyNames_().size());
+    }
+
+    @Test
+    public void testManipulationRoundTrip() {
+        Policy p = Policy.parseSerializedCSP("trusted-types one two", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        tt.addPolicyName("three", Directive.ManipulationErrorConsumer.ignored);
+        assertEquals("trusted-types one two three", p.toString());
+
+        tt.removePolicyName("two");
+        assertEquals("trusted-types one three", p.toString());
+
+        tt.setAllowDuplicates_(true);
+        assertEquals("trusted-types one three 'allow-duplicates'", p.toString());
+
+        tt.removePolicyName("one");
+        tt.removePolicyName("three");
+        assertEquals("trusted-types 'allow-duplicates'", p.toString());
+    }
+
+    @Test
+    public void testAddAfterRemove() {
+        Policy p = Policy.parseSerializedCSP("trusted-types one", ThrowIfPolicyError);
+        TrustedTypesDirective tt = p.trustedTypes().get();
+
+        tt.removePolicyName("one");
+        assertEquals(0, tt.getPolicyNames_().size());
+
+        // Re-adding the same name should work
+        tt.addPolicyName("one", Directive.ManipulationErrorConsumer.ignored);
+        assertEquals(1, tt.getPolicyNames_().size());
+        assertTrue(tt.getPolicyNames_().contains("one"));
+        assertEquals("trusted-types one", p.toString());
     }
 
     @Test

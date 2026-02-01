@@ -65,6 +65,10 @@ public class Directive {
         values_ = copy;
     }
 
+    protected void removeValueExact(final String value) {
+        values_.remove(value);
+    }
+
     @FunctionalInterface
     public interface DirectiveErrorConsumer {
         /** ignored. */
@@ -73,5 +77,22 @@ public class Directive {
         void add(Policy.Severity severity, String message,
                 int valueIndex); // index = -1 for errors not pertaining to a value
 
+    }
+
+    /** ManipulationErrorConsumer. */
+    @FunctionalInterface
+    public interface ManipulationErrorConsumer {
+        /** ignored. */
+        ManipulationErrorConsumer ignored = (severity, message) -> { };
+
+        void add(Severity severity, String message);
+
+        /** Severity. */
+        enum Severity {
+            /** Info. */
+            Info,
+            /** Warning. */
+            Warning
+        }
     }
 }
