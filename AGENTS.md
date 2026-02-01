@@ -18,7 +18,7 @@ CI/CD: Jenkins
 
 1. Build: `./mvn package`
 2. Run tests: `./mvn test`
-4. Checks (tests, formatting): `./mvn check`
+3. Checks (tests, formatting): `./mvn check`
 
 ## Rules and code style
 

@@ -59,10 +59,8 @@ public class URI extends URLWithScheme {
             case "ftp" -> 21;
             case "file" -> Constants.EMPTY_PORT;
             case "gopher" -> 70;
-            case "http" -> 80;
-            case "https" -> 443;
-            case "ws" -> 80;
-            case "wss" -> 443;
+            case "http", "ws" -> 80;
+            case "https", "wss" -> 443;
             default -> Constants.EMPTY_PORT;
         };
     }

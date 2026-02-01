@@ -26,7 +26,7 @@ public abstract class URLWithScheme {
 
     protected URLWithScheme(final String scheme, final String host, final Integer port, final String path) {
         scheme_ = scheme.toLowerCase(Locale.ROOT);
-        host_ = host == null ? host : host.toLowerCase(Locale.ROOT);
+        host_ = host == null ? null : host.toLowerCase(Locale.ROOT);
         port_ = port;
         path_ = path;
     }

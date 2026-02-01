@@ -189,7 +189,7 @@ mvn test
 
 ## Contributing
 
-Pull Requests and and all other Community Contributions are essential for open source software.
+Pull Requests and all other Community Contributions are essential for open source software.
 Every contribution - from bug reports to feature requests, typos to full new features - are greatly appreciated.
 
 ## Deployment and Versioning

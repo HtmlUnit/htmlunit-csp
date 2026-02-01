@@ -650,7 +650,7 @@ public final class Policy {
         return allowsNavigation(to, redirected, redirectedTo, origin);
     }
 
-    // NB: the hashes (for unsafe-hashes) are supposed to include the javascript: part, per spec
+    // NB: the hashes (for unsafe-hashes) are supposed to include the JavaScript: part, per spec
     public boolean allowsJavascriptUrlNavigation(
             final Optional<String> source,
             final Optional<? extends URLWithScheme> origin) {
