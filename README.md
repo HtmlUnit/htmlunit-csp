@@ -8,8 +8,8 @@ This is a general purpose library for working with Content Security Policy polic
 
 This is the code repository of the Content Security Policy support used by HtmlUnit.
 
-The library was created by forking the [salvation](https://github.com/shapesecurity/salvation) project as it is apparently no longer maintained.  
-For HtmlUnit, the code has been adapted to the code style rules used, and support for editing policies has been removed.  
+The library was forked from the [salvation](https://github.com/shapesecurity/salvation) project, which is no longer actively maintained.  
+The code has been adapted to match HtmlUnit's code style rules, and support for editing policies has been removed.  
 The code is being expanded, restructured and improved primarily to meet the requirements of this project.
 
 [![Maven Central Version](https://img.shields.io/maven-central/v/org.htmlunit/htmlunit-csp)](https://central.sonatype.com/artifact/org.htmlunit/htmlunit-csp)
@@ -29,7 +29,7 @@ Work on HtmlUnit-CSP 5.0 has started. This new major version will require **JDK 
 
 #### Legacy Support (JDK 8)
 
-If you need to continue using **JDK 8**, please note that versions 4.x will remain available as-is. However, 
+If you need to continue using **JDK 8**, please note that versions 4.x will remain available as-is. However,
 **ongoing maintenance and fixes for JDK 8 compatibility are only available through sponsorship**.
 
 Maintaining separate fix versions for JDK 8 requires significant additional effort for __backporting__, testing, and release management.
@@ -63,6 +63,18 @@ Add to your `build.gradle`:
 ```groovy
 implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '4.21.0'
 ```
+
+## Projects Using This Library
+
+Beyond HtmlUnit itself, htmlunit-csp is used by various open-source projects for Content Security Policy parsing and validation:
+
+### Security Tools
+- **[OWASP ZAP (Zed Attack Proxy)](https://www.zaproxy.org/)** - The world's most widely used web application security scanner. ZAP uses htmlunit-csp in its [Content Security Policy Scan Rule](https://github.com/zaproxy/zap-extensions/blob/main/addOns/pscanrules/src/main/java/org/zaproxy/zap/extension/pscanrules/ContentSecurityPolicyScanRule.java) to analyze and validate CSP headers for security vulnerabilities.
+
+### HTML Parsing and Validation
+- **[Validator.nu](https://validator.nu/)** - An HTML5 validator and conformance checker that uses htmlunit-csp for validating Content Security Policy directives in web documents.
+
+If your project uses HtmlUnit-CSP, feel free to submit a pull request to add it to this list!
 
 ### A Note on CSP
 
