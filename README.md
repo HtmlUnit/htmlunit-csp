@@ -69,7 +69,8 @@ implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '4.21.0'
 Beyond HtmlUnit itself, htmlunit-csp is used by various open-source projects for Content Security Policy parsing and validation:
 
 ### Security Tools
-- **[OWASP ZAP (Zed Attack Proxy)](https://www.zaproxy.org/)** - The world's most widely used web application security scanner. ZAP uses htmlunit-csp in its [Content Security Policy Scan Rule](https://github.com/zaproxy/zap-extensions/blob/main/addOns/pscanrules/src/main/java/org/zaproxy/zap/extension/pscanrules/ContentSecurityPolicyScanRule.java) to analyze and validate CSP headers for security vulnerabilities.
+
+- **[ZAP (Zed Attack Proxy)](https://www.zaproxy.org/)** - The world's most widely used web application security scanner. ZAP uses htmlunit-csp in its [Content Security Policy Scan Rule](https://github.com/zaproxy/zap-extensions/blob/main/addOns/pscanrules/src/main/java/org/zaproxy/zap/extension/pscanrules/ContentSecurityPolicyScanRule.java) to analyze and validate CSP headers for security vulnerabilities.
 
 ### HTML Parsing and Validation
 - **[The Nu Html Checker (vnu)](https://github.com/validator/validator/)** - An HTML conformance checker that uses htmlunit-csp for checking Content Security Policy directives in web documents.
