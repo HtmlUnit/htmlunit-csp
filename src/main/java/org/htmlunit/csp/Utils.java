@@ -29,7 +29,7 @@ public final class Utils {
     // https://infra.spec.whatwg.org/#split-on-ascii-whitespace
     static List<String> splitOnAsciiWhitespace(final String input) {
         final ArrayList<String> out = new ArrayList<>();
-        for (final String value : input.split("[" + Constants.WHITESPACE_CHARS + "]")) {
+        for (final String value : Constants.WHITESPACE_SPLIT_PATTERN.split(input)) {
             if (value.isEmpty()) {
                 continue;
             }

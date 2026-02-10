@@ -95,6 +95,12 @@ public final class Constants {
     /** DIRECTIVE_NAME_PATTERN. */
     public static final Pattern DIRECTIVE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9\\-]+$");
 
+    /** NON_WHITESPACE_PATTERN - matches one or more non-whitespace characters at the start of string. */
+    public static final Pattern NON_WHITESPACE_PATTERN = Pattern.compile("^[^" + Constants.WHITESPACE_CHARS + "]+");
+
+    /** WHITESPACE_SPLIT_PATTERN - pattern for splitting on ASCII whitespace. */
+    public static final Pattern WHITESPACE_SPLIT_PATTERN = Pattern.compile("[" + Constants.WHITESPACE_CHARS + "]");
+
     private Constants() {
         // Utility class
     }

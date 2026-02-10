@@ -140,7 +140,7 @@ public final class Policy {
                 continue;
             }
             final String directiveName =
-                            collect(strippedLeadingAndTrailingWhitespace, "[^" + Constants.WHITESPACE_CHARS + "]+");
+                            collect(strippedLeadingAndTrailingWhitespace, Constants.NON_WHITESPACE_PATTERN);
 
             // Note: we do not lowercase directive names or
             // skip duplicates during parsing, to allow round-tripping even invalid policies
@@ -1129,8 +1129,8 @@ public final class Policy {
         return Constants.TRAILING_WHITESPACE_PATTERN.matcher(string).replaceAll("");
     }
 
-    private static String collect(final String input, final String regex) {
-        final Matcher matcher = Pattern.compile(regex).matcher(input);
+    private static String collect(final String input, final Pattern pattern) {
+        final Matcher matcher = pattern.matcher(input);
         if (!matcher.find() || matcher.start() != 0) {
             return "";
         }
