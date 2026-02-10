@@ -33,8 +33,10 @@ import org.htmlunit.csp.directive.FrameAncestorsDirective;
 import org.htmlunit.csp.directive.HostSourceDirective;
 import org.htmlunit.csp.directive.PluginTypesDirective;
 import org.htmlunit.csp.directive.ReportUriDirective;
+import org.htmlunit.csp.directive.RequireTrustedTypesForDirective;
 import org.htmlunit.csp.directive.SandboxDirective;
 import org.htmlunit.csp.directive.SourceExpressionDirective;
+import org.htmlunit.csp.directive.TrustedTypesDirective;
 import org.htmlunit.csp.url.GUID;
 import org.htmlunit.csp.url.URI;
 import org.htmlunit.csp.url.URLWithScheme;
@@ -44,7 +46,7 @@ import org.htmlunit.csp.value.MediaType;
 import org.htmlunit.csp.value.RFC7230Token;
 import org.htmlunit.csp.value.Scheme;
 
-public final class Policy {
+public class Policy {
     // Things we don't preserve:
     // - Whitespace
     // - Empty directives or policies (as in `; ;` or `, ,`)
@@ -60,12 +62,16 @@ public final class Policy {
 
     private final List<NamedDirective> directives_ = new ArrayList<>();
 
-    private SourceExpressionDirective baseUri_;
     private boolean blockAllMixedContent_;
+
+    private SourceExpressionDirective baseUri_;
     private SourceExpressionDirective formAction_;
     private FrameAncestorsDirective frameAncestors_;
     private SourceExpressionDirective navigateTo_;
     private PluginTypesDirective pluginTypes_;
+    private TrustedTypesDirective trustedTypes_;
+    private RequireTrustedTypesForDirective requireTrustedTypesFor_;
+
     private FetchDirectiveKind prefetchSrc_;
     private RFC7230Token reportTo_;
     private ReportUriDirective reportUri_;
@@ -320,6 +326,32 @@ public final class Policy {
                 newDirective = sandboxDirective;
                 break;
 
+            case "trusted-types":
+                // https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive
+                final TrustedTypesDirective trustedTypesDirective =
+                        new TrustedTypesDirective(values, directiveErrorConsumer);
+                if (this.trustedTypes_ == null) {
+                    this.trustedTypes_ = trustedTypesDirective;
+                }
+                else {
+                    wasDupe = true;
+                }
+                newDirective = trustedTypesDirective;
+                break;
+
+            case "require-trusted-types-for":
+                // https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive
+                final RequireTrustedTypesForDirective requireTrustedTypesForDirective =
+                        new RequireTrustedTypesForDirective(values, directiveErrorConsumer);
+                if (this.requireTrustedTypesFor_ == null) {
+                    this.requireTrustedTypesFor_ = requireTrustedTypesForDirective;
+                }
+                else {
+                    wasDupe = true;
+                }
+                newDirective = requireTrustedTypesForDirective;
+                break;
+
             case "upgrade-insecure-requests":
                 // https://www.w3.org/TR/upgrade-insecure-requests/#delivery
                 if (upgradeInsecureRequests_) {
@@ -429,6 +461,14 @@ public final class Policy {
 
     public Optional<SandboxDirective> sandbox() {
         return Optional.ofNullable(sandbox_);
+    }
+
+    public Optional<TrustedTypesDirective> trustedTypes() {
+        return Optional.ofNullable(trustedTypes_);
+    }
+
+    public Optional<RequireTrustedTypesForDirective> requireTrustedTypesFor() {
+        return Optional.ofNullable(requireTrustedTypesFor_);
     }
 
     public boolean upgradeInsecureRequests() {
