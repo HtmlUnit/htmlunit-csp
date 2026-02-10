@@ -51,10 +51,19 @@ public class TrustedTypesTest extends TestBase {
         assertEquals(3, tt.getPolicyNames_().size());
 
         // Wildcard
-        p = Policy.parseSerializedCSP("trusted-types *", ThrowIfPolicyError);
+        ArrayList<PolicyError> observedErrors = new ArrayList<>();
+        Policy.PolicyErrorConsumer consumer = (severity, message, directiveIndex, valueIndex) -> {
+            observedErrors.add(e(severity, message, directiveIndex, valueIndex));
+        };
+        p = Policy.parseSerializedCSP("trusted-types *", consumer);
         tt = p.trustedTypes().get();
         assertTrue(tt.star());
+        assertTrue(tt.allowsWildcardPolicyNames());
+        assertTrue(p.allowsWildcardPolicyNames());
         assertEquals(0, tt.getPolicyNames_().size());
+        assertEquals(1, observedErrors.size());
+        assertEquals(Policy.Severity.Warning, observedErrors.get(0).severity_());
+        assertTrue(observedErrors.get(0).message_().contains("Wildcard policy names"));
 
         // Allow duplicates
         p = Policy.parseSerializedCSP("trusted-types myPolicy 'allow-duplicates'", ThrowIfPolicyError);
@@ -63,10 +72,18 @@ public class TrustedTypesTest extends TestBase {
         assertEquals(1, tt.getPolicyNames_().size());
 
         // Wildcard with allow-duplicates
-        p = Policy.parseSerializedCSP("trusted-types * 'allow-duplicates'", ThrowIfPolicyError);
+        observedErrors.clear();
+        p = Policy.parseSerializedCSP("trusted-types * 'allow-duplicates'", consumer);
         tt = p.trustedTypes().get();
         assertTrue(tt.star());
+        assertTrue(tt.allowsWildcardPolicyNames());
+        assertTrue(p.allowsWildcardPolicyNames());
         assertTrue(tt.allowDuplicates());
+        assertEquals(2, observedErrors.size());
+        assertEquals(Policy.Severity.Warning, observedErrors.get(0).severity_());
+        assertTrue(observedErrors.get(0).message_().contains("Wildcard policy names"));
+        assertEquals(Policy.Severity.Warning, observedErrors.get(1).severity_());
+        assertTrue(observedErrors.get(1).message_().contains("redundant when wildcard"));
 
         // None keyword
         p = Policy.parseSerializedCSP("trusted-types 'none'", ThrowIfPolicyError);
@@ -102,10 +119,13 @@ public class TrustedTypesTest extends TestBase {
     public void testTrustedTypesRoundTrips() {
         roundTrips("trusted-types myPolicy");
         roundTrips("trusted-types one two three");
-        roundTrips("trusted-types *");
+        roundTrips("trusted-types *",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0));
         roundTrips("trusted-types 'none'");
         roundTrips("trusted-types myPolicy 'allow-duplicates'");
-        roundTrips("trusted-types * 'allow-duplicates'");
+        roundTrips("trusted-types * 'allow-duplicates'",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
+                e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1));
     }
 
     @Test
@@ -113,12 +133,21 @@ public class TrustedTypesTest extends TestBase {
         // Keywords are case-insensitive per ABNF
         inTurkey(() -> {
             Policy p;
+            ArrayList<PolicyError> observedErrors = new ArrayList<>();
+            Policy.PolicyErrorConsumer consumer = (severity, message, directiveIndex, valueIndex) -> {
+                observedErrors.add(e(severity, message, directiveIndex, valueIndex));
+            };
 
             p = Policy.parseSerializedCSP("trusted-types 'NONE'", ThrowIfPolicyError);
             assertTrue(p.trustedTypes().get().none());
 
-            p = Policy.parseSerializedCSP("trusted-types 'ALLOW-DUPLICATES'", ThrowIfPolicyError);
+            // 'allow-duplicates' alone now generates a warning, so use consumer instead of ThrowIfPolicyError
+            observedErrors.clear();
+            p = Policy.parseSerializedCSP("trusted-types 'ALLOW-DUPLICATES'", consumer);
             assertTrue(p.trustedTypes().get().allowDuplicates());
+            assertEquals(1, observedErrors.size());
+            assertEquals(Policy.Severity.Warning, observedErrors.get(0).severity_());
+            assertTrue(observedErrors.get(0).message_().contains("has no effect without policy names"));
 
             p = Policy.parseSerializedCSP("TRUSTED-TYPES myPolicy", ThrowIfPolicyError);
             assertTrue(p.trustedTypes().isPresent());
@@ -175,7 +204,22 @@ public class TrustedTypesTest extends TestBase {
         // Duplicate wildcard
         roundTrips(
                 "trusted-types * *",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
                 e(Policy.Severity.Warning, "Duplicate wildcard *", 0, 1)
+        );
+
+        // Policy name with wildcard (wildcard makes policy names redundant)
+        roundTrips(
+                "trusted-types myPolicy *",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 1),
+                e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1)
+        );
+
+        // Multiple policy names with wildcard
+        roundTrips(
+                "trusted-types one two *",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 2),
+                e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1)
         );
 
         // Duplicate directive
@@ -183,6 +227,70 @@ public class TrustedTypesTest extends TestBase {
                 "trusted-types one; trusted-types two",
                 e(Policy.Severity.Warning, "Duplicate directive trusted-types", 1, -1)
         );
+
+        // Empty directive
+        roundTrips(
+                "trusted-types",
+                e(Policy.Severity.Warning, "Empty trusted-types directive allows all policy names (use '*' or 'none' to be explicit)", 0, -1)
+        );
+
+        // 'allow-duplicates' alone (no policy names or wildcard)
+        roundTrips(
+                "trusted-types 'allow-duplicates'",
+                e(Policy.Severity.Warning, "'allow-duplicates' has no effect without policy names or wildcard", 0, -1)
+        );
+
+        // Wildcard with allow-duplicates (redundant)
+        roundTrips(
+                "trusted-types * 'allow-duplicates'",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
+                e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1)
+        );
+
+        // Policy names with wildcard and allow-duplicates (multiple redundancies)
+        roundTrips(
+                "trusted-types myPolicy * 'allow-duplicates'",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 1),
+                e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1),
+                e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1)
+        );
+
+        // Order independence: wildcard before policy name
+        roundTrips(
+                "trusted-types * myPolicy",
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
+                e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1)
+        );
+    }
+
+    @Test
+    public void testTrustedTypesEdgeCases() {
+        Policy p;
+        TrustedTypesDirective tt;
+
+        // Single character policy name
+        p = Policy.parseSerializedCSP("trusted-types a", ThrowIfPolicyError);
+        tt = p.trustedTypes().get();
+        assertEquals(1, tt.getPolicyNames_().size());
+        assertEquals("a", tt.getPolicyNames_().get(0));
+
+        // Policy name with all allowed special characters
+        p = Policy.parseSerializedCSP("trusted-types A-Za-z0-9-#=_/@.%", ThrowIfPolicyError);
+        tt = p.trustedTypes().get();
+        assertEquals(1, tt.getPolicyNames_().size());
+        assertTrue(tt.getPolicyNames_().contains("A-Za-z0-9-#=_/@.%"));
+
+        // Policy name starting with special character
+        p = Policy.parseSerializedCSP("trusted-types -policy", ThrowIfPolicyError);
+        tt = p.trustedTypes().get();
+        assertEquals(1, tt.getPolicyNames_().size());
+        assertEquals("-policy", tt.getPolicyNames_().get(0));
+
+        // Policy name ending with special character
+        p = Policy.parseSerializedCSP("trusted-types policy-", ThrowIfPolicyError);
+        tt = p.trustedTypes().get();
+        assertEquals(1, tt.getPolicyNames_().size());
+        assertEquals("policy-", tt.getPolicyNames_().get(0));
     }
 
     // require-trusted-types-for directive tests
@@ -284,6 +392,35 @@ public class TrustedTypesTest extends TestBase {
         assertFalse(rttf.script());
         rttf.setScript_(true);
         assertTrue(rttf.script());
+    }
+
+    @Test
+    public void testAllowsWildcardPolicyNames() {
+        Policy p;
+        TrustedTypesDirective tt;
+
+        // Policy without wildcard
+        p = Policy.parseSerializedCSP("trusted-types myPolicy", ThrowIfPolicyError);
+        assertTrue(p.trustedTypes().isPresent());
+        tt = p.trustedTypes().get();
+        assertFalse(tt.allowsWildcardPolicyNames());
+        assertFalse(p.allowsWildcardPolicyNames());
+
+        // Policy with wildcard
+        ArrayList<PolicyError> observedErrors = new ArrayList<>();
+        Policy.PolicyErrorConsumer consumer = (severity, message, directiveIndex, valueIndex) -> {
+            observedErrors.add(e(severity, message, directiveIndex, valueIndex));
+        };
+        p = Policy.parseSerializedCSP("trusted-types *", consumer);
+        assertTrue(p.trustedTypes().isPresent());
+        tt = p.trustedTypes().get();
+        assertTrue(tt.allowsWildcardPolicyNames());
+        assertTrue(p.allowsWildcardPolicyNames());
+
+        // Policy without trusted-types directive
+        p = Policy.parseSerializedCSP("default-src 'self'", ThrowIfPolicyError);
+        assertFalse(p.trustedTypes().isPresent());
+        assertFalse(p.allowsWildcardPolicyNames());
     }
 
     // Helper methods
