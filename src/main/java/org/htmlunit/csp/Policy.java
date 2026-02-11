@@ -27,7 +27,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.htmlunit.csp.directive.FrameAncestorsDirective;
 import org.htmlunit.csp.directive.HostSourceDirective;
@@ -134,18 +133,17 @@ public final class Policy {
 
         // https://infra.spec.whatwg.org/#strictly-split
         for (final String token : serialized.split(";")) {
-            final String strippedLeadingAndTrailingWhitespace = stripTrailingWhitespace(stripLeadingWhitespace(token));
-            if (strippedLeadingAndTrailingWhitespace.isEmpty()) {
+            final String trimmedLeadingAndTrailingWhitespace = Utils.trimAsciiWhitespace(token);
+            if (trimmedLeadingAndTrailingWhitespace.isEmpty()) {
                 ++index[0];
                 continue;
             }
-            final String directiveName =
-                            collect(strippedLeadingAndTrailingWhitespace, "[^" + Constants.WHITESPACE_CHARS + "]+");
+            final String directiveName = Utils.extractLeadingToken(trimmedLeadingAndTrailingWhitespace);
 
             // Note: we do not lowercase directive names or
             // skip duplicates during parsing, to allow round-tripping even invalid policies
 
-            final String remainingToken = strippedLeadingAndTrailingWhitespace.substring(directiveName.length());
+            final String remainingToken = trimmedLeadingAndTrailingWhitespace.substring(directiveName.length());
 
             final List<String> directiveValues = Utils.splitOnAsciiWhitespace(remainingToken);
 
@@ -164,7 +162,7 @@ public final class Policy {
         enforceAscii(name);
 
         // the parser will never hit these errors by construction, but use of the manipulation APIs can
-        if (Directive.containsNonDirectiveCharacter.test(name)) {
+        if (Directive.containsNonDirectiveCharacter(name)) {
             throw new IllegalArgumentException("directive names must not contain whitespace, ',', or ';'");
         }
         if (name.isEmpty()) {
@@ -1119,22 +1117,6 @@ public final class Policy {
         if (!StandardCharsets.US_ASCII.newEncoder().canEncode(s)) {
             throw new IllegalArgumentException("string is not ascii: \"" + s + "\"");
         }
-    }
-
-    private static String stripLeadingWhitespace(final String string) {
-        return Constants.LEADING_WHITESPACE_PATTERN.matcher(string).replaceFirst("");
-    }
-
-    private static String stripTrailingWhitespace(final String string) {
-        return Constants.TRAILING_WHITESPACE_PATTERN.matcher(string).replaceAll("");
-    }
-
-    private static String collect(final String input, final String regex) {
-        final Matcher matcher = Pattern.compile(regex).matcher(input);
-        if (!matcher.find() || matcher.start() != 0) {
-            return "";
-        }
-        return input.substring(0, matcher.end());
     }
 
     private record NamedDirective(String name_, Directive directive_) {

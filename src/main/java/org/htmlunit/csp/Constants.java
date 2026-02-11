@@ -84,16 +84,13 @@ public final class Constants {
     public static final Pattern IPv6addressWithOptionalBracket =
             Pattern.compile("^(?:\\[" + IPv6address + "\\]|" + IPv6address + ")$");
 
-    // https://infra.spec.whatwg.org/#ascii-whitespace
-    /** WHITESPACE_CHARS = "\t\n\f\r ". */
-    public static final String WHITESPACE_CHARS = "\t\n\f\r ";
-    /** TRAILING_WHITESPACE_PATTERN. */
-    public static final Pattern TRAILING_WHITESPACE_PATTERN = Pattern.compile("[" + Constants.WHITESPACE_CHARS + "]+$");
-    /** LEADING_WHITESPACE_PATTERN. */
-    public static final Pattern LEADING_WHITESPACE_PATTERN = Pattern.compile("^[" + Constants.WHITESPACE_CHARS + "]+");
-
     /** DIRECTIVE_NAME_PATTERN. */
     public static final Pattern DIRECTIVE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9\\-]+$");
+
+    /** ASCII whitespace. */
+    public static boolean isAsciiWhitespace(char c) {
+        return ' ' == c || '\n' == c || '\r' == c || '\t' == c || '\f' == c;
+    }
 
     private Constants() {
         // Utility class

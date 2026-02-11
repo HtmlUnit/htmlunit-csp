@@ -22,16 +22,38 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class Directive {
+
     /** IS_DIRECTIVE_NAME. */
     public static final Predicate<String> IS_DIRECTIVE_NAME = Pattern.compile("^[A-Za-z0-9\\-]+$").asPredicate();
-    /** containsNonDirectiveCharacter. */
-    public static final Predicate<String> containsNonDirectiveCharacter
-                    = Pattern.compile("[" + Constants.WHITESPACE_CHARS + ",;]").asPredicate();
+
     private List<String> values_;
+
+    /**
+     * Tests if a string contains any non-directive characters.
+     * Non-directive characters are: ASCII whitespace (tab, newline, form feed,
+     * carriage return, space), comma, or semicolon.
+     *
+     * @param input the string to test (can be null)
+     * @return true if the string contains any non-directive characters, false otherwise
+     */
+    public static boolean containsNonDirectiveCharacter(final String input) {
+        if (input == null) {
+            return false;
+        }
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (Constants.isAsciiWhitespace(c) || c == ',' || c == ';') {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     protected void addValue(final String value) {
         Policy.enforceAscii(value);
-        if (containsNonDirectiveCharacter.test(value)) {
+        if (containsNonDirectiveCharacter(value)) {
             throw new IllegalArgumentException("values must not contain whitespace, ',', or ';'");
         }
         if (value.isEmpty()) {
