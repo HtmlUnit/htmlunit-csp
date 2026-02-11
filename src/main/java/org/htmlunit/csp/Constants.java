@@ -87,8 +87,13 @@ public final class Constants {
     /** DIRECTIVE_NAME_PATTERN. */
     public static final Pattern DIRECTIVE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9\\-]+$");
 
-    /** ASCII whitespace. */
-    public static boolean isAsciiWhitespace(char c) {
+    /**
+     * Tests if a character is ascii whitespace (\t, \n, \f, \r, and space).
+     *
+     * @param c the character to test
+     * @return {@code true} if the character is ASCII whitespace, {@code false} otherwise
+     */
+    public static boolean isAsciiWhitespace(final char c) {
         return ' ' == c || '\n' == c || '\r' == c || '\t' == c || '\f' == c;
     }
 

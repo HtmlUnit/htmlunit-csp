@@ -34,17 +34,18 @@ public final class Utils {
             return result;
         }
 
-        int len = input.length();
+        final int len = input.length();
         int tokenStart = -1;
 
         for (int i = 0; i < len; i++) {
-            char c = input.charAt(i);
-            boolean isWs = Constants.isAsciiWhitespace(c);
+            final char c = input.charAt(i);
+            final boolean isWs = Constants.isAsciiWhitespace(c);
 
             if (!isWs && tokenStart == -1) {
                 // Start of a new token
                 tokenStart = i;
-            } else if (isWs && tokenStart != -1) {
+            }
+            else if (isWs && tokenStart != -1) {
                 // End of current token
                 result.add(input.substring(tokenStart, i));
                 tokenStart = -1;
@@ -83,12 +84,12 @@ public final class Utils {
      * @param str the string to trim (can be null)
      * @return trimmed string, or null if input is null, or empty string if all whitespace
      */
-    public static String trimAsciiWhitespace(String str) {
+    public static String trimAsciiWhitespace(final String str) {
         if (str == null) {
             return null;
         }
 
-        int len = str.length();
+        final int len = str.length();
         if (len == 0) {
             return str;
         }
@@ -131,14 +132,14 @@ public final class Utils {
         }
 
         // If starts with whitespace, return empty
-        char first = input.charAt(0);
+        final char first = input.charAt(0);
         if (first == '\t' || first == '\n' || first == '\f' || first == '\r' || first == ' ') {
             return "";
         }
 
         // Find first whitespace character
         for (int i = 1; i < input.length(); i++) {
-            char c = input.charAt(i);
+            final char c = input.charAt(i);
             if (Constants.isAsciiWhitespace(c)) {
                 return input.substring(0, i);
             }
