@@ -14,17 +14,12 @@
  */
 package org.htmlunit.csp.value;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import org.htmlunit.csp.Constants;
 
-public record RFC7230Token(String value_) {
-
-    public String getValue() {
-        return value_;
-    }
+public record RFC7230Token(String value) {
 
     public static Optional<RFC7230Token> parseRFC7230Token(final String value) {
         final Matcher matcher = Constants.rfc7230TokenPattern.matcher(value);
@@ -36,23 +31,7 @@ public record RFC7230Token(String value_) {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof RFC7230Token that)) {
-            return false;
-        }
-        return value_.equals(that.value_);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value_);
-    }
-
-    @Override
     public String toString() {
-        return value_;
+        return value;
     }
 }

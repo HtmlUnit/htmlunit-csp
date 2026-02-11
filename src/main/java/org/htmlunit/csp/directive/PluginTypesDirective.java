@@ -50,7 +50,7 @@ public class PluginTypesDirective extends Directive {
             return false;
         }
 
-        if ("*".equals(type.getType()) || "*".equals(type.getSubtype())) {
+        if ("*".equals(type.type()) || "*".equals(type.subtype())) {
             errors.add(Policy.Severity.Warning,
                         "Media types can only be matched literally. Make sure using `*` is not an oversight.",
                         index);

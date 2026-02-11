@@ -21,23 +21,7 @@ import java.util.regex.Matcher;
 import org.htmlunit.csp.Constants;
 import org.htmlunit.csp.url.URI;
 
-public record Host(String scheme_, String host_, int port_, String path_) {
-
-    public String getScheme() {
-        return scheme_;
-    }
-
-    public String getHost() {
-        return host_;
-    }
-
-    public int getPort() {
-        return port_;
-    }
-
-    public String getPath() {
-        return path_;
-    }
+public record Host(String scheme, String host, int port, String path) {
 
     public static Optional<Host> parseHost(final String value) {
         final Matcher matcher = Constants.HOST_SOURCE_PATTERN.matcher(value);
@@ -74,12 +58,12 @@ public record Host(String scheme_, String host_, int port_, String path_) {
     @Override
     public String toString() {
         final boolean isDefaultPort =
-                port_ == Constants.EMPTY_PORT || scheme_ != null && port_ == URI
-                        .defaultPortForProtocol(scheme_);
-        return (scheme_ == null ? "" : scheme_ + "://")
-                + host_
-                + (isDefaultPort ? "" : ":" + (port_ == Constants.WILDCARD_PORT ? "*" : port_))
-                + (path_ == null ? "" : path_);
+                port == Constants.EMPTY_PORT || scheme != null && port == URI
+                        .defaultPortForProtocol(scheme);
+        return (scheme == null ? "" : scheme + "://")
+                + host
+                + (isDefaultPort ? "" : ":" + (port == Constants.WILDCARD_PORT ? "*" : port))
+                + (path == null ? "" : path);
     }
 
 }

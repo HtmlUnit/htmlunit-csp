@@ -15,19 +15,18 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Utils;
 
-public record Hash(Algorithm algorithm_, String base64ValuePart_) {
+public record Hash(Algorithm algorithm, String base64ValuePart) {
 
     public Algorithm getAlgorithm() {
-        return algorithm_;
+        return algorithm;
     }
 
     public String getBase64ValuePart() {
-        return base64ValuePart_;
+        return base64ValuePart;
     }
 
     public static Optional<Hash> parseHash(final String value) {
@@ -59,24 +58,7 @@ public record Hash(Algorithm algorithm_, String base64ValuePart_) {
 
     @Override
     public String toString() {
-        return "'" + algorithm_.toString() + "-" + base64ValuePart_ + "'";
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final Hash hash = (Hash) o;
-        return algorithm_ == hash.algorithm_ && base64ValuePart_.equals(hash.base64ValuePart_);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(algorithm_, base64ValuePart_);
+        return "'" + algorithm.toString() + "-" + base64ValuePart + "'";
     }
 
     public enum Algorithm {

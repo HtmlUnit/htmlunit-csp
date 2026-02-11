@@ -15,21 +15,12 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
 import org.htmlunit.csp.Constants;
 
-public record MediaType(String type_, String subtype_) {
-
-    public String getType() {
-        return type_;
-    }
-
-    public String getSubtype() {
-        return subtype_;
-    }
+public record MediaType(String type, String subtype) {
 
     public static Optional<MediaType> parseMediaType(final String value) {
         final Matcher matcher = Constants.MEDIA_TYPE_PATTERN.matcher(value);
@@ -44,24 +35,7 @@ public record MediaType(String type_, String subtype_) {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final MediaType mediaType = (MediaType) o;
-        return type_.equals(mediaType.type_) && subtype_.equals(mediaType.subtype_);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(type_, subtype_);
-    }
-
-    @Override
     public String toString() {
-        return type_ + "/" + subtype_;
+        return type + "/" + subtype;
     }
 }

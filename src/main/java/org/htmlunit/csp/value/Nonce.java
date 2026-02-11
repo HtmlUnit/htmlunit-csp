@@ -15,16 +15,11 @@
 package org.htmlunit.csp.value;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.htmlunit.csp.Utils;
 
-public record Nonce(String base64ValuePart_) {
-
-    public String getBase64ValuePart() {
-        return base64ValuePart_;
-    }
+public record Nonce(String base64ValuePart) {
 
     public static Optional<Nonce> parseNonce(final String value) {
         final String lowercaseValue = value.toLowerCase(Locale.ROOT);
@@ -40,23 +35,6 @@ public record Nonce(String base64ValuePart_) {
 
     @Override
     public String toString() {
-        return "'nonce-" + base64ValuePart_ + "'";
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final Nonce nonce = (Nonce) o;
-        return base64ValuePart_.equals(nonce.base64ValuePart_);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(base64ValuePart_);
+        return "'nonce-" + base64ValuePart + "'";
     }
 }

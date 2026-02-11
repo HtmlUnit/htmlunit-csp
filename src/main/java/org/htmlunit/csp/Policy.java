@@ -516,7 +516,7 @@ public final class Policy {
         if (nonce.isPresent()) {
             final String actualNonce = nonce.get();
             if (actualNonce.length() > 0
-                    && directive.getNonces().stream().anyMatch(n -> n.getBase64ValuePart().equals(actualNonce))) {
+                    && directive.getNonces().stream().anyMatch(n -> n.base64ValuePart().equals(actualNonce))) {
                 return true;
             }
         }
@@ -676,7 +676,7 @@ public final class Policy {
         if (nonce.isPresent()) {
             final String actualNonce = nonce.get();
             if (actualNonce.length() > 0
-                    && directive.getNonces().stream().anyMatch(n -> n.getBase64ValuePart().equals(actualNonce))) {
+                    && directive.getNonces().stream().anyMatch(n -> n.base64ValuePart().equals(actualNonce))) {
                 return true;
             }
         }
@@ -884,7 +884,7 @@ public final class Policy {
         if (nonce.isPresent()) {
             final String actualNonce = nonce.get();
             if (actualNonce.length() > 0
-                    && directive.getNonces().stream().anyMatch(n -> n.getBase64ValuePart().equals(actualNonce))) {
+                    && directive.getNonces().stream().anyMatch(n -> n.base64ValuePart().equals(actualNonce))) {
                 return true;
             }
         }
@@ -966,12 +966,12 @@ public final class Policy {
             }
         }
         for (final Scheme scheme : list.getSchemes()) {
-            if (schemePartMatches(scheme.getValue(), urlScheme)) {
+            if (schemePartMatches(scheme.value(), urlScheme)) {
                 return true;
             }
         }
         for (final Host expression : list.getHosts()) {
-            final String scheme = expression.getScheme();
+            final String scheme = expression.scheme();
             if (scheme != null) {
                 if (!schemePartMatches(scheme, urlScheme)) {
                     continue;
@@ -985,14 +985,14 @@ public final class Policy {
             if (url.getHost() == null) {
                 continue;
             }
-            if (!hostPartMatches(expression.getHost(), url.getHost())) {
+            if (!hostPartMatches(expression.host(), url.getHost())) {
                 continue;
             }
             // url.port is non-null whenever url.host is
-            if (!portPartMatches(expression.getPort(), url.getPort(), urlScheme)) {
+            if (!portPartMatches(expression.port(), url.getPort(), urlScheme)) {
                 continue;
             }
-            if (!pathPartMatches(expression.getPath(), url.getPath())) {
+            if (!pathPartMatches(expression.path(), url.getPath())) {
                 continue;
             }
             return true;
