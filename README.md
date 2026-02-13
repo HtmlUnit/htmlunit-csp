@@ -182,6 +182,26 @@ Open a command line window from the root folder of the project and call
 mvn compile
 ```
 
+### Eclipse IDE Setup
+
+To work with this project in Eclipse:
+
+1. Install the **Eclipse Checkstyle Plugin** from the Eclipse Marketplace (Help > Eclipse Marketplace)
+   - Search for "Checkstyle Plug-in" and install it
+   
+2. Import the project as a Maven project:
+   - File > Import > Maven > Existing Maven Projects
+   - Select the repository root directory
+   - Click Finish
+
+3. The Checkstyle configuration will be automatically picked up from the `.checkstyle` file in the repository root
+   - The configuration uses `checkstyle.xml` and `checkstyle_suppressions.xml` from the project
+   - All Java files under `src/` will be checked automatically
+
+4. To verify Checkstyle is working:
+   - Right-click the project > Properties > Checkstyle
+   - You should see "HtmlUnit CSP Checkstyle" as the active configuration
+
 ### Running the tests
 
 ```
