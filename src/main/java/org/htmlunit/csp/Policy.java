@@ -45,6 +45,26 @@ import org.htmlunit.csp.value.MediaType;
 import org.htmlunit.csp.value.RFC7230Token;
 import org.htmlunit.csp.value.Scheme;
 
+/**
+ * Represents a single parsed Content Security Policy.
+ * <p>
+ * A {@code Policy} is created by parsing a serialized CSP string via
+ * {@link #parseSerializedCSP(String, PolicyErrorConsumer)} or by parsing a comma-separated
+ * list of policies via {@link #parseSerializedCSPList(String, PolicyListErrorConsumer)}.
+ * </p>
+ * <p>
+ * The class preserves the original case, order, duplicate directives, unrecognized directives,
+ * and unrecognized values to support round-tripping. Whitespace and empty directives/policies
+ * are not preserved.
+ * </p>
+ * <p>
+ * High-level query methods such as {@link #allowsExternalScript} and {@link #allowsInlineScript}
+ * implement the matching algorithms defined in the
+ * <a href="https://w3c.github.io/webappsec-csp/">CSP specification</a>.
+ * </p>
+ *
+ * @see <a href="https://w3c.github.io/webappsec-csp/">W3C Content Security Policy Level 3</a>
+ */
 public final class Policy {
     // Things we don't preserve:
     // - Whitespace
@@ -84,7 +104,21 @@ public final class Policy {
         // pass
     }
 
-    // https://w3c.github.io/webappsec-csp/#parse-serialized-policy-list
+    /**
+     * Parses a serialized CSP list (comma-separated policies) into a {@link PolicyList}.
+     * <p>
+     * Implements the
+     * <a href="https://w3c.github.io/webappsec-csp/#parse-serialized-policy-list">parse a
+     * serialized CSP list</a> algorithm. The input must be an ASCII string. Empty policies
+     * (those that contain no directives) are omitted from the resulting list.
+     * </p>
+     *
+     * @param serialized the comma-separated serialized CSP list to parse
+     * @param policyListErrorConsumer a consumer that receives any errors or warnings
+     *        encountered during parsing
+     * @return the parsed {@link PolicyList}
+     * @throws IllegalArgumentException if {@code serialized} contains non-ASCII characters
+     */
     public static PolicyList parseSerializedCSPList(final String serialized,
                         final PolicyListErrorConsumer policyListErrorConsumer) {
         // "A serialized CSP list is an ASCII string"
@@ -113,7 +147,23 @@ public final class Policy {
         return new PolicyList(policies);
     }
 
-    // https://w3c.github.io/webappsec-csp/#parse-serialized-policy
+    /**
+     * Parses a single serialized CSP string into a {@link Policy}.
+     * <p>
+     * Implements the
+     * <a href="https://w3c.github.io/webappsec-csp/#parse-serialized-policy">parse a
+     * serialized CSP</a> algorithm. The input must be an ASCII string and must not
+     * contain commas; for comma-separated CSP lists use
+     * {@link #parseSerializedCSPList(String, PolicyListErrorConsumer)}.
+     * </p>
+     *
+     * @param serialized the serialized CSP string to parse (must not contain commas)
+     * @param policyErrorConsumer a consumer that receives any errors or warnings
+     *        encountered during parsing
+     * @return the parsed {@link Policy}
+     * @throws IllegalArgumentException if {@code serialized} contains non-ASCII characters
+     *         or contains a comma
+     */
     public static Policy parseSerializedCSP(final String serialized, final PolicyErrorConsumer policyErrorConsumer) {
         // "A serialized CSP is an ASCII string", and browsers do in fact reject CSPs which contain non-ASCII characters
         enforceAscii(serialized);
@@ -400,6 +450,15 @@ public final class Policy {
         return newDirective;
     }
 
+    /**
+     * Serializes this policy back to its string representation.
+     * <p>
+     * Directives are separated by {@code "; "}. The original case, order, and values
+     * (including duplicates and unrecognized entries) are preserved.
+     * </p>
+     *
+     * @return the serialized CSP string
+     */
     @Override
     public String toString() {
         final StringBuilder out = new StringBuilder();
@@ -419,46 +478,127 @@ public final class Policy {
 
     // Accessors
 
+    /**
+     * Returns the parsed {@code base-uri} directive, if present.
+     *
+     * @return an {@link Optional} containing the {@link SourceExpressionDirective} for
+     *         {@code base-uri}, or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-base-uri">base-uri directive</a>
+     */
     public Optional<SourceExpressionDirective> baseUri() {
         return Optional.ofNullable(baseUri_);
     }
 
+    /**
+     * Returns whether the {@code block-all-mixed-content} directive is present.
+     *
+     * @return {@code true} if the policy contains the {@code block-all-mixed-content} directive
+     * @see <a href="https://www.w3.org/TR/mixed-content/#strict-opt-in">block-all-mixed-content</a>
+     */
     public boolean blockAllMixedContent() {
         return blockAllMixedContent_;
     }
 
+    /**
+     * Returns the parsed {@code form-action} directive, if present.
+     *
+     * @return an {@link Optional} containing the {@link SourceExpressionDirective} for
+     *         {@code form-action}, or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-form-action">form-action directive</a>
+     */
     public Optional<SourceExpressionDirective> formAction() {
         return Optional.ofNullable(formAction_);
     }
 
+    /**
+     * Returns the parsed {@code frame-ancestors} directive, if present.
+     *
+     * @return an {@link Optional} containing the {@link FrameAncestorsDirective},
+     *         or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-frame-ancestors">frame-ancestors directive</a>
+     */
     public Optional<FrameAncestorsDirective> frameAncestors() {
         return Optional.ofNullable(frameAncestors_);
     }
 
+    /**
+     * Returns the parsed {@code navigate-to} directive, if present.
+     *
+     * @return an {@link Optional} containing the {@link SourceExpressionDirective} for
+     *         {@code navigate-to}, or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-navigate-to">navigate-to directive</a>
+     */
     public Optional<SourceExpressionDirective> navigateTo() {
         return Optional.ofNullable(navigateTo_);
     }
 
+    /**
+     * Returns the parsed {@code plugin-types} directive, if present.
+     * <p>Note: the {@code plugin-types} directive has been deprecated.</p>
+     *
+     * @return an {@link Optional} containing the {@link PluginTypesDirective},
+     *         or empty if the directive was not specified
+     */
     public Optional<PluginTypesDirective> pluginTypes() {
         return Optional.ofNullable(pluginTypes_);
     }
 
+    /**
+     * Returns the {@code prefetch-src} fetch directive kind, if present.
+     * <p>Note: the {@code prefetch-src} directive has been deprecated. The actual parsed
+     * directive data is available via {@link #getFetchDirective(FetchDirectiveKind)} with
+     * {@link FetchDirectiveKind#PrefetchSrc}.</p>
+     *
+     * @return an {@link Optional} containing the {@link FetchDirectiveKind} for
+     *         {@code prefetch-src}, or empty if not present
+     */
     public Optional<FetchDirectiveKind> prefetchSrc() {
         return Optional.ofNullable(prefetchSrc_);
     }
 
+    /**
+     * Returns the parsed {@code report-to} directive value, if present.
+     *
+     * @return an {@link Optional} containing the {@link RFC7230Token} representing the
+     *         report-to group name, or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-report-to">report-to directive</a>
+     */
     public Optional<RFC7230Token> reportTo() {
         return Optional.ofNullable(reportTo_);
     }
 
+    /**
+     * Returns the parsed {@code report-uri} directive, if present.
+     * <p>Note: the {@code report-uri} directive has been deprecated in favor of
+     * {@code report-to}.</p>
+     *
+     * @return an {@link Optional} containing the {@link ReportUriDirective},
+     *         or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-report-uri">report-uri directive</a>
+     */
     public Optional<ReportUriDirective> reportUri() {
         return Optional.ofNullable(reportUri_);
     }
 
+    /**
+     * Returns the parsed {@code sandbox} directive, if present.
+     *
+     * @return an {@link Optional} containing the {@link SandboxDirective},
+     *         or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-sandbox">sandbox directive</a>
+     */
     public Optional<SandboxDirective> sandbox() {
         return Optional.ofNullable(sandbox_);
     }
 
+    /**
+     * Returns the parsed {@code trusted-types} directive, if present.
+     *
+     * @return an {@link Optional} containing the {@link TrustedTypesDirective},
+     *         or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive">
+     *      trusted-types directive</a>
+     */
     public Optional<TrustedTypesDirective> trustedTypes() {
         return Optional.ofNullable(trustedTypes_);
     }
@@ -473,28 +613,72 @@ public final class Policy {
         return trustedTypes_ != null && trustedTypes_.allowsWildcardPolicyNames();
     }
 
+    /**
+     * Returns the parsed {@code require-trusted-types-for} directive, if present.
+     *
+     * @return an {@link Optional} containing the {@link RequireTrustedTypesForDirective},
+     *         or empty if the directive was not specified
+     * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive">
+     *      require-trusted-types-for directive</a>
+     */
     public Optional<RequireTrustedTypesForDirective> requireTrustedTypesFor() {
         return Optional.ofNullable(requireTrustedTypesFor_);
     }
 
+    /**
+     * Returns whether the {@code upgrade-insecure-requests} directive is present.
+     *
+     * @return {@code true} if the policy contains the {@code upgrade-insecure-requests} directive
+     * @see <a href="https://www.w3.org/TR/upgrade-insecure-requests/#delivery">
+     *      upgrade-insecure-requests</a>
+     */
     public boolean upgradeInsecureRequests() {
         return upgradeInsecureRequests_;
     }
 
+    /**
+     * Returns the parsed fetch directive of the specified kind, if present.
+     * <p>
+     * Fetch directives include {@code default-src}, {@code script-src}, {@code style-src},
+     * {@code img-src}, {@code font-src}, {@code connect-src}, {@code media-src},
+     * {@code object-src}, {@code frame-src}, {@code child-src}, {@code worker-src},
+     * {@code manifest-src}, and their {@code -elem} / {@code -attr} variants.
+     * </p>
+     *
+     * @param kind the {@link FetchDirectiveKind} to look up
+     * @return an {@link Optional} containing the {@link SourceExpressionDirective} for the
+     *         requested fetch directive, or empty if not present
+     */
     public Optional<SourceExpressionDirective> getFetchDirective(final FetchDirectiveKind kind) {
         return Optional.ofNullable(fetchDirectives_.get(kind));
     }
 
     // High-level querying
 
-    /*
-    For each of these arguments, if the value provided is Optional.empty(), this method will return `true`
-    only if there is no value for the Optional.of() case of that parameter which would cause it to return `false`.
-    Take care with `integrity`; your script can be allowed by CSP but blocked by SRI if its integrity is wrong.
-    See https://www.w3.org/TR/SRI/
-    Also note that the notion of "the URL" is a little fuzzy because there can be redirects.
-    https://w3c.github.io/webappsec-csp/#script-pre-request
-    https://w3c.github.io/webappsec-csp/#script-post-request
+    /**
+     * Determines whether this policy allows loading an external script.
+     * <p>
+     * For each argument, if the value provided is {@link Optional#empty()}, this method
+     * returns {@code true} only if there is no value for the {@code Optional.of()} case
+     * of that parameter which would cause it to return {@code false}.
+     * </p>
+     * <p>
+     * Take care with {@code integrity}: a script can be allowed by CSP but blocked by
+     * <a href="https://www.w3.org/TR/SRI/">Subresource Integrity</a> if its integrity is wrong.
+     * Also note that "the URL" is somewhat fuzzy because of redirects.
+     * </p>
+     *
+     * @param nonce the nonce attribute value of the script element, if any
+     * @param integrity the integrity attribute value (SRI metadata), if any
+     * @param scriptUrl the URL of the external script, if known
+     * @param parserInserted whether the script element is parser-inserted;
+     *        {@link Optional#empty()} if unknown
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the external script
+     * @see <a href="https://w3c.github.io/webappsec-csp/#script-pre-request">
+     *      script-pre-request check</a>
+     * @see <a href="https://w3c.github.io/webappsec-csp/#script-post-request">
+     *      script-post-request check</a>
      */
     public boolean allowsExternalScript(
             final Optional<String> nonce,
@@ -548,7 +732,17 @@ public final class Policy {
                 doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
     }
 
-    // https://w3c.github.io/webappsec-csp/#script-src-elem-inline
+    /**
+     * Determines whether this policy allows an inline {@code <script>} element.
+     *
+     * @param nonce the nonce attribute value of the script element, if any
+     * @param source the text content of the inline script, if known (used for hash matching)
+     * @param parserInserted whether the script element is parser-inserted;
+     *        {@link Optional#empty()} if unknown
+     * @return {@code true} if this policy allows the inline script
+     * @see <a href="https://w3c.github.io/webappsec-csp/#should-block-inline">
+     *      should block inline check</a>
+     */
     public boolean allowsInlineScript(final Optional<String> nonce,
             final Optional<String> source, final Optional<Boolean> parserInserted) {
         if (sandbox_ != null && !sandbox_.allowScripts()) {
@@ -557,7 +751,16 @@ public final class Policy {
         return doesElementMatchSourceListForTypeAndSource(InlineType.Script, nonce, source, parserInserted);
     }
 
-    // https://w3c.github.io/webappsec-csp/#script-src-attr-inline
+    /**
+     * Determines whether this policy allows a script provided as an inline event handler
+     * attribute (e.g. {@code onclick}).
+     *
+     * @param source the text content of the event handler attribute, if known
+     *        (used for hash matching with {@code 'unsafe-hashes'})
+     * @return {@code true} if this policy allows the script attribute
+     * @see <a href="https://w3c.github.io/webappsec-csp/#should-block-inline">
+     *      should block inline check (script-src-attr)</a>
+     */
     public boolean allowsScriptAsAttribute(final Optional<String> source) {
         if (sandbox_ != null && !sandbox_.allowScripts()) {
             return false;
@@ -566,7 +769,19 @@ public final class Policy {
                 InlineType.ScriptAttribute, Optional.empty(), source, Optional.empty());
     }
 
-    // https://w3c.github.io/webappsec-csp/#can-compile-strings
+    /**
+     * Determines whether this policy allows the use of {@code eval()} and similar
+     * string-to-code mechanisms.
+     * <p>
+     * The governing directive is {@code script-src} if present, otherwise {@code default-src}.
+     * Returns {@code true} if no governing directive is present or if the governing directive
+     * includes {@code 'unsafe-eval'}.
+     * </p>
+     *
+     * @return {@code true} if this policy allows eval
+     * @see <a href="https://w3c.github.io/webappsec-csp/#can-compile-strings">
+     *      can compile strings check</a>
+     */
     public boolean allowsEval() {
         // This is done in prose, not in a table
         final FetchDirectiveKind governingDirective =
@@ -577,12 +792,26 @@ public final class Policy {
         return sourceList == null || sourceList.unsafeEval();
     }
 
-    // https://w3c.github.io/webappsec-csp/#navigate-to-pre-navigate
-    // https://w3c.github.io/webappsec-csp/#navigate-to-navigation-response
-    // Strictly speaking this requires the _response_'s CSP as well, because of frame-ancestors.
-    // But we are maybe not going to worry about that.
-    // Note: it is nonsensical to provide redirectedTo if redirected is Optional.of(false)
-    // Note: this also does not handle `javascript:` navigation; there's an explicit API for that
+    /**
+     * Determines whether this policy allows a navigation to the given URL.
+     * <p>
+     * This checks the {@code navigate-to} directive. If the directive is not present,
+     * navigation is allowed. This does <em>not</em> handle {@code javascript:} URL
+     * navigation; use {@link #allowsJavascriptUrlNavigation} for that.
+     * </p>
+     * <p>
+     * It is nonsensical to provide {@code redirectedTo} if {@code redirected} is
+     * {@code Optional.of(false)}.
+     * </p>
+     *
+     * @param to the initial navigation target URL, if known
+     * @param redirected whether the navigation is a redirect; {@link Optional#empty()} if unknown
+     * @param redirectedTo the final URL after redirect, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the navigation
+     * @see <a href="https://w3c.github.io/webappsec-csp/#navigate-to-pre-navigate">
+     *      navigate-to pre-navigate check</a>
+     */
     public boolean allowsNavigation(
             final Optional<? extends URLWithScheme> to,
             final Optional<Boolean> redirected,
@@ -623,9 +852,24 @@ public final class Policy {
         return true;
     }
 
-    // https://w3c.github.io/webappsec-csp/#navigate-to-pre-navigate
-    // https://w3c.github.io/webappsec-csp/#navigate-to-navigation-response
-    // Note: it is nonsensical to provide redirectedTo if redirected is Optional.of(false)
+    /**
+     * Determines whether this policy allows a form submission to the given URL.
+     * <p>
+     * This checks the {@code form-action} directive first; if absent, falls back to
+     * the {@code navigate-to} directive via {@link #allowsNavigation}. If the sandbox
+     * directive is present and does not include {@code allow-forms}, form submission
+     * is blocked.
+     * </p>
+     *
+     * @param to the form action target URL, if known
+     * @param redirected whether the form submission results in a redirect;
+     *        {@link Optional#empty()} if unknown
+     * @param redirectedTo the final URL after redirect, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the form action
+     * @see <a href="https://w3c.github.io/webappsec-csp/#navigate-to-pre-navigate">
+     *      navigate-to pre-navigate check</a>
+     */
     public boolean allowsFormAction(
             final Optional<? extends URLWithScheme> to,
             final Optional<Boolean> redirected,
@@ -648,7 +892,17 @@ public final class Policy {
         return allowsNavigation(to, redirected, redirectedTo, origin);
     }
 
-    // NB: the hashes (for unsafe-hashes) are supposed to include the JavaScript: part, per spec
+    /**
+     * Determines whether this policy allows a {@code javascript:} URL navigation.
+     * <p>
+     * The hashes (for {@code 'unsafe-hashes'}) are expected to include the
+     * {@code javascript:} prefix per the specification.
+     * </p>
+     *
+     * @param source the JavaScript source code after the {@code javascript:} prefix, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the {@code javascript:} URL navigation
+     */
     public boolean allowsJavascriptUrlNavigation(
             final Optional<String> source,
             final Optional<? extends URLWithScheme> origin) {
@@ -662,6 +916,21 @@ public final class Policy {
                                             source.map(s -> "javascript:" + s), Optional.of(false));
     }
 
+    /**
+     * Determines whether this policy allows loading an external stylesheet.
+     * <p>
+     * The effective directive is {@code style-src-elem} per the
+     * <a href="https://w3c.github.io/webappsec-csp/#effective-directive-for-a-request">
+     * effective directive for a request</a> algorithm. Integrity is not checked for
+     * stylesheets per <a href="https://github.com/w3c/webappsec-csp/issues/430">
+     * w3c/webappsec-csp#430</a>.
+     * </p>
+     *
+     * @param nonce the nonce attribute value of the link element, if any
+     * @param styleUrl the URL of the external stylesheet, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the external style
+     */
     public boolean allowsExternalStyle(
             final Optional<String> nonce,
             final Optional<? extends URLWithScheme> styleUrl,
@@ -685,15 +954,39 @@ public final class Policy {
                 doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows an inline {@code <style>} element.
+     *
+     * @param nonce the nonce attribute value of the style element, if any
+     * @param source the text content of the inline style, if known (used for hash matching)
+     * @return {@code true} if this policy allows the inline style
+     */
     public boolean allowsInlineStyle(final Optional<String> nonce, final Optional<String> source) {
         return doesElementMatchSourceListForTypeAndSource(InlineType.Style, nonce, source, Optional.empty());
     }
 
+    /**
+     * Determines whether this policy allows an inline style attribute (e.g. {@code style="..."}).
+     *
+     * @param source the text content of the style attribute, if known
+     *        (used for hash matching with {@code 'unsafe-hashes'})
+     * @return {@code true} if this policy allows the style attribute
+     */
     public boolean allowsStyleAsAttribute(final Optional<String> source) {
         return doesElementMatchSourceListForTypeAndSource(
                 InlineType.StyleAttribute, Optional.empty(), source, Optional.empty());
     }
 
+    /**
+     * Determines whether this policy allows loading a frame (iframe/frame) from the given source.
+     * <p>
+     * Uses the {@code frame-src} effective directive with its fallback chain.
+     * </p>
+     *
+     * @param source the URL of the framed resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the frame
+     */
     public boolean allowsFrame(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -705,6 +998,18 @@ public final class Policy {
                 doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows being framed by the given ancestor origin.
+     * <p>
+     * Checks the {@code frame-ancestors} directive. If not present, all ancestors are allowed.
+     * </p>
+     *
+     * @param source the URL of the ancestor frame, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the frame ancestor
+     * @see <a href="https://w3c.github.io/webappsec-csp/#directive-frame-ancestors">
+     *      frame-ancestors directive</a>
+     */
     public boolean allowsFrameAncestor(final Optional<? extends URLWithScheme> source,
                                        final Optional<? extends URLWithScheme> origin) {
         if (frameAncestors_ == null) {
@@ -714,7 +1019,20 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, frameAncestors_, origin)).isPresent();
     }
 
-    // This assumes that a `ws:` or `wss:` URL is being used with `new WebSocket` specifically
+    /**
+     * Determines whether this policy allows a connection (e.g. {@code fetch()},
+     * {@code XMLHttpRequest}, {@code WebSocket}) to the given source.
+     * <p>
+     * For {@code ws:} and {@code wss:} URLs (when using {@code new WebSocket}),
+     * the scheme is mapped to {@code http:} / {@code https:} respectively for matching,
+     * per the <a href="https://fetch.spec.whatwg.org/#concept-websocket-establish">
+     * WebSocket establish algorithm</a>.
+     * </p>
+     *
+     * @param source the URL to connect to, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the connection
+     */
     public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
                                     final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -742,6 +1060,13 @@ public final class Policy {
         return doesUrlMatchSourceListInOrigin(usedSource, sourceList, origin);
     }
 
+    /**
+     * Determines whether this policy allows loading a font from the given source.
+     *
+     * @param source the URL of the font resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the font
+     */
     public boolean allowsFont(final Optional<? extends URLWithScheme> source,
                               final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -753,6 +1078,13 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows loading an image from the given source.
+     *
+     * @param source the URL of the image resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the image
+     */
     public boolean allowsImage(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -764,6 +1096,13 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows loading an application manifest from the given source.
+     *
+     * @param source the URL of the manifest resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the manifest
+     */
     public boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
                                              final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -775,6 +1114,13 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows loading media (audio/video) from the given source.
+     *
+     * @param source the URL of the media resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the media
+     */
     public boolean allowsMedia(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -786,6 +1132,13 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows loading an object/embed/applet from the given source.
+     *
+     * @param source the URL of the object resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the object
+     */
     public boolean allowsObject(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -797,7 +1150,17 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
-    // Not actually spec'd properly; see https://github.com/whatwg/fetch/issues/1008
+    /**
+     * Determines whether this policy allows a prefetch from the given source.
+     * <p>
+     * Note: the {@code prefetch-src} directive is not properly spec'd.
+     * See <a href="https://github.com/whatwg/fetch/issues/1008">whatwg/fetch#1008</a>.
+     * </p>
+     *
+     * @param source the URL to prefetch, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the prefetch
+     */
     public boolean allowsPrefetch(final Optional<? extends URLWithScheme> source,
                                   final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -809,6 +1172,14 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows loading a worker (dedicated, shared, or service)
+     * from the given source.
+     *
+     * @param source the URL of the worker script, if known
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if this policy allows the worker
+     */
     public boolean allowsWorker(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
         final SourceExpressionDirective sourceList
@@ -820,6 +1191,16 @@ public final class Policy {
                         doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
     }
 
+    /**
+     * Determines whether this policy allows a plugin of the given media type.
+     * <p>
+     * Checks the (deprecated) {@code plugin-types} directive. If not present,
+     * all plugin types are allowed.
+     * </p>
+     *
+     * @param mediaType the media type of the plugin, if known
+     * @return {@code true} if this policy allows the plugin type
+     */
     public boolean allowsPlugin(final Optional<? extends MediaType> mediaType) {
         if (pluginTypes_ == null) {
             return true;
@@ -827,7 +1208,20 @@ public final class Policy {
         return mediaType.filter(type -> pluginTypes_.getMediaTypes().contains(type)).isPresent();
     }
 
-    // https://w3c.github.io/webappsec-csp/#should-directive-execute
+    /**
+     * Returns the governing directive for the given effective fetch directive kind,
+     * walking the fallback chain as defined in the specification.
+     * <p>
+     * For example, if {@code script-src-elem} is not present, this falls back to
+     * {@code script-src}, then to {@code default-src}.
+     * </p>
+     *
+     * @param kind the effective {@link FetchDirectiveKind} to resolve
+     * @return an {@link Optional} containing the governing {@link SourceExpressionDirective},
+     *         or empty if no directive in the fallback chain is present
+     * @see <a href="https://w3c.github.io/webappsec-csp/#should-directive-execute">
+     *      should a directive execute</a>
+     */
     public Optional<SourceExpressionDirective> getGoverningDirectiveForEffectiveDirective(
                                                 final FetchDirectiveKind kind) {
         for (final FetchDirectiveKind candidate : FetchDirectiveKind.getFetchDirectiveFallbackList(kind)) {
@@ -948,7 +1342,20 @@ public final class Policy {
         return input.replace('-', '+').replace('_', '/');
     }
 
-    // https://w3c.github.io/webappsec-csp/#match-url-to-source-list
+    /**
+     * Determines whether a URL matches a source list in the context of a given origin.
+     * <p>
+     * Implements the
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-list">match a URL
+     * to a source list</a> algorithm. This checks wildcards ({@code *}), scheme sources,
+     * host sources, and the {@code 'self'} keyword against the provided URL.
+     * </p>
+     *
+     * @param url the URL to check
+     * @param list the host-source directive (source list) to match against
+     * @param origin the origin of the protected resource, if known
+     * @return {@code true} if the URL matches the source list
+     */
     public static boolean doesUrlMatchSourceListInOrigin(final URLWithScheme url,
             final HostSourceDirective list,
             final Optional<? extends URLWithScheme> origin) {
@@ -1122,9 +1529,15 @@ public final class Policy {
     private record NamedDirective(String name_, Directive directive_) {
     }
 
-    // Info: strictly informative
-    // Warning: it matches the grammar, but is meaningless, duplicated, or otherwise problematic
-    // Error: it does not match the grammar
+    /**
+     * The severity level of a parsing error or warning.
+     * <ul>
+     *   <li>{@link #Info} — strictly informative</li>
+     *   <li>{@link #Warning} — the input matches the grammar but is meaningless, duplicated,
+     *       or otherwise problematic</li>
+     *   <li>{@link #Error} — the input does not match the grammar</li>
+     * </ul>
+     */
     public enum Severity {
             /** Severity Info. */
             Info,
@@ -1133,21 +1546,54 @@ public final class Policy {
             /** Severity Error. */
             Error }
 
+    /**
+     * A callback interface for receiving errors and warnings encountered while
+     * parsing a single serialized CSP.
+     * <p>
+     * A {@code valueIndex} of {@code -1} indicates that the error does not pertain
+     * to a specific value within the directive.
+     * </p>
+     */
     @FunctionalInterface
     public interface PolicyErrorConsumer {
         /** PolicyErrorConsumer ignored. */
         PolicyErrorConsumer ignored = (severity, message, directiveIndex, valueIndex) -> { };
 
-        // valueIndex = -1 for errors not pertaining to a value
+        /**
+         * Called when a parsing error or warning is encountered.
+         *
+         * @param severity the severity of the issue
+         * @param message a human-readable description of the issue
+         * @param directiveIndex the zero-based index of the directive within the policy
+         * @param valueIndex the zero-based index of the value within the directive,
+         *        or {@code -1} if the issue does not pertain to a specific value
+         */
         void add(Severity severity, String message, int directiveIndex, int valueIndex);
     }
 
+    /**
+     * A callback interface for receiving errors and warnings encountered while
+     * parsing a serialized CSP list (comma-separated policies).
+     * <p>
+     * A {@code valueIndex} of {@code -1} indicates that the error does not pertain
+     * to a specific value within the directive.
+     * </p>
+     */
     @FunctionalInterface
     public interface PolicyListErrorConsumer {
         /** PolicyListErrorConsumer ignored. */
         PolicyListErrorConsumer ignored = (severity, message, policyIndex, directiveIndex, valueIndex) -> { };
 
-        // valueIndex = -1 for errors not pertaining to a value
+        /**
+         * Called when a parsing error or warning is encountered.
+         *
+         * @param severity the severity of the issue
+         * @param message a human-readable description of the issue
+         * @param policyIndex the zero-based index of the policy within the comma-separated list
+         * @param directiveIndex the zero-based index of the directive within that policy
+         * @param valueIndex the zero-based index of the value within the directive,
+         *        or {@code -1} if the issue does not pertain to a specific value
+         */
         void add(Severity severity, String message, int policyIndex, int directiveIndex, int valueIndex);
     }
 }

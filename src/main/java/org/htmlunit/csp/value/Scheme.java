@@ -19,8 +19,33 @@ import java.util.Optional;
 
 import org.htmlunit.csp.Constants;
 
+/**
+ * Represents a CSP scheme-source value, e.g. {@code https:} or {@code data:}.
+ * <p>
+ * A scheme-source is a URI scheme followed by a colon. Per
+ * <a href="https://tools.ietf.org/html/rfc3986#section-3.1">RFC 3986 §3.1</a>,
+ * schemes are case-insensitive, so the value is stored in its canonical
+ * lowercase form.
+ * </p>
+ *
+ * @param value the scheme name in lowercase, without the trailing colon
+ *        (e.g. {@code "https"}, {@code "data"})
+ * @see <a href="https://w3c.github.io/webappsec-csp/#grammardef-scheme-source">
+ *      scheme-source grammar</a>
+ */
 public record Scheme(String value) {
 
+    /**
+     * Parses a scheme-source from its CSP string representation.
+     * <p>
+     * The input must match the scheme grammar followed by a colon
+     * (e.g. {@code "https:"}). The scheme is lowercased per RFC 3986.
+     * </p>
+     *
+     * @param value the CSP scheme-source token (e.g. {@code "https:"} or {@code "data:"})
+     * @return an {@link Optional} containing the parsed {@link Scheme},
+     *         or empty if the value does not match the scheme-source grammar
+     */
     public static Optional<Scheme> parseScheme(final String value) {
         if (value.matches("^" + Constants.SCHEME_PART + ":$")) {
             // https://tools.ietf.org/html/rfc3986#section-3.1
@@ -30,6 +55,12 @@ public record Scheme(String value) {
         return Optional.empty();
     }
 
+    /**
+     * Returns the CSP string representation of this scheme-source
+     * (the lowercase scheme name followed by a colon, e.g. {@code "https:"}).
+     *
+     * @return the scheme-source string
+     */
     @Override
     public String toString() {
         return value + ":";

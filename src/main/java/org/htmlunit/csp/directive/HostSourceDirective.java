@@ -25,6 +25,19 @@ import org.htmlunit.csp.Policy;
 import org.htmlunit.csp.value.Host;
 import org.htmlunit.csp.value.Scheme;
 
+/**
+ * Abstract base class for directives whose values are host-source lists.
+ * <p>
+ * A host-source list can contain the keywords {@code 'none'}, {@code 'self'},
+ * and {@code *}, as well as scheme-sources ({@code https:}) and host-sources
+ * ({@code example.com}, {@code *.example.com:443/path}). This class is extended
+ * by {@link SourceExpressionDirective} (which adds nonces, hashes, and other
+ * source expressions) and by {@link FrameAncestorsDirective}.
+ * </p>
+ *
+ * @see <a href="https://w3c.github.io/webappsec-csp/#framework-directive-source-list">
+ *      CSP source list</a>
+ */
 public abstract class HostSourceDirective extends Directive {
     private static final String NONE_SRC = "'none'";
     private static final String SELF_SRC = "'self'";
@@ -35,10 +48,21 @@ public abstract class HostSourceDirective extends Directive {
 
     private String none_;
 
+    /**
+     * Constructs a host-source directive from the given raw values.
+     *
+     * @param values the raw string values for this directive
+     */
     protected HostSourceDirective(final List<String> values) {
         super(values);
     }
 
+    /**
+     * Returns the original {@code 'none'} token if the directive was set to {@code 'none'},
+     * or {@code null} if the directive is not {@code 'none'}.
+     *
+     * @return the {@code 'none'} token string, or {@code null}
+     */
     public String getNone() {
         return none_;
     }
@@ -136,18 +160,50 @@ public abstract class HostSourceDirective extends Directive {
         return true;
     }
 
+    /**
+     * Returns whether the wildcard ({@code *}) is present in this source list.
+     * <p>
+     * When {@code *} is present, any URL with a
+     * <a href="https://fetch.spec.whatwg.org/#network-scheme">network scheme</a>
+     * ({@code ftp}, {@code http}, {@code https}) is matched, as well as URLs whose
+     * scheme matches the origin's scheme.
+     * </p>
+     *
+     * @return {@code true} if the wildcard source is present
+     */
     public boolean star() {
         return star_;
     }
 
+    /**
+     * Returns whether the {@code 'self'} keyword is present in this source list.
+     * <p>
+     * When {@code 'self'} is present, URLs that share the same origin as the
+     * protected resource are matched.
+     * </p>
+     *
+     * @return {@code true} if {@code 'self'} is present
+     */
     public boolean self() {
         return self_;
     }
 
+    /**
+     * Returns an unmodifiable list of scheme-sources (e.g. {@code https:}, {@code data:})
+     * present in this directive.
+     *
+     * @return the list of parsed {@link Scheme} values
+     */
     public List<Scheme> getSchemes() {
         return Collections.unmodifiableList(schemes_);
     }
 
+    /**
+     * Returns an unmodifiable list of host-sources (e.g. {@code example.com},
+     * {@code *.cdn.example.com:443/path}) present in this directive.
+     *
+     * @return the list of parsed {@link Host} values
+     */
     public List<Host> getHosts() {
         return Collections.unmodifiableList(hosts_);
     }

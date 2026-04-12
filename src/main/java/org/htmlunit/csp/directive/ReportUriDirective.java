@@ -21,9 +21,35 @@ import java.util.List;
 import org.htmlunit.csp.Directive;
 import org.htmlunit.csp.Policy;
 
+/**
+ * Represents the (deprecated) {@code report-uri} CSP directive.
+ * <p>
+ * The {@code report-uri} directive specifies one or more URIs to which the
+ * user agent sends violation reports. It has been deprecated in favour of the
+ * {@code report-to} directive.
+ * </p>
+ * <p>
+ * Duplicate URIs are permitted because they have actual semantic meaning:
+ * the report will be sent to the same endpoint multiple times (once per
+ * occurrence), per specification.
+ * </p>
+ *
+ * @see <a href="https://w3c.github.io/webappsec-csp/#directive-report-uri">
+ *      report-uri directive</a>
+ */
 public class ReportUriDirective extends Directive {
     private final List<String> uris_ = new ArrayList<>();
 
+    /**
+     * Parses a {@code report-uri} directive from the given list of URI values.
+     * <p>
+     * At least one URI is required. Duplicate URIs produce an informational
+     * message (not an error) since they are semantically valid.
+     * </p>
+     *
+     * @param values the raw string values (URIs) for this directive
+     * @param errors consumer that receives parsing errors and warnings
+     */
     public ReportUriDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);
         int index = 0;
@@ -50,6 +76,15 @@ public class ReportUriDirective extends Directive {
         uris_.add(uri);
     }
 
+    /**
+     * Returns an unmodifiable list of the report URIs specified in this directive.
+     * <p>
+     * The list may contain duplicates, which have semantic meaning (the report
+     * is sent once per URI occurrence).
+     * </p>
+     *
+     * @return the list of report URI strings
+     */
     public List<String> getUris() {
         return Collections.unmodifiableList(uris_);
     }

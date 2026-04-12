@@ -19,8 +19,32 @@ import java.util.regex.Matcher;
 
 import org.htmlunit.csp.Constants;
 
+/**
+ * Represents an RFC 7230 token value, used as the value of the
+ * {@code report-to} CSP directive.
+ * <p>
+ * An RFC 7230 token is a sequence of one or more characters from the
+ * {@code tchar} set defined in
+ * <a href="https://tools.ietf.org/html/rfc7230#section-3.2.6">RFC 7230 §3.2.6</a>.
+ * The value is preserved as-is (case-sensitive).
+ * </p>
+ *
+ * @param value the token string
+ * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.2.6">RFC 7230 §3.2.6</a>
+ */
 public record RFC7230Token(String value) {
 
+    /**
+     * Parses an RFC 7230 token from the given string.
+     * <p>
+     * The input must consist entirely of valid {@code tchar} characters
+     * as defined in RFC 7230.
+     * </p>
+     *
+     * @param value the string to parse
+     * @return an {@link Optional} containing the parsed {@link RFC7230Token},
+     *         or empty if the value does not match the RFC 7230 token grammar
+     */
     public static Optional<RFC7230Token> parseRFC7230Token(final String value) {
         final Matcher matcher = Constants.rfc7230TokenPattern.matcher(value);
         if (matcher.find()) {
@@ -30,6 +54,11 @@ public record RFC7230Token(String value) {
         return Optional.empty();
     }
 
+    /**
+     * Returns the token value as-is.
+     *
+     * @return the RFC 7230 token string
+     */
     @Override
     public String toString() {
         return value;

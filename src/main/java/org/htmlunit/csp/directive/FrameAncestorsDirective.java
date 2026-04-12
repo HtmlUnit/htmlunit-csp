@@ -19,7 +19,33 @@ import java.util.Locale;
 
 import org.htmlunit.csp.Policy;
 
+/**
+ * Represents the {@code frame-ancestors} CSP directive.
+ * <p>
+ * The {@code frame-ancestors} directive restricts which URLs can embed the
+ * protected resource using {@code <frame>}, {@code <iframe>}, {@code <object>},
+ * {@code <embed>}, or {@code <applet>}. Unlike other directives, it uses an
+ * ancestor-source list (host-sources and scheme-sources only — no nonces or hashes)
+ * and only matches against origins (paths are always ignored).
+ * </p>
+ *
+ * @see <a href="https://w3c.github.io/webappsec-csp/#directive-frame-ancestors">
+ *      frame-ancestors directive</a>
+ */
 public class FrameAncestorsDirective extends HostSourceDirective {
+
+    /**
+     * Parses a {@code frame-ancestors} directive from the given list of values.
+     * <p>
+     * Each token is classified as {@code 'none'}, {@code 'self'}, {@code *},
+     * a scheme-source, or a host-source. Errors and warnings (duplicates,
+     * unrecognised tokens, combining {@code 'none'} with other values, empty lists)
+     * are reported through the supplied {@code errors} consumer.
+     * </p>
+     *
+     * @param values the raw string values for this directive
+     * @param errors consumer that receives parsing errors and warnings
+     */
     public FrameAncestorsDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);
 

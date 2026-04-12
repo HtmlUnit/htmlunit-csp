@@ -21,9 +21,17 @@ import java.util.Locale;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+/**
+ * Base class for all CSP directive representations.
+ * <p>
+ * A {@code Directive} holds the list of raw string values that were parsed for a
+ * single directive in a Content Security Policy. Subclasses interpret those
+ * values into structured data (source expressions, sandbox keywords, etc.).
+ * </p>
+ */
 public class Directive {
 
-    /** IS_DIRECTIVE_NAME. */
+    /** Predicate that tests whether a string is a valid directive name ({@code ALPHA / DIGIT / "-"}). */
     public static final Predicate<String> IS_DIRECTIVE_NAME = Pattern.compile("^[A-Za-z0-9\\-]+$").asPredicate();
 
     private List<String> values_;
@@ -51,6 +59,17 @@ public class Directive {
         return false;
     }
 
+    /**
+     * Appends a value to this directive's value list.
+     * <p>
+     * The value must be a non-empty ASCII string that does not contain whitespace,
+     * commas, or semicolons.
+     * </p>
+     *
+     * @param value the value to add
+     * @throws IllegalArgumentException if the value is empty, non-ASCII,
+     *         or contains whitespace / comma / semicolon
+     */
     protected void addValue(final String value) {
         Policy.enforceAscii(value);
         if (containsNonDirectiveCharacter(value)) {
@@ -62,10 +81,25 @@ public class Directive {
         values_.add(value);
     }
 
+    /**
+     * Returns an unmodifiable view of this directive's raw string values.
+     *
+     * @return the list of values for this directive
+     */
     public List<String> getValues() {
         return Collections.unmodifiableList(values_);
     }
 
+    /**
+     * Constructs a directive with the given list of values.
+     * <p>
+     * Each value is validated through {@link #addValue(String)} during construction.
+     * </p>
+     *
+     * @param values the raw string values for this directive
+     * @throws IllegalArgumentException if any value is empty, non-ASCII,
+     *         or contains whitespace / comma / semicolon
+     */
     protected Directive(final List<String> values) {
         values_ = new ArrayList<>();
         for (final String value : values) {
@@ -74,6 +108,11 @@ public class Directive {
         }
     }
 
+    /**
+     * Removes all occurrences of a value from this directive (case-insensitive comparison).
+     *
+     * @param value the value to remove (compared case-insensitively)
+     */
     protected void removeValueIgnoreCase(final String value) {
         final String lowercaseValue = value.toLowerCase(Locale.ROOT);
 
@@ -88,11 +127,27 @@ public class Directive {
         values_ = copy;
     }
 
+    /**
+     * A callback interface for receiving errors and warnings encountered while
+     * parsing a single directive's values.
+     * <p>
+     * A {@code valueIndex} of {@code -1} indicates the error does not pertain
+     * to a specific value within the directive.
+     * </p>
+     */
     @FunctionalInterface
     public interface DirectiveErrorConsumer {
-        /** ignored. */
+        /** A no-op consumer that silently ignores all errors. */
         DirectiveErrorConsumer ignored = (severity, message, valueIndex) -> { };
 
+        /**
+         * Called when a parsing error or warning is encountered.
+         *
+         * @param severity the severity of the issue
+         * @param message a human-readable description of the issue
+         * @param valueIndex the zero-based index of the value within the directive,
+         *        or {@code -1} if the issue does not pertain to a specific value
+         */
         void add(Policy.Severity severity, String message,
                 int valueIndex); // index = -1 for errors not pertaining to a value
 

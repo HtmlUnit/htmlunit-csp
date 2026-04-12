@@ -16,8 +16,35 @@ package org.htmlunit.csp;
 
 import java.util.List;
 
+/**
+ * Represents a list of Content Security Policies parsed from a comma-separated
+ * serialized CSP list.
+ * <p>
+ * A serialized CSP list (e.g. the value of a {@code Content-Security-Policy}
+ * HTTP header) may contain multiple policies separated by commas. Each policy
+ * is parsed independently, and a resource is blocked if <em>any</em> policy
+ * in the list blocks it.
+ * </p>
+ * <p>
+ * Instances are created by
+ * {@link Policy#parseSerializedCSPList(String, Policy.PolicyListErrorConsumer)}.
+ * Empty policies (those with no directives) are omitted during parsing.
+ * </p>
+ *
+ * @param policies_ the list of parsed {@link Policy} instances (empty policies excluded)
+ * @see Policy#parseSerializedCSPList(String, Policy.PolicyListErrorConsumer)
+ */
 public record PolicyList(List<Policy> policies_) {
 
+    /**
+     * Serializes this policy list back to its string representation.
+     * <p>
+     * Individual policies are separated by {@code ", "}. Each policy is
+     * serialized using {@link Policy#toString()}.
+     * </p>
+     *
+     * @return the comma-separated serialized CSP list string
+     */
     @Override
     public String toString() {
         final StringBuilder out = new StringBuilder();

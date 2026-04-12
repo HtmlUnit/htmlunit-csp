@@ -16,33 +16,74 @@ package org.htmlunit.csp;
 
 import java.util.regex.Pattern;
 
+/**
+ * Shared constants used throughout the CSP parser.
+ * <p>
+ * This utility class provides regex patterns for matching CSP grammar
+ * productions (schemes, hosts, ports, paths, media types, RFC 7230 tokens,
+ * IP addresses, etc.) as well as sentinel values for ports and a helper
+ * method for ASCII whitespace detection.
+ * </p>
+ */
 public final class Constants {
-    // https://tools.ietf.org/html/rfc3986#section-3.1
-    /** SCHEME_PART = "[a-zA-Z][a-zA-Z0-9+\\-.]*". */
+    /**
+     * Regex fragment matching a URI scheme per
+     * <a href="https://tools.ietf.org/html/rfc3986#section-3.1">RFC 3986 §3.1</a>.
+     * <p>
+     * Pattern: {@code [a-zA-Z][a-zA-Z0-9+\-.]*}
+     * </p>
+     */
     public static final String SCHEME_PART = "[a-zA-Z][a-zA-Z0-9+\\-.]*";
-    /** SCHEME_PATTERN. */
+
+    /**
+     * Pattern that matches a URI scheme followed by a colon at the start of a string.
+     * <p>
+     * Named capture group: {@code scheme} (includes the trailing colon).
+     * </p>
+     */
     public static final Pattern SCHEME_PATTERN = Pattern.compile("^(?<scheme>" + Constants.SCHEME_PART + ":)");
 
-    // https://tools.ietf.org/html/rfc7230#section-3.2.6
-    /** rfc7230TokenPattern. */
+    /**
+     * Pattern matching an RFC 7230 token (one or more {@code tchar} characters).
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.2.6">RFC 7230 §3.2.6</a>
+     */
     public static final Pattern rfc7230TokenPattern = Pattern.compile("^[!#$%&'*+\\-.^_`|~0-9a-zA-Z]+$");
 
-    // RFC 2045 appendix A: productions of type and subtype
-    // https://tools.ietf.org/html/rfc2045#section-5.1
-    /** MEDIA_TYPE_PATTERN. */
+    /**
+     * Pattern matching a media type ({@code type/subtype}) per
+     * <a href="https://tools.ietf.org/html/rfc2045#section-5.1">RFC 2045 §5.1</a>.
+     * <p>
+     * Named capture groups: {@code type} and {@code subtype}.
+     * </p>
+     */
     public static final Pattern MEDIA_TYPE_PATTERN
                 = Pattern.compile("^(?<type>[a-zA-Z0-9!#$%^&*\\-_+{}|'.`~]+)"
                         + "/(?<subtype>[a-zA-Z0-9!#$%^&*\\-_+{}|'.`~]+)$");
-    /** UNQUOTED_KEYWORD_PATTERN. */
+
+    /**
+     * Pattern matching CSP keyword-like tokens that are missing their required
+     * single quotes (e.g. {@code self} instead of {@code 'self'}).
+     * <p>
+     * Used to produce helpful warnings when an unquoted keyword is encountered
+     * in a source list.
+     * </p>
+     */
     public static final Pattern UNQUOTED_KEYWORD_PATTERN
                 = Pattern.compile("^(?:self|unsafe-inline|unsafe-eval|unsafe-redirect"
                         + "|none|strict-dynamic|unsafe-hashes|report-sample|unsafe-allow-redirects|"
                         + "wasm-unsafe-eval)$");
 
-    // port-part constants
-    /** WILDCARD_PORT = -200. */
+    /**
+     * Sentinel value representing a wildcard port ({@code :*}) in a host-source.
+     * <p>Value: {@code -200}</p>
+     */
     public static final int WILDCARD_PORT = -200;
-    /** EMPTY_PORT = -1. */
+
+    /**
+     * Sentinel value representing an empty (unspecified) port in a host-source.
+     * <p>Value: {@code -1}</p>
+     */
     public static final int EMPTY_PORT = -1;
 
     // https://w3c.github.io/webappsec-csp/#grammardef-host-part
@@ -61,14 +102,33 @@ public final class Constants {
 
     private static final String queryFragmentPart = "(?:\\?[^#]*)?(?:#.*)?";
 
-    /** hostSourcePattern. */
+    /**
+     * Pattern matching a CSP host-source expression.
+     * <p>
+     * Captures the optional scheme ({@code scheme}), required host ({@code host}),
+     * optional port ({@code port}), and optional path ({@code path}) components.
+     * </p>
+     *
+     * @see <a href="https://w3c.github.io/webappsec-csp/#grammardef-host-source">
+     *      host-source grammar</a>
+     */
     public static final Pattern HOST_SOURCE_PATTERN = Pattern.compile(
             "^(?<scheme>" + SCHEME_PART + "://)?(?<host>" + hostPart + ")(?<port>" + portPart + ")?(?<path>" + pathPart
                     + ")?" + queryFragmentPart + "$");
-    /** IPv4address. */
+
+    /**
+     * Pattern matching an IPv4 address in dotted-decimal notation.
+     * <p>
+     * Each octet must be in the range 0–255.
+     * </p>
+     */
     public static final Pattern IPv4address = Pattern.compile(
             "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-    /** IPV6loopback. */
+
+    /**
+     * Pattern matching the IPv6 loopback address ({@code ::1}) in its various
+     * zero-expanded forms (e.g. {@code 0:0:0:0:0:0:0:1}).
+     */
     public static final Pattern IPV6loopback = Pattern.compile("^[0:]+:1$");
     private static final String IPv6address = "(?:(?:(?:[0-9A-Fa-f]{1,4}:){6}"
             + "|::(?:[0-9A-Fa-f]{1,4}:){5}"
@@ -80,15 +140,27 @@ public final class Constants {
             + "|(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))"
             + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,5}[0-9A-Fa-f]{1,4})?::[0-9A-Fa-f]{1,4}"
             + "|(?:(?:[0-9A-Fa-f]{1,4}:){0,6}[0-9A-Fa-f]{1,4})?::)";
-    /** IPv6addressWithOptionalBracket. */
+
+    /**
+     * Pattern matching an IPv6 address, with or without enclosing brackets.
+     * <p>
+     * Matches both {@code [::1]} and {@code ::1} forms.
+     * </p>
+     */
     public static final Pattern IPv6addressWithOptionalBracket =
             Pattern.compile("^(?:\\[" + IPv6address + "\\]|" + IPv6address + ")$");
 
-    /** DIRECTIVE_NAME_PATTERN. */
+    /**
+     * Pattern matching a valid CSP directive name ({@code ALPHA / DIGIT / "-"}).
+     */
     public static final Pattern DIRECTIVE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9\\-]+$");
 
     /**
-     * Tests if a character is ascii whitespace (\t, \n, \f, \r, and space).
+     * Tests if a character is ASCII whitespace.
+     * <p>
+     * ASCII whitespace characters are: tab ({@code \t}), newline ({@code \n}),
+     * form feed ({@code \f}), carriage return ({@code \r}), and space.
+     * </p>
      *
      * @param c the character to test
      * @return {@code true} if the character is ASCII whitespace, {@code false} otherwise

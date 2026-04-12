@@ -20,12 +20,48 @@ import java.util.regex.Matcher;
 
 import org.htmlunit.csp.Constants;
 
+/**
+ * Represents a hierarchical URI with scheme, host, port, and path components.
+ * <p>
+ * This is the concrete {@link URLWithScheme} subclass used for standard URLs
+ * such as {@code https://example.com:443/path}. For opaque/non-hierarchical URLs
+ * (e.g. {@code data:} or {@code javascript:}), see {@link GUID}.
+ * </p>
+ * <p>
+ * Instances can be created directly via the constructor or parsed from a string
+ * using {@link #parseURI(String)}.
+ * </p>
+ */
 public class URI extends URLWithScheme {
 
+    /**
+     * Constructs a hierarchical URI with the given components.
+     *
+     * @param scheme the URI scheme (e.g. {@code "https"}); will be lowercased
+     * @param host the host name (e.g. {@code "example.com"}); will be lowercased
+     * @param port the port number (use {@link #defaultPortForProtocol(String)} or
+     *        {@link Constants#EMPTY_PORT} for unspecified ports)
+     * @param path the path component (e.g. {@code "/scripts/app.js"});
+     *        use an empty string if no path is present
+     */
     public URI(final String scheme, final String host, final int port, final String path) {
         super(scheme, host, port, path);
     }
 
+    /**
+     * Parses a hierarchical URI from its string representation.
+     * <p>
+     * The input must contain a scheme (e.g. {@code "https://example.com/path"}).
+     * If no port is specified, the {@linkplain #defaultPortForProtocol(String)
+     * default port} for the scheme is used. If no path is specified, an empty
+     * string is used. The host and scheme are lowercased.
+     * </p>
+     *
+     * @param uri the URI string to parse
+     * @return an {@link Optional} containing the parsed {@link URI},
+     *         or empty if the string does not match the expected URI grammar
+     *         or has no scheme
+     */
     public static Optional<URI> parseURI(final String uri) {
         final Matcher matcher = Constants.HOST_SOURCE_PATTERN.matcher(uri);
         if (!matcher.find()) {
@@ -52,6 +88,29 @@ public class URI extends URLWithScheme {
         return Optional.of(new URI(scheme, host, port, path));
     }
 
+    /**
+     * Returns the default port number for the given protocol scheme.
+     * <p>
+     * Known default ports:
+     * </p>
+     * <table>
+     *   <caption>Default ports by scheme</caption>
+     *   <tr><th>Scheme</th><th>Port</th></tr>
+     *   <tr><td>{@code ftp}</td><td>21</td></tr>
+     *   <tr><td>{@code gopher}</td><td>70</td></tr>
+     *   <tr><td>{@code http}, {@code ws}</td><td>80</td></tr>
+     *   <tr><td>{@code https}, {@code wss}</td><td>443</td></tr>
+     *   <tr><td>{@code file}</td><td>{@link Constants#EMPTY_PORT}</td></tr>
+     * </table>
+     * <p>
+     * For unrecognised schemes, {@link Constants#EMPTY_PORT} is returned.
+     * </p>
+     *
+     * @param scheme the protocol scheme in lowercase (e.g. {@code "https"})
+     * @return the default port number, or {@link Constants#EMPTY_PORT} if the
+     *         scheme has no default port
+     * @see <a href="http://www.w3.org/TR/url/#default-port">URL Standard — default port</a>
+     */
     // http://www.w3.org/TR/url/#default-port
     public static int defaultPortForProtocol(final String scheme) {
         // NB this should just only be called with lowercased schemes

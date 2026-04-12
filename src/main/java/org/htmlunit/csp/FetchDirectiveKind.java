@@ -14,56 +14,72 @@
  */
 package org.htmlunit.csp;
 
+/**
+ * Enumerates the CSP fetch directive names and provides their fallback chains.
+ * <p>
+ * Each constant corresponds to a fetch directive defined in the
+ * <a href="https://w3c.github.io/webappsec-csp/#directives-fetch">CSP specification</a>.
+ * The {@linkplain #getFetchDirectiveFallbackList(FetchDirectiveKind) fallback list}
+ * implements the
+ * <a href="https://w3c.github.io/webappsec-csp/#directive-fallback-list">directive
+ * fallback list</a> algorithm, determining which directive governs a request when the
+ * most specific directive is not present.
+ * </p>
+ * <p>
+ * For example, the fallback chain for {@link #ScriptSrcElem} is:
+ * {@code script-src-elem} → {@code script-src} → {@code default-src}.
+ * </p>
+ */
 public enum FetchDirectiveKind {
-    /** ChildSrc("child-src"). */
+    /** The {@code child-src} fetch directive. */
     ChildSrc("child-src"),
 
-    /** ConnectSrc("connect-src"). */
+    /** The {@code connect-src} fetch directive. */
     ConnectSrc("connect-src"),
 
-    /** DefaultSrc("default-src"). */
+    /** The {@code default-src} fetch directive (fallback for all other fetch directives). */
     DefaultSrc("default-src"),
 
-    /** FontSrc("font-src"). */
+    /** The {@code font-src} fetch directive. */
     FontSrc("font-src"),
 
-    /** FrameSrc("frame-src"). */
+    /** The {@code frame-src} fetch directive. */
     FrameSrc("frame-src"),
 
-    /** ImgSrc("img-src"). */
+    /** The {@code img-src} fetch directive. */
     ImgSrc("img-src"),
 
-    /** ManifestSrc("manifest-src"). */
+    /** The {@code manifest-src} fetch directive. */
     ManifestSrc("manifest-src"),
 
-    /** MediaSrc("media-src"). */
+    /** The {@code media-src} fetch directive. */
     MediaSrc("media-src"),
 
-    /** ObjectSrc("object-src"). */
+    /** The {@code object-src} fetch directive. */
     ObjectSrc("object-src"),
 
-    /** PrefetchSrc("prefetch-src"). */
+    /** The (deprecated) {@code prefetch-src} fetch directive. */
     PrefetchSrc("prefetch-src"),
 
-    /** ScriptSrcAttr("script-src-attr"). */
+    /** The {@code script-src-attr} fetch directive. */
     ScriptSrcAttr("script-src-attr"),
 
-    /** ScriptSrc("script-src"). */
+    /** The {@code script-src} fetch directive. */
     ScriptSrc("script-src"),
 
-    /** ScriptSrcElem("script-src-elem"). */
+    /** The {@code script-src-elem} fetch directive. */
     ScriptSrcElem("script-src-elem"),
 
-    /** StyleSrcAttr("style-src-attr"). */
+    /** The {@code style-src-attr} fetch directive. */
     StyleSrcAttr("style-src-attr"),
 
-    /** StyleSrc("style-src"). */
+    /** The {@code style-src} fetch directive. */
     StyleSrc("style-src"),
 
-    /** StyleSrcElem("style-src-elem"). */
+    /** The {@code style-src-elem} fetch directive. */
     StyleSrcElem("style-src-elem"),
 
-    /** WorkerSrc("worker-src"). */
+    /** The {@code worker-src} fetch directive. */
     WorkerSrc("worker-src");
 
     // https://w3c.github.io/webappsec-csp/#directive-fallback-list
@@ -95,11 +111,23 @@ public enum FetchDirectiveKind {
         repr_ = repr;
     }
 
+    /**
+     * Returns the lowercase directive name as it appears in a serialized CSP
+     * (e.g. {@code "script-src-elem"}, {@code "default-src"}).
+     *
+     * @return the directive name string
+     */
     public String getRepr() {
         return repr_;
     }
 
-    // returns null if not matched
+    /**
+     * Looks up a {@link FetchDirectiveKind} by its lowercase directive name.
+     *
+     * @param name the directive name to look up (e.g. {@code "script-src"})
+     * @return the matching {@link FetchDirectiveKind}, or {@code null} if the
+     *         name does not correspond to a known fetch directive
+     */
     public static FetchDirectiveKind fromString(final String name) {
         return switch (name) {
             case "child-src" -> ChildSrc;

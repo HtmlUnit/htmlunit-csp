@@ -20,6 +20,20 @@ import java.util.Locale;
 import org.htmlunit.csp.Directive;
 import org.htmlunit.csp.Policy;
 
+/**
+ * Represents the {@code sandbox} CSP directive.
+ * <p>
+ * The {@code sandbox} directive applies restrictions to the protected resource
+ * similar to the {@code <iframe sandbox>} attribute. When present with no keywords,
+ * the strictest sandbox is applied. Individual restrictions can be lifted by
+ * including the corresponding {@code allow-*} keyword.
+ * </p>
+ *
+ * @see <a href="https://w3c.github.io/webappsec-csp/#directive-sandbox">
+ *      sandbox directive</a>
+ * @see <a href="https://html.spec.whatwg.org/multipage/iframe-embed-object.html#attr-iframe-sandbox">
+ *      HTML sandbox attribute</a>
+ */
 public class SandboxDirective extends Directive {
     private static final String ALLOW_DOWNLOADS = "allow-downloads";
     private boolean allowDownloads_;
@@ -36,6 +50,17 @@ public class SandboxDirective extends Directive {
     private boolean allowTopNavigation_;
     private boolean allowTopNavigationByUserActivation_;
 
+    /**
+     * Parses a {@code sandbox} directive from the given list of keyword values.
+     * <p>
+     * Each token is matched case-insensitively against the known sandbox keywords.
+     * Duplicates and unrecognised keywords are reported through the supplied
+     * {@code errors} consumer.
+     * </p>
+     *
+     * @param values the raw string values (sandbox keywords) for this directive
+     * @param errors consumer that receives parsing errors and warnings
+     */
     public SandboxDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);
 
@@ -166,54 +191,119 @@ public class SandboxDirective extends Directive {
         }
     }
 
+    /**
+     * Returns whether the {@code allow-downloads} sandbox keyword is present.
+     *
+     * @return {@code true} if downloads are allowed
+     */
     public boolean allowDownloads() {
         return allowDownloads_;
     }
 
+    /**
+     * Returns whether the {@code allow-forms} sandbox keyword is present.
+     *
+     * @return {@code true} if form submission is allowed
+     */
     public boolean allowForms() {
         return allowForms_;
     }
 
+    /**
+     * Returns whether the {@code allow-modals} sandbox keyword is present.
+     *
+     * @return {@code true} if modal dialogs (e.g. {@code alert()}) are allowed
+     */
     public boolean allowModals() {
         return allowModals_;
     }
 
+    /**
+     * Returns whether the {@code allow-orientation-lock} sandbox keyword is present.
+     *
+     * @return {@code true} if screen orientation locking is allowed
+     */
     public boolean allowOrientationLock() {
         return allowOrientationLock_;
     }
 
+    /**
+     * Returns whether the {@code allow-pointer-lock} sandbox keyword is present.
+     *
+     * @return {@code true} if the Pointer Lock API is allowed
+     */
     public boolean allowPointerLock() {
         return allowPointerLock_;
     }
 
+    /**
+     * Returns whether the {@code allow-popups} sandbox keyword is present.
+     *
+     * @return {@code true} if popups (e.g. {@code window.open()}, {@code target="_blank"}) are allowed
+     */
     public boolean allowPopups() {
         return allowPopups_;
     }
 
+    /**
+     * Returns whether the {@code allow-popups-to-escape-sandbox} sandbox keyword is present.
+     *
+     * @return {@code true} if popups are allowed to open without inheriting the sandbox
+     */
     public boolean allowPopupsToEscapeSandbox() {
         return allowPopupsToEscapeSandbox_;
     }
 
+    /**
+     * Returns whether the {@code allow-presentation} sandbox keyword is present.
+     *
+     * @return {@code true} if the Presentation API is allowed
+     */
     public boolean allowPresentation() {
         return allowPresentation_;
     }
 
+    /**
+     * Returns whether the {@code allow-same-origin} sandbox keyword is present.
+     *
+     * @return {@code true} if the content is treated as being from its normal origin
+     */
     public boolean allowSameOrigin() {
         return allowSameOrigin_;
     }
 
+    /**
+     * Returns whether the {@code allow-scripts} sandbox keyword is present.
+     *
+     * @return {@code true} if script execution is allowed
+     */
     public boolean allowScripts() {
         return allowScripts_;
     }
 
+    /**
+     * Returns whether the {@code allow-storage-access-by-user-activation} sandbox keyword is present.
+     *
+     * @return {@code true} if the Storage Access API is allowed with user activation
+     */
     public boolean allowStorageAccessByUserActivation() {
         return allowStorageAccessByUserActivation_;
     }
 
+    /**
+     * Returns whether the {@code allow-top-navigation} sandbox keyword is present.
+     *
+     * @return {@code true} if navigation of the top-level browsing context is allowed
+     */
     public boolean allowTopNavigation() {
         return allowTopNavigation_;
     }
 
+    /**
+     * Returns whether the {@code allow-top-navigation-by-user-activation} sandbox keyword is present.
+     *
+     * @return {@code true} if top-level navigation is allowed only with user activation
+     */
     public boolean allowTopNavigationByUserActivation() {
         return allowTopNavigationByUserActivation_;
     }

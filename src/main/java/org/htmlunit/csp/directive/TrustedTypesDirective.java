@@ -24,7 +24,19 @@ import org.htmlunit.csp.Directive;
 import org.htmlunit.csp.Policy;
 
 /**
+ * Represents the {@code trusted-types} CSP directive.
+ * <p>
+ * The {@code trusted-types} directive restricts the creation of Trusted Type
+ * policies, which are used to guard DOM XSS sink functions. It can specify
+ * an explicit allow-list of policy names, the keyword {@code 'none'} to forbid
+ * all policies, the keyword {@code 'allow-duplicates'} to permit policies
+ * with the same name to be created more than once, and the wildcard {@code *}
+ * to allow any policy name.
+ * </p>
+ *
  * @author Michael Smith
+ * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive">
+ *      trusted-types directive</a>
  */
 public class TrustedTypesDirective extends Directive {
     // https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive
@@ -36,6 +48,18 @@ public class TrustedTypesDirective extends Directive {
     private boolean star_;
     private final List<String> policyNames_ = new ArrayList<>();
 
+    /**
+     * Parses a {@code trusted-types} directive from the given list of values.
+     * <p>
+     * Recognised tokens include the keywords {@code 'none'}, {@code 'allow-duplicates'},
+     * the wildcard {@code *}, and policy names matching the
+     * {@code tt-policy-name} grammar. Errors and warnings (duplicates, invalid names,
+     * conflicting combinations) are reported through the supplied {@code errors} consumer.
+     * </p>
+     *
+     * @param values the raw string values for this directive
+     * @param errors consumer that receives parsing errors and warnings
+     */
     public TrustedTypesDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);
 
@@ -124,10 +148,27 @@ public class TrustedTypesDirective extends Directive {
         }
     }
 
+    /**
+     * Returns whether the {@code 'none'} keyword is present.
+     * <p>
+     * When {@code 'none'} is present, no Trusted Type policies may be created.
+     * </p>
+     *
+     * @return {@code true} if {@code 'none'} is present
+     */
     public boolean none() {
         return none_;
     }
 
+    /**
+     * Sets whether the {@code 'none'} keyword is present.
+     * <p>
+     * Setting to {@code true} adds {@code 'none'} to the directive values;
+     * setting to {@code false} removes it.
+     * </p>
+     *
+     * @param none {@code true} to add {@code 'none'}, {@code false} to remove it
+     */
     public void setNone(final boolean none) {
         if (none_ == none) {
             return;
@@ -141,10 +182,28 @@ public class TrustedTypesDirective extends Directive {
         none_ = none;
     }
 
+    /**
+     * Returns whether the {@code 'allow-duplicates'} keyword is present.
+     * <p>
+     * When present, Trusted Type policies with the same name may be created
+     * more than once.
+     * </p>
+     *
+     * @return {@code true} if {@code 'allow-duplicates'} is present
+     */
     public boolean allowDuplicates() {
         return allowDuplicates_;
     }
 
+    /**
+     * Sets whether the {@code 'allow-duplicates'} keyword is present.
+     * <p>
+     * Setting to {@code true} adds {@code 'allow-duplicates'} to the directive values;
+     * setting to {@code false} removes it.
+     * </p>
+     *
+     * @param allowDuplicates {@code true} to add, {@code false} to remove
+     */
     public void setAllowDuplicates_(final boolean allowDuplicates) {
         if (allowDuplicates_ == allowDuplicates) {
             return;
@@ -158,6 +217,14 @@ public class TrustedTypesDirective extends Directive {
         allowDuplicates_ = allowDuplicates;
     }
 
+    /**
+     * Returns whether the wildcard ({@code *}) is present.
+     * <p>
+     * When present, any Trusted Type policy name is permitted.
+     * </p>
+     *
+     * @return {@code true} if the wildcard is present
+     */
     public boolean star() {
         return star_;
     }
@@ -172,6 +239,15 @@ public class TrustedTypesDirective extends Directive {
         return star_;
     }
 
+    /**
+     * Sets whether the wildcard ({@code *}) is present.
+     * <p>
+     * Setting to {@code true} adds {@code *} to the directive values;
+     * setting to {@code false} removes it.
+     * </p>
+     *
+     * @param star {@code true} to add, {@code false} to remove
+     */
     public void setStar(final boolean star) {
         if (star_ == star) {
             return;
@@ -185,6 +261,15 @@ public class TrustedTypesDirective extends Directive {
         star_ = star;
     }
 
+    /**
+     * Returns an unmodifiable list of the explicitly named Trusted Type policy names
+     * (excluding keywords and wildcard).
+     * <p>
+     * Policy names are case-sensitive and match the {@code tt-policy-name} grammar.
+     * </p>
+     *
+     * @return the list of policy name strings
+     */
     public List<String> getPolicyNames() {
         return Collections.unmodifiableList(policyNames_);
     }

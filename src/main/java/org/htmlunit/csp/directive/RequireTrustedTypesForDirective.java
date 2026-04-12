@@ -21,7 +21,16 @@ import org.htmlunit.csp.Directive;
 import org.htmlunit.csp.Policy;
 
 /**
+ * Represents the {@code require-trusted-types-for} CSP directive.
+ * <p>
+ * This directive instructs the user agent to require Trusted Types for certain
+ * DOM sinks. Currently the only defined keyword is {@code 'script'}, which
+ * enforces Trusted Types for all script-related injection sinks.
+ * </p>
+ *
  * @author Michael Smith
+ * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive">
+ *      require-trusted-types-for directive</a>
  */
 public class RequireTrustedTypesForDirective extends Directive {
     // https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive
@@ -30,6 +39,17 @@ public class RequireTrustedTypesForDirective extends Directive {
 
     private boolean script_;
 
+    /**
+     * Parses a {@code require-trusted-types-for} directive from the given list of values.
+     * <p>
+     * The only currently recognised keyword is {@code 'script'} (case-insensitive).
+     * An empty directive, duplicate keywords, and unrecognised tokens are reported
+     * through the supplied {@code errors} consumer.
+     * </p>
+     *
+     * @param values the raw string values for this directive
+     * @param errors consumer that receives parsing errors and warnings
+     */
     public RequireTrustedTypesForDirective(final List<String> values, final DirectiveErrorConsumer errors) {
         super(values);
 
@@ -65,10 +85,28 @@ public class RequireTrustedTypesForDirective extends Directive {
         }
     }
 
+    /**
+     * Returns whether the {@code 'script'} keyword is present.
+     * <p>
+     * When {@code true}, Trusted Types are required for all script-related
+     * DOM injection sinks.
+     * </p>
+     *
+     * @return {@code true} if the {@code 'script'} keyword is present
+     */
     public boolean script() {
         return script_;
     }
 
+    /**
+     * Sets whether the {@code 'script'} keyword is present.
+     * <p>
+     * Setting to {@code true} adds {@code 'script'} to the directive values;
+     * setting to {@code false} removes it.
+     * </p>
+     *
+     * @param script {@code true} to add {@code 'script'}, {@code false} to remove it
+     */
     public void setScript(final boolean script) {
         if (script_ == script) {
             return;

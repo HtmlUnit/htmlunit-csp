@@ -21,8 +21,26 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+/**
+ * Internal utility methods and constants used by the CSP parser.
+ * <p>
+ * Provides string-manipulation helpers that follow the algorithms defined in
+ * the <a href="https://infra.spec.whatwg.org/">Infra Standard</a>, including
+ * <a href="https://infra.spec.whatwg.org/#split-on-ascii-whitespace">split on
+ * ASCII whitespace</a> and
+ * <a href="https://infra.spec.whatwg.org/#strictly-split">strictly split</a>,
+ * as well as Base64 validation, URL-decoding, and token extraction.
+ * </p>
+ */
 public final class Utils {
-    /** IS_BASE64_VALUE. */
+    /**
+     * Predicate that tests whether a string matches the Base64 value grammar
+     * used in CSP nonce-sources and hash-sources.
+     * <p>
+     * Accepts characters {@code a-zA-Z0-9+/-_} followed by zero, one, or two
+     * padding {@code =} characters.
+     * </p>
+     */
     public static final Predicate<String> IS_BASE64_VALUE
                             = Pattern.compile("[a-zA-Z0-9+/\\-_]+=?=?").asPredicate();
 
@@ -79,10 +97,12 @@ public final class Utils {
     }
 
     /**
-     * Trims leading and trailing ascii whitespace (\t, \n, \f, \r, and space) from the given string.
+     * Trims leading and trailing ASCII whitespace ({@code \t}, {@code \n},
+     * {@code \f}, {@code \r}, and space) from the given string.
      *
-     * @param str the string to trim (can be null)
-     * @return trimmed string, or null if input is null, or empty string if all whitespace
+     * @param str the string to trim (can be {@code null})
+     * @return the trimmed string, or {@code null} if the input is {@code null},
+     *         or an empty string if the input consists entirely of whitespace
      */
     public static String trimAsciiWhitespace(final String str) {
         if (str == null) {
@@ -120,11 +140,15 @@ public final class Utils {
     }
 
     /**
-     * Extracts the first contiguous sequence of non-ascii whitespace (\t, \n, \f, \r, and space) characters
-     * from the beginning of the input string. If the string starts with whitespace or is empty, returns empty string.
+     * Extracts the first contiguous sequence of non-ASCII-whitespace characters
+     * from the beginning of the input string.
+     * <p>
+     * If the string starts with whitespace, is {@code null}, or is empty,
+     * an empty string is returned.
+     * </p>
      *
-     * @param input the input string (can be null)
-     * @return the first token, or empty string if input starts with whitespace, is null, or is empty
+     * @param input the input string (can be {@code null})
+     * @return the leading token, or an empty string if no leading token is present
      */
     public static String extractLeadingToken(final String input) {
         if (input == null || input.isEmpty()) {
