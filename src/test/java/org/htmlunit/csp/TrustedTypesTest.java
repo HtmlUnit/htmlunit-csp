@@ -39,8 +39,8 @@ public class TrustedTypesTest extends TestBase {
         p = Policy.parseSerializedCSP("trusted-types myPolicy", ThrowIfPolicyError);
         assertTrue(p.trustedTypes().isPresent());
         TrustedTypesDirective tt = p.trustedTypes().get();
-        assertEquals(1, tt.getPolicyNames_().size());
-        assertEquals("myPolicy", tt.getPolicyNames_().get(0));
+        assertEquals(1, tt.getPolicyNames().size());
+        assertEquals("myPolicy", tt.getPolicyNames().get(0));
         assertFalse(tt.none());
         assertFalse(tt.allowDuplicates());
         assertFalse(tt.star());
@@ -48,7 +48,7 @@ public class TrustedTypesTest extends TestBase {
         // Multiple policy names
         p = Policy.parseSerializedCSP("trusted-types one two three", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(3, tt.getPolicyNames_().size());
+        assertEquals(3, tt.getPolicyNames().size());
 
         // Wildcard
         ArrayList<PolicyError> observedErrors = new ArrayList<>();
@@ -60,7 +60,7 @@ public class TrustedTypesTest extends TestBase {
         assertTrue(tt.star());
         assertTrue(tt.allowsWildcardPolicyNames());
         assertTrue(p.allowsWildcardPolicyNames());
-        assertEquals(0, tt.getPolicyNames_().size());
+        assertEquals(0, tt.getPolicyNames().size());
         assertEquals(1, observedErrors.size());
         assertEquals(Policy.Severity.Warning, observedErrors.get(0).severity_());
         assertTrue(observedErrors.get(0).message_().contains("Wildcard policy names"));
@@ -69,7 +69,7 @@ public class TrustedTypesTest extends TestBase {
         p = Policy.parseSerializedCSP("trusted-types myPolicy 'allow-duplicates'", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
         assertTrue(tt.allowDuplicates());
-        assertEquals(1, tt.getPolicyNames_().size());
+        assertEquals(1, tt.getPolicyNames().size());
 
         // Wildcard with allow-duplicates
         observedErrors.clear();
@@ -89,7 +89,7 @@ public class TrustedTypesTest extends TestBase {
         p = Policy.parseSerializedCSP("trusted-types 'none'", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
         assertTrue(tt.none());
-        assertEquals(0, tt.getPolicyNames_().size());
+        assertEquals(0, tt.getPolicyNames().size());
     }
 
     @Test
@@ -100,19 +100,19 @@ public class TrustedTypesTest extends TestBase {
         // tt-policy-name = 1*( ALPHA / DIGIT / "-" / "#" / "=" / "_" / "/" / "@" / "." / "%" )
         p = Policy.parseSerializedCSP("trusted-types my-policy_name.v1", ThrowIfPolicyError);
         TrustedTypesDirective tt = p.trustedTypes().get();
-        assertEquals(1, tt.getPolicyNames_().size());
+        assertEquals(1, tt.getPolicyNames().size());
 
         p = Policy.parseSerializedCSP("trusted-types policy#1 policy@domain", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(2, tt.getPolicyNames_().size());
+        assertEquals(2, tt.getPolicyNames().size());
 
         p = Policy.parseSerializedCSP("trusted-types path/to/policy policy=value", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(2, tt.getPolicyNames_().size());
+        assertEquals(2, tt.getPolicyNames().size());
 
         p = Policy.parseSerializedCSP("trusted-types policy%20name", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(1, tt.getPolicyNames_().size());
+        assertEquals(1, tt.getPolicyNames().size());
     }
 
     @Test
@@ -313,26 +313,26 @@ public class TrustedTypesTest extends TestBase {
         // Single character policy name
         p = Policy.parseSerializedCSP("trusted-types a", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(1, tt.getPolicyNames_().size());
-        assertEquals("a", tt.getPolicyNames_().get(0));
+        assertEquals(1, tt.getPolicyNames().size());
+        assertEquals("a", tt.getPolicyNames().get(0));
 
         // Policy name with all allowed special characters
         p = Policy.parseSerializedCSP("trusted-types A-Za-z0-9-#=_/@.%", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(1, tt.getPolicyNames_().size());
-        assertTrue(tt.getPolicyNames_().contains("A-Za-z0-9-#=_/@.%"));
+        assertEquals(1, tt.getPolicyNames().size());
+        assertTrue(tt.getPolicyNames().contains("A-Za-z0-9-#=_/@.%"));
 
         // Policy name starting with special character
         p = Policy.parseSerializedCSP("trusted-types -policy", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(1, tt.getPolicyNames_().size());
-        assertEquals("-policy", tt.getPolicyNames_().get(0));
+        assertEquals(1, tt.getPolicyNames().size());
+        assertEquals("-policy", tt.getPolicyNames().get(0));
 
         // Policy name ending with special character
         p = Policy.parseSerializedCSP("trusted-types policy-", ThrowIfPolicyError);
         tt = p.trustedTypes().get();
-        assertEquals(1, tt.getPolicyNames_().size());
-        assertEquals("policy-", tt.getPolicyNames_().get(0));
+        assertEquals(1, tt.getPolicyNames().size());
+        assertEquals("policy-", tt.getPolicyNames().get(0));
     }
 
     // require-trusted-types-for directive tests
@@ -406,7 +406,7 @@ public class TrustedTypesTest extends TestBase {
         assertTrue(p.requireTrustedTypesFor().isPresent());
         assertTrue(p.trustedTypes().isPresent());
         assertTrue(p.requireTrustedTypesFor().get().script());
-        assertEquals(1, p.trustedTypes().get().getPolicyNames_().size());
+        assertEquals(1, p.trustedTypes().get().getPolicyNames().size());
     }
 
     // Manipulation tests
@@ -418,10 +418,10 @@ public class TrustedTypesTest extends TestBase {
         TrustedTypesDirective tt = p.trustedTypes().get();
 
         // All three should be stored as separate policy names
-        assertEquals(3, tt.getPolicyNames_().size());
-        assertTrue(tt.getPolicyNames_().contains("myPolicy"));
-        assertTrue(tt.getPolicyNames_().contains("MYPOLICY"));
-        assertTrue(tt.getPolicyNames_().contains("MyPolicy"));
+        assertEquals(3, tt.getPolicyNames().size());
+        assertTrue(tt.getPolicyNames().contains("myPolicy"));
+        assertTrue(tt.getPolicyNames().contains("MYPOLICY"));
+        assertTrue(tt.getPolicyNames().contains("MyPolicy"));
     }
 
     @Test

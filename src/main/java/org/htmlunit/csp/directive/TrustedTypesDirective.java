@@ -185,7 +185,7 @@ public class TrustedTypesDirective extends Directive {
         star_ = star;
     }
 
-    public List<String> getPolicyNames_() {
+    public List<String> getPolicyNames() {
         return Collections.unmodifiableList(policyNames_);
     }
 }
