@@ -14,14 +14,14 @@
  */
 package org.htmlunit.csp.directive;
 
-import org.htmlunit.csp.Directive;
-import org.htmlunit.csp.Policy;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import org.htmlunit.csp.Directive;
+import org.htmlunit.csp.Policy;
 
 /**
  * @author Michael Smith
@@ -172,7 +172,7 @@ public class TrustedTypesDirective extends Directive {
         return star_;
     }
 
-    public void setStar_(final boolean star) {
+    public void setStar(final boolean star) {
         if (star_ == star) {
             return;
         }
