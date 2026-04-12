@@ -14,10 +14,10 @@
  */
 package org.htmlunit.csp;
 
+import java.util.Optional;
+
 import org.htmlunit.csp.url.URI;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 public class ReadmeTest extends TestBase {
 

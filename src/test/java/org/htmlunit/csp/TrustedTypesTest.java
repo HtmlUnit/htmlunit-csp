@@ -14,15 +14,15 @@
  */
 package org.htmlunit.csp;
 
-import org.htmlunit.csp.directive.RequireTrustedTypesForDirective;
-import org.htmlunit.csp.directive.TrustedTypesDirective;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+
+import org.htmlunit.csp.directive.RequireTrustedTypesForDirective;
+import org.htmlunit.csp.directive.TrustedTypesDirective;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Michael Smith

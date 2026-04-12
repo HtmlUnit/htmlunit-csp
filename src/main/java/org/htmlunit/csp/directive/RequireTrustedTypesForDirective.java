@@ -14,11 +14,11 @@
  */
 package org.htmlunit.csp.directive;
 
-import org.htmlunit.csp.Directive;
-import org.htmlunit.csp.Policy;
-
 import java.util.List;
 import java.util.Locale;
+
+import org.htmlunit.csp.Directive;
+import org.htmlunit.csp.Policy;
 
 /**
  * @author Michael Smith
