@@ -326,8 +326,8 @@ public final class Policy {
                 // https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive
                 final TrustedTypesDirective trustedTypesDirective =
                         new TrustedTypesDirective(values, directiveErrorConsumer);
-                if (this.trustedTypes_ == null) {
-                    this.trustedTypes_ = trustedTypesDirective;
+                if (trustedTypes_ == null) {
+                    trustedTypes_ = trustedTypesDirective;
                 }
                 else {
                     wasDupe = true;
@@ -339,8 +339,8 @@ public final class Policy {
                 // https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive
                 final RequireTrustedTypesForDirective requireTrustedTypesForDirective =
                         new RequireTrustedTypesForDirective(values, directiveErrorConsumer);
-                if (this.requireTrustedTypesFor_ == null) {
-                    this.requireTrustedTypesFor_ = requireTrustedTypesForDirective;
+                if (requireTrustedTypesFor_ == null) {
+                    requireTrustedTypesFor_ = requireTrustedTypesForDirective;
                 }
                 else {
                     wasDupe = true;
@@ -666,7 +666,7 @@ public final class Policy {
             final Optional<String> nonce,
             final Optional<? extends URLWithScheme> styleUrl,
             final Optional<? extends URLWithScheme> origin) {
-        // Effective directive is "script-src-elem" per
+        // Effective directive is "style-src-elem" per
         // https://w3c.github.io/webappsec-csp/#effective-directive-for-a-request
         final SourceExpressionDirective directive
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.StyleSrcElem).orElse(null);
