@@ -55,9 +55,24 @@ src/main/java/org/htmlunit/csp/
     ├── URI.java                       # Parsed URI for matching
     ├── GUID.java                      # Non-hierarchical URLs (data:, blob:, javascript:)
     └── URLWithScheme.java             # Interface for URL types
+
+src/main/module-info/
+└── module-info.java  # Java Platform Module System descriptor (separate for IDE compatibility)
 ```
 
 Tests are in `src/test/java/org/htmlunit/csp/` mirroring the main source structure.
+
+## Module System (JPMS)
+
+This project uses the Java Platform Module System. The `module-info.java` file is located in `src/main/module-info/` (instead of the standard `src/main/java/`) to avoid compatibility issues with Eclipse IDE.
+
+**Key Points:**
+- The module descriptor is automatically included during Maven builds via `build-helper-maven-plugin`
+- Eclipse users won't encounter module-related compilation errors
+- IntelliJ IDEA and other IDEs handle this setup correctly
+- The final JAR is a proper modular JAR with `module-info.class`
+
+See `src/main/module-info/README.md` for detailed information about this setup.
 
 ## Useful commands
 
