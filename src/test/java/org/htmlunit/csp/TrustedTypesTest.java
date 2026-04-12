@@ -430,9 +430,9 @@ public class TrustedTypesTest extends TestBase {
         RequireTrustedTypesForDirective rttf = p.requireTrustedTypesFor().get();
 
         assertTrue(rttf.script());
-        rttf.setScript_(false);
+        rttf.setScript(false);
         assertFalse(rttf.script());
-        rttf.setScript_(true);
+        rttf.setScript(true);
         assertTrue(rttf.script());
     }
 

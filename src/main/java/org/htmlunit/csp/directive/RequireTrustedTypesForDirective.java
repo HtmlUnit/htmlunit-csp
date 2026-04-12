@@ -69,7 +69,7 @@ public class RequireTrustedTypesForDirective extends Directive {
         return script_;
     }
 
-    public void setScript_(final boolean script) {
+    public void setScript(final boolean script) {
         if (script_ == script) {
             return;
         }
