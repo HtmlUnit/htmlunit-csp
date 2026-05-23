@@ -24,25 +24,11 @@ The code is being expanded, restructured and improved primarily to meet the requ
 
 #### Version 5
 
-Work on HtmlUnit-CSP 5.0 has started. This new major version will require **JDK 17 or higher**.
+Starting with version 5.0.0, **JDK 17 or higher is required**.  
+If you are still on JDK 8, see [Legacy Support (JDK 8)](#legacy-support-jdk-8) below.
 
 
-#### Legacy Support (JDK 8)
-
-If you need to continue using **JDK 8**, please note that versions 4.x will remain available as-is. However,
-**ongoing maintenance and fixes for JDK 8 compatibility are only available through sponsorship**.
-
-Maintaining separate fix versions for JDK 8 requires significant additional effort for __backporting__, testing, and release management.
-
-**To enable continued JDK 8 support**, please contact me via email to discuss sponsorship options. Sponsorship provides:
-
-- __Backporting__ security and bug fixes to the 4.x branch
-- Maintaining compatibility with older Java versions
-- Timely releases for critical issues
-
-Without sponsorship, the 4.x branch will not receive updates. Your support ensures the long-term __sustainability__ of this project across multiple Java versions.
-
-### Latest release Version 4.22.0 / February 10, 2026
+### Latest release Version 5.0.0 / May 24, 2026
 
 ### Maven
 
@@ -52,7 +38,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>4.22.0</version>
+    <version>5.0.0</version>
 </dependency>
 ```
 
@@ -61,7 +47,7 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```groovy
-implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '4.22.0'
+implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '5.0.0'
 ```
 
 ## Projects Using This Library
@@ -130,9 +116,23 @@ Policy policy = Policy.parseSerializedCSP("script-src 'strict-dynamic'", Policy.
 System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().strictDynamic());
 ```
 
+<a name="legacy-support-jdk-8"></a>
+#### Legacy Support (JDK 8)
+
+If you need to continue using **JDK 8**, versions 4.x remain available as-is.
+Ongoing maintenance and fixes for JDK 8 are only available through sponsorship —
+please contact me via email to discuss options. Sponsorship provides:
+
+- Backporting security and bug fixes to the 4.x branch
+- Compatibility maintenance with older Java versions
+- Timely releases for critical issues
+
+Without sponsorship, the 4.x branch will not receive further updates.
+
+
 ### Last CI build
 The latest builds are available from our
-[Jenkins CI build server](https://jenkins.wetator.org/job/HtmlUnit%20-%20CSS%20Parser/ "HtmlUnit - CSS Parser CI")
+[Jenkins CI build server](https://jenkins.wetator.org/job/HtmlUnit%20-%20CSP/ "HtmlUnit - CSP CI")
 
 [![Build Status](https://jenkins.wetator.org/buildStatus/icon?job=HtmlUnit+-+CSP)](https://jenkins.wetator.org/job/HtmlUnit%20-%20CSP/)
 
@@ -224,14 +224,14 @@ This part is intended for committer who are packaging a release.
     * click Releases > Draft new release
     * fill the tag and title field with the release number (e.g. 4.0.0)
     * append 
-        * htmlunit-csp-4.x.x.jar
-        * htmlunit-csp-4.x.x.jar.asc 
-        * htmlunit-csp-4.x.x.pom
-        * htmlunit-csp-4.x.x.pom.asc 
-        * htmlunit-csp-4.x.x-javadoc.jar
-        * htmlunit-csp-4.x.x-javadoc.jar.asc
-        * htmlunit-csp-4.x.x-sources.jar
-        * htmlunit-csp-4.x.x-sources.jar.asc
+        * htmlunit-csp-5.x.x.jar
+        * htmlunit-csp-5.x.x.jar.asc 
+        * htmlunit-csp-5.x.x.pom
+        * htmlunit-csp-5.x.x.pom.asc 
+        * htmlunit-csp-5.x.x-javadoc.jar
+        * htmlunit-csp-5.x.x-javadoc.jar.asc
+        * htmlunit-csp-5.x.x-sources.jar
+        * htmlunit-csp-5.x.x-sources.jar.asc
     * and publish the release 
 
 * Update the version number in pom.xml to start next snapshot development
