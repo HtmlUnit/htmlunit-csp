@@ -117,7 +117,7 @@ System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().
 ```
 
 <a name="legacy-support-jdk-8"></a>
-#### Legacy Support (JDK 8)
+### Legacy Support (JDK 8)
 
 If you need to continue using **JDK 8**, versions 4.x remain available as-is.
 Ongoing maintenance and fixes for JDK 8 are only available through sponsorship —
