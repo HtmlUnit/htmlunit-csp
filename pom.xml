@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>5.2.0-SNAPSHOT</version>
+    <version>5.2.0</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -24,7 +24,7 @@
         <maven.version.ignore>(?i).*-(alpha|beta|m|rc)([\.-]?\d+)?</maven.version.ignore>
 
         <!-- test dependencies -->
-        <junit.version>6.0.3</junit.version>
+        <junit.version>6.1.0</junit.version>
 
         <!-- quality -->
         <checkstyle.version>12.3.1</checkstyle.version>

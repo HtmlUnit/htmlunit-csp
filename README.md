@@ -28,7 +28,7 @@ Starting with version 5.0.0, **JDK 17 or higher is required**.
 If you are still on JDK 8, see [Legacy Support (JDK 8)](#legacy-support-jdk-8) below.
 
 
-### Latest release Version 5.1.0 / May 31, 2026
+### Latest release Version 5.2.0 / June 20, 2026
 
 ### Maven
 
@@ -38,7 +38,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>5.1.0</version>
+    <version>5.2.0</version>
 </dependency>
 ```
 
@@ -47,7 +47,7 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```groovy
-implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '5.1.0'
+implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '5.2.0'
 ```
 
 ## Projects Using This Library
@@ -141,7 +141,7 @@ If you use maven please add:
     <dependency>
         <groupId>org.htmlunit</groupId>
         <artifactId>htmlunit-csp</artifactId>
-        <version>5.2.0-SNAPSHOT</version>
+        <version>5.3.0-SNAPSHOT</version>
     </dependency>
 
 You have to add the sonatype-central snapshot repository to your pom `repositories` section also:
@@ -222,7 +222,7 @@ This part is intended for committer who are packaging a release.
 * Create the version on Github
     * login to Github and open project https://github.com/HtmlUnit/htmlunit-csp
     * click Releases > Draft new release
-    * fill the tag and title field with the release number (e.g. 4.0.0)
+    * fill the tag and title field with the release number (e.g. 5.0.0)
     * append 
         * htmlunit-csp-5.x.x.jar
         * htmlunit-csp-5.x.x.jar.asc 
