@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Base class for all CSP directive representations.
@@ -32,7 +31,7 @@ import java.util.regex.Pattern;
 public class Directive {
 
     /** Predicate that tests whether a string is a valid directive name ({@code ALPHA / DIGIT / "-"}). */
-    public static final Predicate<String> IS_DIRECTIVE_NAME = Pattern.compile("^[A-Za-z0-9\\-]+$").asPredicate();
+    public static final Predicate<String> IS_DIRECTIVE_NAME = Constants.DIRECTIVE_NAME_PATTERN.asPredicate();
 
     private List<String> values_;
 
