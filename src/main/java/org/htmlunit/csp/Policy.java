@@ -91,7 +91,6 @@ public final class Policy {
     private TrustedTypesDirective trustedTypes_;
     private RequireTrustedTypesForDirective requireTrustedTypesFor_;
 
-    private FetchDirectiveKind prefetchSrc_;
     private RFC7230Token reportTo_;
     private ReportUriDirective reportUri_;
     private SandboxDirective sandbox_;
@@ -541,19 +540,6 @@ public final class Policy {
      */
     public Optional<PluginTypesDirective> pluginTypes() {
         return Optional.ofNullable(pluginTypes_);
-    }
-
-    /**
-     * Returns the {@code prefetch-src} fetch directive kind, if present.
-     * <p>Note: the {@code prefetch-src} directive has been deprecated. The actual parsed
-     * directive data is available via {@link #getFetchDirective(FetchDirectiveKind)} with
-     * {@link FetchDirectiveKind#PrefetchSrc}.</p>
-     *
-     * @return an {@link Optional} containing the {@link FetchDirectiveKind} for
-     *         {@code prefetch-src}, or empty if not present
-     */
-    public Optional<FetchDirectiveKind> prefetchSrc() {
-        return Optional.ofNullable(prefetchSrc_);
     }
 
     /**
