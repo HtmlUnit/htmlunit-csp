@@ -31,10 +31,19 @@ import java.util.List;
  * Empty policies (those with no directives) are omitted during parsing.
  * </p>
  *
- * @param policies_ the list of parsed {@link Policy} instances (empty policies excluded)
  * @see Policy#parseSerializedCSPList(String, Policy.PolicyListErrorConsumer)
  */
-public record PolicyList(List<Policy> policies_) {
+public class PolicyList {
+    private final List<Policy> policies_;
+
+    /**
+     * Ctor.
+     *
+     * @param policies the list of parsed {@link Policy} instances (empty policies excluded)
+     */
+    public PolicyList(final List<Policy> policies) {
+        policies_ = policies;
+    }
 
     /**
      * Serializes this policy list back to its string representation.

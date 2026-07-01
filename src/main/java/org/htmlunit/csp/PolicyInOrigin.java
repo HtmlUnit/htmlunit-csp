@@ -29,11 +29,21 @@ import org.htmlunit.csp.url.URLWithScheme;
  * applicable to the simplified query (such as nonce, integrity, or
  * redirect information).
  * </p>
- *
- * @param policy_ the Content Security Policy to query against
- * @param origin_ the origin of the protected resource
  */
-public record PolicyInOrigin(Policy policy_, URLWithScheme origin_) {
+public class PolicyInOrigin {
+    private final Policy policy_;
+    private final URLWithScheme origin_;
+
+    /**
+     * Ctor.
+     *
+     * @param policy the Content Security Policy to query against
+     * @param origin the origin of the protected resource
+     */
+    public PolicyInOrigin(final Policy policy, final URLWithScheme origin) {
+        policy_ = policy;
+        origin_ = origin;
+    }
 
     /**
      * Returns the underlying {@link Policy}.
@@ -42,6 +52,15 @@ public record PolicyInOrigin(Policy policy_, URLWithScheme origin_) {
      */
     public Policy getPolicy() {
         return policy_;
+    }
+
+    /**
+     * Returns the underlying origin.
+     *
+     * @return the policy associated with this origin-bound wrapper
+     */
+    public URLWithScheme getOrigin() {
+        return origin_;
     }
 
     // Low-level querying
