@@ -150,7 +150,7 @@ public class CSP3SpecConformanceTest {
             ", default-src 'not-a-keyword'", consumer);
 
         // Only one policy in the resulting list
-        assertEquals(1, list.policies_().size());
+        assertEquals(1, list.getPolicies().size());
 
         // But errors are reported at policyIndex=1 (not 0)
         assertFalse(errorIndices.isEmpty(), "Should have at least one error");

@@ -14,6 +14,7 @@
  */
 package org.htmlunit.csp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,6 +44,19 @@ public class PolicyList {
      */
     public PolicyList(final List<Policy> policies) {
         policies_ = policies;
+    }
+
+    /**
+     * Returns a copy of the policies associated with this object.
+     * <p>
+     * The returned list is a defensive copy, so modifications to it do not
+     * affect the internal collection of policies.
+     * </p>
+     *
+     * @return a new {@code List} containing all policies
+     */
+    public List<Policy> getPolicies() {
+        return new ArrayList<Policy>(policies_);
     }
 
     /**
