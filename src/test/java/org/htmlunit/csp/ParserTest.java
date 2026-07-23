@@ -15,6 +15,7 @@
 package org.htmlunit.csp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -688,19 +689,66 @@ public class ParserTest extends TestBase {
         assertThrows(IllegalArgumentException.class, () -> Policy.parseSerializedCSP("a ,", PolicyErrorConsumer.ignored));
     }
 
+    @Test
+    public void deliveredViaMetaFlag() {
+        assertFalse(Policy.parseSerializedCSP("script-src 'none'", ThrowIfPolicyError).deliveredViaMeta());
+        assertTrue(Policy.parseSerializedCSP("script-src 'none'", ThrowIfPolicyError, true).deliveredViaMeta());
+        assertFalse(Policy.parseSerializedCSP("script-src 'none'", ThrowIfPolicyError, false).deliveredViaMeta());
+    }
+
+    @Test
+    public void metaInvalidDirectivesWarn() {
+        serializesToMeta(
+                "frame-ancestors 'none'", "frame-ancestors 'none'",
+                e(Policy.Severity.Warning, "The frame-ancestors directive is ignored when delivered via a meta element", 0, -1)
+        );
+        serializesToMeta(
+                "sandbox", "sandbox",
+                e(Policy.Severity.Warning, "The sandbox directive is ignored when delivered via a meta element", 0, -1)
+        );
+        serializesToMeta(
+                "report-uri http://example.com", "report-uri http://example.com",
+                e(Policy.Severity.Warning, "The report-uri directive has been deprecated in favor of the new report-to directive", 0, -1),
+                e(Policy.Severity.Warning, "The report-uri directive is ignored when delivered via a meta element", 0, -1)
+        );
+        serializesToMeta(
+                "script-src 'none'; frame-ancestors 'self'; sandbox allow-scripts; report-uri /csp",
+                "script-src 'none'; frame-ancestors 'self'; sandbox allow-scripts; report-uri /csp",
+                e(Policy.Severity.Warning, "The frame-ancestors directive is ignored when delivered via a meta element", 1, -1),
+                e(Policy.Severity.Warning, "The sandbox directive is ignored when delivered via a meta element", 2, -1),
+                e(Policy.Severity.Warning, "The report-uri directive has been deprecated in favor of the new report-to directive", 3, -1),
+                e(Policy.Severity.Warning, "The report-uri directive is ignored when delivered via a meta element", 3, -1)
+        );
+        // Fetch directives remain valid via meta
+        serializesToMeta("script-src 'none'; default-src 'self'", "script-src 'none'; default-src 'self'");
+        // Not via meta: no meta warnings
+        roundTrips("frame-ancestors 'none'");
+        roundTrips("sandbox");
+    }
+
     private static void roundTrips(final String input, final PolicyError... errors) {
         serializesTo(input, input, errors);
     }
 
     private static void serializesTo(final String input, final String output, final PolicyError... errors) {
+        serializesTo(input, output, false, errors);
+    }
+
+    private static void serializesToMeta(final String input, final String output, final PolicyError... errors) {
+        serializesTo(input, output, true, errors);
+    }
+
+    private static void serializesTo(final String input, final String output, final boolean deliveredViaMeta,
+            final PolicyError... errors) {
         final ArrayList<PolicyError> observedErrors = new ArrayList<>();
         final Policy.PolicyErrorConsumer consumer = (severity, message, directiveIndex, valueIndex) -> observedErrors.add(e(severity, message, directiveIndex, valueIndex));
-        final Policy policy = Policy.parseSerializedCSP(input, consumer);
+        final Policy policy = Policy.parseSerializedCSP(input, consumer, deliveredViaMeta);
         assertEquals(errors.length, observedErrors.size());
         for (int i = 0; i < errors.length; ++i) {
             assertEquals(errors[i], observedErrors.get(i));
         }
         assertEquals(output, policy.toString());
+        assertEquals(deliveredViaMeta, policy.deliveredViaMeta());
     }
 
     /**
