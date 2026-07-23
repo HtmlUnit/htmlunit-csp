@@ -99,8 +99,10 @@ public final class Policy {
     private final EnumMap<FetchDirectiveKind, SourceExpressionDirective> fetchDirectives_
                     = new EnumMap<>(FetchDirectiveKind.class);
 
-    private Policy() {
-        // pass
+    private final boolean deliveredViaMeta_;
+
+    private Policy(final boolean deliveredViaMeta) {
+        deliveredViaMeta_ = deliveredViaMeta;
     }
 
     /**
@@ -149,11 +151,8 @@ public final class Policy {
     /**
      * Parses a single serialized CSP string into a {@link Policy}.
      * <p>
-     * Implements the
-     * <a href="https://w3c.github.io/webappsec-csp/#parse-serialized-policy">parse a
-     * serialized CSP</a> algorithm. The input must be an ASCII string and must not
-     * contain commas; for comma-separated CSP lists use
-     * {@link #parseSerializedCSPList(String, PolicyListErrorConsumer)}.
+     * Equivalent to {@link #parseSerializedCSP(String, PolicyErrorConsumer, boolean)}
+     * with {@code deliveredViaMeta} set to {@code false}.
      * </p>
      *
      * @param serialized the serialized CSP string to parse (must not contain commas)
@@ -164,6 +163,39 @@ public final class Policy {
      *         or contains a comma
      */
     public static Policy parseSerializedCSP(final String serialized, final PolicyErrorConsumer policyErrorConsumer) {
+        return parseSerializedCSP(serialized, policyErrorConsumer, false);
+    }
+
+    /**
+     * Parses a single serialized CSP string into a {@link Policy}.
+     * <p>
+     * Implements the
+     * <a href="https://w3c.github.io/webappsec-csp/#parse-serialized-policy">parse a
+     * serialized CSP</a> algorithm. The input must be an ASCII string and must not
+     * contain commas; for comma-separated CSP lists use
+     * {@link #parseSerializedCSPList(String, PolicyListErrorConsumer)}.
+     * </p>
+     * <p>
+     * When {@code deliveredViaMeta} is {@code true}, warnings are emitted for
+     * {@code frame-ancestors}, {@code sandbox}, and {@code report-uri}, which are
+     * ignored when a policy is delivered via a {@code meta} element.
+     * </p>
+     *
+     * @param serialized the serialized CSP string to parse (must not contain commas)
+     * @param policyErrorConsumer a consumer that receives any errors or warnings
+     *        encountered during parsing
+     * @param deliveredViaMeta {@code true} if the policy was delivered via a
+     *        {@code meta} element rather than an HTTP header
+     * @return the parsed {@link Policy}
+     * @throws IllegalArgumentException if {@code serialized} contains non-ASCII characters
+     *         or contains a comma
+     * @see <a href="https://w3c.github.io/webappsec-csp/#meta-element">CSP meta element</a>
+     * @see <a href="https://html.spec.whatwg.org/multipage/semantics.html#attr-meta-http-equiv-content-security-policy">
+     *      HTML Content security policy state</a>
+     * @since 5.4.0
+     */
+    public static Policy parseSerializedCSP(final String serialized, final PolicyErrorConsumer policyErrorConsumer,
+            final boolean deliveredViaMeta) {
         // "A serialized CSP is an ASCII string", and browsers do in fact reject CSPs which contain non-ASCII characters
         enforceAscii(serialized);
         if (serialized.contains(",")) {
@@ -178,7 +210,7 @@ public final class Policy {
                 (Severity severity, String message, int valueIndex) ->
                         policyErrorConsumer.add(severity, message, index[0], valueIndex);
 
-        final Policy policy = new Policy();
+        final Policy policy = new Policy(deliveredViaMeta);
 
         // https://infra.spec.whatwg.org/#strictly-split
         for (final String token : serialized.split(";")) {
@@ -267,6 +299,10 @@ public final class Policy {
                 // https://w3c.github.io/webappsec-csp/#directive-frame-ancestors
                 // TODO contemplate warning for paths, which are always ignored: frame-ancestors only matches
                 // against origins: https://w3c.github.io/webappsec-csp/#frame-ancestors-navigation-response
+                if (deliveredViaMeta_) {
+                    directiveErrorConsumer.add(Severity.Warning,
+                            "The frame-ancestors directive is ignored when delivered via a meta element", -1);
+                }
                 final FrameAncestorsDirective frameAncestorsDirective
                         = new FrameAncestorsDirective(values, directiveErrorConsumer);
                 if (frameAncestors_ == null) {
@@ -348,6 +384,10 @@ public final class Policy {
                 // https://w3c.github.io/webappsec-csp/#directive-report-uri
                 directiveErrorConsumer.add(Severity.Warning,
                         "The report-uri directive has been deprecated in favor of the new report-to directive", -1);
+                if (deliveredViaMeta_) {
+                    directiveErrorConsumer.add(Severity.Warning,
+                            "The report-uri directive is ignored when delivered via a meta element", -1);
+                }
 
                 final ReportUriDirective reportUriDirective = new ReportUriDirective(values, directiveErrorConsumer);
                 if (reportUri_ == null) {
@@ -361,6 +401,10 @@ public final class Policy {
 
             case "sandbox":
                 // https://w3c.github.io/webappsec-csp/#directive-sandbox
+                if (deliveredViaMeta_) {
+                    directiveErrorConsumer.add(Severity.Warning,
+                            "The sandbox directive is ignored when delivered via a meta element", -1);
+                }
                 final SandboxDirective sandboxDirective = new SandboxDirective(values, directiveErrorConsumer);
                 if (sandbox_ == null) {
                     sandbox_ = sandboxDirective;
@@ -496,6 +540,18 @@ public final class Policy {
      */
     public boolean blockAllMixedContent() {
         return blockAllMixedContent_;
+    }
+
+    /**
+     * Returns whether this policy was parsed as delivered via a {@code meta} element.
+     *
+     * @return {@code true} if {@link #parseSerializedCSP(String, PolicyErrorConsumer, boolean)}
+     *         was called with {@code deliveredViaMeta} set to {@code true}
+     * @see <a href="https://w3c.github.io/webappsec-csp/#meta-element">CSP meta element</a>
+     * @since 5.4.0
+     */
+    public boolean deliveredViaMeta() {
+        return deliveredViaMeta_;
     }
 
     /**

@@ -81,6 +81,12 @@ Policy policy = Policy.parseSerializedCSP(policyText, (severity, message, direct
 });
 ```
 
+For a policy from a `<meta http-equiv="Content-Security-Policy" content="...">` element, pass `true` as the third argument so that `frame-ancestors`, `sandbox`, and `report-uri` produce warnings (those directives are ignored when delivered via meta):
+
+```java
+Policy metaPolicy = Policy.parseSerializedCSP(metaContent, consumer, true);
+```
+
 ### Query a Policy
 
 The high-level querying methods allow you to specify whatever relevant information you have. The missing information will be assumed to be worst-case - that is, these methods will return `true` only if any object which matches the provided characteristics would be allowed, regardless of its other characteristics. 
