@@ -544,6 +544,12 @@ public final class Policy {
 
     /**
      * Returns whether this policy was parsed as delivered via a {@code meta} element.
+     * <p>
+     * When {@code true}, {@code frame-ancestors}, {@code sandbox}, and {@code report-uri}
+     * still appear in getters for analysis, but {@code allows*} methods ignore
+     * {@code frame-ancestors} and {@code sandbox} (matching browser enforce after the
+     * HTML meta algorithm strips those directives).
+     * </p>
      *
      * @return {@code true} if {@link #parseSerializedCSP(String, PolicyErrorConsumer, boolean)}
      *         was called with {@code deliveredViaMeta} set to {@code true}
@@ -552,6 +558,24 @@ public final class Policy {
      */
     public boolean deliveredViaMeta() {
         return deliveredViaMeta_;
+    }
+
+    /**
+     * Sandbox effective for {@code allows*} queries.
+     * Meta-delivered {@code sandbox} is ignored for enforce simulation
+     * (HTML strips it before apply) but remains available via {@link #sandbox()}.
+     */
+    private SandboxDirective sandboxForQuery() {
+        return deliveredViaMeta_ ? null : sandbox_;
+    }
+
+    /**
+     * Frame-ancestors effective for {@code allows*} queries.
+     * Meta-delivered {@code frame-ancestors} is ignored for enforce simulation
+     * but remains available via {@link #frameAncestors()}.
+     */
+    private FrameAncestorsDirective frameAncestorsForQuery() {
+        return deliveredViaMeta_ ? null : frameAncestors_;
     }
 
     /**
@@ -721,6 +745,7 @@ public final class Policy {
      *      script-pre-request check</a>
      * @see <a href="https://w3c.github.io/webappsec-csp/#script-post-request">
      *      script-post-request check</a>
+     * @see #deliveredViaMeta()
      */
     public boolean allowsExternalScript(
             final Optional<String> nonce,
@@ -728,7 +753,8 @@ public final class Policy {
             final Optional<? extends URLWithScheme> scriptUrl,
             final Optional<Boolean> parserInserted,
             final Optional<? extends URLWithScheme> origin) {
-        if (sandbox_ != null && !sandbox_.allowScripts()) {
+        final SandboxDirective sandbox = sandboxForQuery();
+        if (sandbox != null && !sandbox.allowScripts()) {
             return false;
         }
 
@@ -784,10 +810,12 @@ public final class Policy {
      * @return {@code true} if this policy allows the inline script
      * @see <a href="https://w3c.github.io/webappsec-csp/#should-block-inline">
      *      should block inline check</a>
+     * @see #deliveredViaMeta()
      */
     public boolean allowsInlineScript(final Optional<String> nonce,
             final Optional<String> source, final Optional<Boolean> parserInserted) {
-        if (sandbox_ != null && !sandbox_.allowScripts()) {
+        final SandboxDirective sandbox = sandboxForQuery();
+        if (sandbox != null && !sandbox.allowScripts()) {
             return false;
         }
         return doesElementMatchSourceListForTypeAndSource(InlineType.Script, nonce, source, parserInserted);
@@ -802,9 +830,11 @@ public final class Policy {
      * @return {@code true} if this policy allows the script attribute
      * @see <a href="https://w3c.github.io/webappsec-csp/#should-block-inline">
      *      should block inline check (script-src-attr)</a>
+     * @see #deliveredViaMeta()
      */
     public boolean allowsScriptAsAttribute(final Optional<String> source) {
-        if (sandbox_ != null && !sandbox_.allowScripts()) {
+        final SandboxDirective sandbox = sandboxForQuery();
+        if (sandbox != null && !sandbox.allowScripts()) {
             return false;
         }
         return doesElementMatchSourceListForTypeAndSource(
@@ -911,13 +941,15 @@ public final class Policy {
      * @return {@code true} if this policy allows the form action
      * @see <a href="https://w3c.github.io/webappsec-csp/#navigate-to-pre-navigate">
      *      navigate-to pre-navigate check</a>
+     * @see #deliveredViaMeta()
      */
     public boolean allowsFormAction(
             final Optional<? extends URLWithScheme> to,
             final Optional<Boolean> redirected,
             final Optional<? extends URLWithScheme> redirectedTo,
             final Optional<? extends URLWithScheme> origin) {
-        if (sandbox_ != null && !sandbox_.allowForms()) {
+        final SandboxDirective sandbox = sandboxForQuery();
+        if (sandbox != null && !sandbox.allowForms()) {
             return false;
         }
         if (formAction_ != null) {
@@ -1043,7 +1075,9 @@ public final class Policy {
     /**
      * Determines whether this policy allows being framed by the given ancestor origin.
      * <p>
-     * Checks the {@code frame-ancestors} directive. If not present, all ancestors are allowed.
+     * Checks the {@code frame-ancestors} directive. If not present, or if this policy
+     * was delivered via meta (where {@code frame-ancestors} is ignored), all ancestors
+     * are allowed.
      * </p>
      *
      * @param source the URL of the ancestor frame, if known
@@ -1051,14 +1085,16 @@ public final class Policy {
      * @return {@code true} if this policy allows the frame ancestor
      * @see <a href="https://w3c.github.io/webappsec-csp/#directive-frame-ancestors">
      *      frame-ancestors directive</a>
+     * @see #deliveredViaMeta()
      */
     public boolean allowsFrameAncestor(final Optional<? extends URLWithScheme> source,
                                        final Optional<? extends URLWithScheme> origin) {
-        if (frameAncestors_ == null) {
+        final FrameAncestorsDirective frameAncestors = frameAncestorsForQuery();
+        if (frameAncestors == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, frameAncestors_, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, frameAncestors, origin)).isPresent();
     }
 
     /**

@@ -225,6 +225,17 @@ public class PolicyInOrigin {
     }
 
     /**
+     * Determines whether the policy allows eval and similar string-to-code mechanisms.
+     *
+     * @return {@code true} if the policy allows eval
+     * @see Policy#allowsEval
+     * @since 5.4.0
+     */
+    public boolean allowsEval() {
+        return policy_.allowsEval();
+    }
+
+    /**
      * Determines whether the policy allows a connection (e.g. {@code fetch()},
      * {@code XMLHttpRequest}, {@code WebSocket}) to the given URL.
      * <p>

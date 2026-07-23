@@ -1473,6 +1473,39 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsExternalScript(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
     }
 
+    /**
+     * Meta-delivered {@code sandbox} / {@code frame-ancestors} stay in the model for
+     * analysis but do not affect {@code allows*} (HTML strips them before enforce).
+     */
+    @Test
+    public void metaInvalidDirectivesIgnoredForQuery() {
+        final Policy sandboxMeta = Policy.parseSerializedCSP(
+                "sandbox", PolicyErrorConsumer.ignored, true);
+        assertTrue(sandboxMeta.deliveredViaMeta());
+        assertTrue(sandboxMeta.sandbox().isPresent());
+        assertTrue(sandboxMeta.allowsScriptAsAttribute(Optional.empty()));
+        assertTrue(sandboxMeta.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()));
+        assertTrue(sandboxMeta.allowsExternalScript(
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
+        assertTrue(sandboxMeta.allowsFormAction(
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
+
+        final Policy faMeta = Policy.parseSerializedCSP(
+                "frame-ancestors 'none'", PolicyErrorConsumer.ignored, true);
+        assertTrue(faMeta.frameAncestors().isPresent());
+        assertTrue(faMeta.allowsFrameAncestor(
+                Optional.of(URI.parseURI("https://evil.example/").orElseThrow()), Optional.empty()));
+
+        // Header delivery still enforces
+        final Policy sandboxHeader = Policy.parseSerializedCSP(
+                "sandbox", PolicyErrorConsumer.ignored, false);
+        assertFalse(sandboxHeader.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()));
+        final Policy faHeader = Policy.parseSerializedCSP(
+                "frame-ancestors 'none'", PolicyErrorConsumer.ignored, false);
+        assertFalse(faHeader.allowsFrameAncestor(
+                Optional.of(URI.parseURI("https://evil.example/").orElseThrow()), Optional.empty()));
+    }
+
     private Policy parse(final String policy) {
         return Policy.parseSerializedCSP(policy, ThrowIfPolicyError);
     }

@@ -81,10 +81,43 @@ Policy policy = Policy.parseSerializedCSP(policyText, (severity, message, direct
 });
 ```
 
-For a policy from a `<meta http-equiv="Content-Security-Policy" content="...">` element, pass `true` as the third argument so that `frame-ancestors`, `sandbox`, and `report-uri` produce warnings (those directives are ignored when delivered via meta):
+For a policy from a [`<meta http-equiv="Content-Security-Policy">`](https://html.spec.whatwg.org/multipage/semantics.html#attr-meta-http-equiv-content-security-policy) element, pass `true` as the third argument so that `frame-ancestors`, `sandbox`, and `report-uri` produce warnings (HTML requires that those directives must not appear in meta `content`, and browsers ignore them):
 
 ```java
 Policy metaPolicy = Policy.parseSerializedCSP(metaContent, consumer, true);
+```
+
+Those three directives remain available via getters for analysis, but `allows*` methods ignore `frame-ancestors` and `sandbox` on meta-delivered policies (matching browser enforce after HTML strips them). See also [CSP3 meta element](https://w3c.github.io/webappsec-csp/#meta-element).
+
+### Multiple Policies
+
+Browsers enforce every CSP delivered via headers and/or `<meta>` together: a resource is allowed only if **every** policy allows it ([CSP3 multiple policies](https://w3c.github.io/webappsec-csp/#multiple-policies)). This library does not merge policies into one string; it ANDs query results on `PolicyList`.
+
+```java
+// Several Content-Security-Policy header values (each may itself be a comma-separated list)
+PolicyList list = PolicyList.ofSerialized(List.of(
+    "img-src img.example.com",
+    "img-src more-images.example.com"
+), Policy.PolicyListErrorConsumer.ignored);
+
+PolicyListInOrigin bound = new PolicyListInOrigin(list, URI.parseURI("https://example.com").orElseThrow());
+
+boolean allowed = bound.allowsImageFromSource(URI.parseURI("https://img.example.com/a.png").orElseThrow());
+// allowed == false — second policy blocks even though first allows
+
+// Or a single comma-separated header value:
+PolicyList fromOneHeader = Policy.parseSerializedCSPList(
+    "img-src 'self', script-src 'none'", Policy.PolicyListErrorConsumer.ignored);
+```
+
+Keep Report-Only policies in a separate `PolicyList`. Directive inspection and parse warnings stay per member policy via `getPolicies()`.
+
+`ofSerialized` always parses as header delivery (`deliveredViaMeta = false`). For mixed header + meta, parse each `Policy` with the correct flag, then build the list:
+
+```java
+Policy headerPolicy = Policy.parseSerializedCSP(headerValue, consumer, false);
+Policy metaPolicy = Policy.parseSerializedCSP(metaContent, consumer, true);
+PolicyList enforce = new PolicyList(List.of(headerPolicy, metaPolicy));
 ```
 
 ### Query a Policy
