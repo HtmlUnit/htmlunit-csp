@@ -32,8 +32,11 @@ The implementation targets [W3C CSP Level 3](https://www.w3.org/TR/CSP3/). Key s
 ```
 src/main/java/org/htmlunit/csp/
 ├── Policy.java                        # Central class: parsing and high-level querying
-├── PolicyList.java                    # List of policies (from comma-separated CSP headers)
+├── PolicyList.java                    # List of policies (AND-query via CspQueries)
+├── CspQueries.java                    # Shared enforcement query API (Policy + PolicyList)
+├── CspQueriesInOrigin.java            # Origin-bound sugar over CspQueries
 ├── PolicyInOrigin.java                # Policy bound to a specific origin for querying
+├── PolicyListInOrigin.java            # PolicyList + origin (extends CspQueriesInOrigin)
 ├── Directive.java                     # Base class for all directive types
 ├── FetchDirectiveKind.java            # Enum of fetch directives with fallback chains
 ├── Constants.java                     # Regex patterns, port constants
