@@ -91,7 +91,9 @@ Those three directives remain available via getters for analysis, but `allows*` 
 
 ### Multiple Policies
 
-Browsers enforce every CSP delivered via headers and/or `<meta>` together: a resource is allowed only if **every** policy allows it ([CSP3 multiple policies](https://w3c.github.io/webappsec-csp/#multiple-policies)). This library does not merge policies into one string; it ANDs query results on `PolicyList`.
+Browsers do not conceptually merge multiple policies into a single policy. They independently evaluate each policy and allow an action only if every policy allows it ([CSP3 multiple policies](https://w3c.github.io/webappsec-csp/#multiple-policies)). Accordingly, this library preserves policies separately and evaluates queries across the collection (`PolicyList`, stopping at the first denying policy). An empty `PolicyList` is unrestricted: all `allows*` methods return `true`.
+
+`Policy` and `PolicyList` share the enforcement query surface via `CspQueries`. Origin-bound helpers (`PolicyInOrigin` / `PolicyListInOrigin`) extend `CspQueriesInOrigin`, so new query methods belong on the interface (and one origin wrapper), not four copy-pasted classes.
 
 ```java
 // Several Content-Security-Policy header values (each may itself be a comma-separated list)

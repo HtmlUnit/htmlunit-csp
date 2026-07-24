@@ -17,6 +17,7 @@ package org.htmlunit.csp;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.htmlunit.csp.Policy.PolicyListErrorConsumer;
 import org.htmlunit.csp.url.URLWithScheme;
@@ -36,18 +37,22 @@ import org.htmlunit.csp.value.MediaType;
  * multiple policies</a>.
  * </p>
  * <p>
+ * Implements {@link CspQueries}: each query method AND-delegates to member
+ * {@link Policy} instances (short-circuit on the first deny). An empty list
+ * is unrestricted (all {@code allows*} return {@code true}).
+ * </p>
+ * <p>
  * Instances are created by
  * {@link Policy#parseSerializedCSPList(String, PolicyListErrorConsumer)}
  * or {@link #ofSerialized(List, PolicyListErrorConsumer)}.
  * Empty policies (those with no directives) are omitted during parsing.
- * An empty list (no policies) is treated as unrestricted: all {@code allows*}
- * methods return {@code true}.
  * </p>
  *
  * @author Ronald Brill
+ * @see CspQueries
  * @see Policy#parseSerializedCSPList(String, PolicyListErrorConsumer)
  */
-public class PolicyList {
+public class PolicyList implements CspQueries {
     private final List<Policy> policies_;
 
     /**
@@ -122,291 +127,153 @@ public class PolicyList {
         return out.toString();
     }
 
+    /**
+     * Returns {@code true} only if every policy in the list satisfies {@code check}.
+     * Stops at the first {@code false} (short-circuit). An empty list returns {@code true}.
+     */
+    private boolean allAllow(final Predicate<Policy> check) {
+        for (final Policy policy : policies_) {
+            if (!check.test(policy)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // High-level querying: AND across all member policies
 
-    /**
-     * Whether every member policy allows the external script.
-     * @param nonce script nonce, if any
-     * @param integrity SRI metadata, if any
-     * @param scriptUrl script URL, if known
-     * @param parserInserted whether the script is parser-inserted
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsExternalScript
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsExternalScript(
             final Optional<String> nonce,
             final Optional<String> integrity,
             final Optional<? extends URLWithScheme> scriptUrl,
             final Optional<Boolean> parserInserted,
             final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p ->
+        return allAllow(p ->
                 p.allowsExternalScript(nonce, integrity, scriptUrl, parserInserted, origin));
     }
 
-    /**
-     * Whether every member policy allows the inline script.
-     * @param nonce script nonce, if any
-     * @param source inline script text, if known
-     * @param parserInserted whether the script is parser-inserted
-     * @return {@code true} if every member allows
-     * @see Policy#allowsInlineScript
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsInlineScript(final Optional<String> nonce,
             final Optional<String> source, final Optional<Boolean> parserInserted) {
-        return policies_.stream().allMatch(p -> p.allowsInlineScript(nonce, source, parserInserted));
+        return allAllow(p -> p.allowsInlineScript(nonce, source, parserInserted));
     }
 
-    /**
-     * Whether every member policy allows the script event-handler attribute.
-     * @param source attribute text, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsScriptAsAttribute
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsScriptAsAttribute(final Optional<String> source) {
-        return policies_.stream().allMatch(p -> p.allowsScriptAsAttribute(source));
+        return allAllow(p -> p.allowsScriptAsAttribute(source));
     }
 
-    /**
-     * Whether every member policy allows eval.
-     * @return {@code true} if every member allows
-     * @see Policy#allowsEval
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsEval() {
-        return policies_.stream().allMatch(Policy::allowsEval);
+        return allAllow(Policy::allowsEval);
     }
 
-    /**
-     * Whether every member policy allows the navigation.
-     * @param to navigation target URL, if known
-     * @param redirected whether the navigation is a redirect
-     * @param redirectedTo final URL after redirect, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsNavigation
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsNavigation(
             final Optional<? extends URLWithScheme> to,
             final Optional<Boolean> redirected,
             final Optional<? extends URLWithScheme> redirectedTo,
             final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsNavigation(to, redirected, redirectedTo, origin));
+        return allAllow(p -> p.allowsNavigation(to, redirected, redirectedTo, origin));
     }
 
-    /**
-     * Whether every member policy allows the form action.
-     * @param to form action URL, if known
-     * @param redirected whether the submission redirects
-     * @param redirectedTo final URL after redirect, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsFormAction
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsFormAction(
             final Optional<? extends URLWithScheme> to,
             final Optional<Boolean> redirected,
             final Optional<? extends URLWithScheme> redirectedTo,
             final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsFormAction(to, redirected, redirectedTo, origin));
+        return allAllow(p -> p.allowsFormAction(to, redirected, redirectedTo, origin));
     }
 
-    /**
-     * Whether every member policy allows the {@code javascript:} URL navigation.
-     * @param source JavaScript after the {@code javascript:} prefix, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsJavascriptUrlNavigation
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsJavascriptUrlNavigation(
             final Optional<String> source,
             final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsJavascriptUrlNavigation(source, origin));
+        return allAllow(p -> p.allowsJavascriptUrlNavigation(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the external stylesheet.
-     * @param nonce link nonce, if any
-     * @param styleUrl stylesheet URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsExternalStyle
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsExternalStyle(
             final Optional<String> nonce,
             final Optional<? extends URLWithScheme> styleUrl,
             final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsExternalStyle(nonce, styleUrl, origin));
+        return allAllow(p -> p.allowsExternalStyle(nonce, styleUrl, origin));
     }
 
-    /**
-     * Whether every member policy allows the inline style.
-     * @param nonce style nonce, if any
-     * @param source inline style text, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsInlineStyle
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsInlineStyle(final Optional<String> nonce, final Optional<String> source) {
-        return policies_.stream().allMatch(p -> p.allowsInlineStyle(nonce, source));
+        return allAllow(p -> p.allowsInlineStyle(nonce, source));
     }
 
-    /**
-     * Whether every member policy allows the style attribute.
-     * @param source attribute text, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsStyleAsAttribute
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsStyleAsAttribute(final Optional<String> source) {
-        return policies_.stream().allMatch(p -> p.allowsStyleAsAttribute(source));
+        return allAllow(p -> p.allowsStyleAsAttribute(source));
     }
 
-    /**
-     * Whether every member policy allows the frame.
-     * @param source framed resource URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsFrame
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsFrame(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsFrame(source, origin));
+        return allAllow(p -> p.allowsFrame(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the frame ancestor.
-     * @param source ancestor frame URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsFrameAncestor
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsFrameAncestor(final Optional<? extends URLWithScheme> source,
                                        final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsFrameAncestor(source, origin));
+        return allAllow(p -> p.allowsFrameAncestor(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the connection.
-     * @param source connection URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsConnection
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
                                     final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsConnection(source, origin));
+        return allAllow(p -> p.allowsConnection(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the font.
-     * @param source font URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsFont
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsFont(final Optional<? extends URLWithScheme> source,
                               final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsFont(source, origin));
+        return allAllow(p -> p.allowsFont(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the image.
-     * @param source image URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsImage
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsImage(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsImage(source, origin));
+        return allAllow(p -> p.allowsImage(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the application manifest.
-     * @param source manifest URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsApplicationManifest
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
                                              final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsApplicationManifest(source, origin));
+        return allAllow(p -> p.allowsApplicationManifest(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the media.
-     * @param source media URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsMedia
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsMedia(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsMedia(source, origin));
+        return allAllow(p -> p.allowsMedia(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the object.
-     * @param source object URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsObject
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsObject(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsObject(source, origin));
+        return allAllow(p -> p.allowsObject(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the prefetch.
-     * @param source prefetch URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsPrefetch
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsPrefetch(final Optional<? extends URLWithScheme> source,
                                   final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsPrefetch(source, origin));
+        return allAllow(p -> p.allowsPrefetch(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the worker.
-     * @param source worker URL, if known
-     * @param origin protected-resource origin, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsWorker
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsWorker(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
-        return policies_.stream().allMatch(p -> p.allowsWorker(source, origin));
+        return allAllow(p -> p.allowsWorker(source, origin));
     }
 
-    /**
-     * Whether every member policy allows the plugin type.
-     * @param mediaType plugin media type, if known
-     * @return {@code true} if every member allows
-     * @see Policy#allowsPlugin
-     * @since 5.4.0
-     */
+    @Override
     public boolean allowsPlugin(final Optional<? extends MediaType> mediaType) {
-        return policies_.stream().allMatch(p -> p.allowsPlugin(mediaType));
+        return allAllow(p -> p.allowsPlugin(mediaType));
     }
 }

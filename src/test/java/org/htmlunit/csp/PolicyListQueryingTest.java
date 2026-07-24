@@ -140,6 +140,21 @@ public class PolicyListQueryingTest extends TestBase {
     }
 
     @Test
+    public void originWrappersExposeTypedQueries() {
+        final PolicyList list = PolicyList.ofSerialized(
+                List.of("img-src 'self'"), PolicyListErrorConsumer.ignored);
+        final PolicyListInOrigin bound = new PolicyListInOrigin(list, ORIGIN);
+        assertTrue(bound.getQueries() instanceof PolicyList);
+        assertEquals(list, bound.getPolicyList());
+        assertEquals(ORIGIN, bound.getOrigin());
+
+        final Policy policy = list.getPolicies().get(0);
+        final PolicyInOrigin single = new PolicyInOrigin(policy, ORIGIN);
+        assertTrue(single.getQueries() instanceof Policy);
+        assertEquals(policy, single.getPolicy());
+    }
+
+    @Test
     public void ofSerializedParsesCommaSeparatedHeaderValues() {
         // One header value that is itself a CSP list, plus another header
         final PolicyList list = PolicyList.ofSerialized(

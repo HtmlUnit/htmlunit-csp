@@ -63,9 +63,10 @@ import org.htmlunit.csp.value.Scheme;
  * <a href="https://w3c.github.io/webappsec-csp/">CSP specification</a>.
  * </p>
  *
+ * @see CspQueries
  * @see <a href="https://w3c.github.io/webappsec-csp/">W3C Content Security Policy Level 3</a>
  */
-public final class Policy {
+public final class Policy implements CspQueries {
     // Things we don't preserve:
     // - Whitespace
     // - Empty directives or policies (as in `; ;` or `, ,`)
