@@ -37,6 +37,8 @@ import org.htmlunit.csp.value.Scheme;
  *
  * @see <a href="https://w3c.github.io/webappsec-csp/#framework-directive-source-list">
  *      CSP source list</a>
+ *
+ * @author Salvation Team
  */
 public abstract class HostSourceDirective extends Directive {
     private static final String NONE_SRC = "'none'";

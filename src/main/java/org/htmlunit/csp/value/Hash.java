@@ -31,6 +31,8 @@ import org.htmlunit.csp.Utils;
  * @param base64ValuePart the Base64-encoded hash value (case-sensitive)
  * @see <a href="https://w3c.github.io/webappsec-csp/#grammardef-hash-source">
  *      hash-source grammar</a>
+ *
+ * @author Salvation Team
  */
 public record Hash(Algorithm algorithm, String base64ValuePart) {
 

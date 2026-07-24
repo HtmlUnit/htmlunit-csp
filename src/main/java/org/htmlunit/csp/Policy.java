@@ -64,6 +64,10 @@ import org.htmlunit.csp.value.Scheme;
  * </p>
  *
  * @see <a href="https://w3c.github.io/webappsec-csp/">W3C Content Security Policy Level 3</a>
+ *
+ * @author Salvation Team
+ * @author Ronald Brill
+ * @author Rick Mitchell
  */
 public final class Policy {
     // Things we don't preserve:

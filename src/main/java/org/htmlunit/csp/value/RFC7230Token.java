@@ -31,6 +31,8 @@ import org.htmlunit.csp.Constants;
  *
  * @param value the token string
  * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.2.6">RFC 7230 §3.2.6</a>
+ *
+ * @author Salvation Team
  */
 public record RFC7230Token(String value) {
 

@@ -31,6 +31,8 @@ import java.util.regex.Pattern;
  * <a href="https://infra.spec.whatwg.org/#strictly-split">strictly split</a>,
  * as well as Base64 validation, URL-decoding, and token extraction.
  * </p>
+ *
+ * @author Salvation Team
  */
 public final class Utils {
     /**

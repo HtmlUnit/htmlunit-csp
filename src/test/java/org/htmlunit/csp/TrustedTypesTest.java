@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Michael Smith
+ * @author Salvation Team
  */
 public class TrustedTypesTest extends TestBase {
 

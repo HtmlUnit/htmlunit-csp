@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
  * and the CSP3 specification at https://www.w3.org/TR/CSP3/#framework
  *
  * Each test documents a specific spec section and how the implementation diverges.
+ *
+ * @author Salvation Team
  */
 public class CSP3SpecConformanceTest {
 

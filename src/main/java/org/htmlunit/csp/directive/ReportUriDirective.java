@@ -36,6 +36,8 @@ import org.htmlunit.csp.Policy;
  *
  * @see <a href="https://w3c.github.io/webappsec-csp/#directive-report-uri">
  *      report-uri directive</a>
+ *
+ * @author Salvation Team
  */
 public class ReportUriDirective extends Directive {
     private final List<String> uris_ = new ArrayList<>();

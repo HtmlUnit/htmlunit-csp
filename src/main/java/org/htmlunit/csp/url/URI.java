@@ -31,6 +31,8 @@ import org.htmlunit.csp.Constants;
  * Instances can be created directly via the constructor or parsed from a string
  * using {@link #parseURI(String)}.
  * </p>
+ *
+ * @author Salvation Team
  */
 public class URI extends URLWithScheme {
 

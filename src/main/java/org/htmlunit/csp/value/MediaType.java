@@ -32,6 +32,8 @@ import org.htmlunit.csp.Constants;
  *
  * @param type the primary type in lowercase (e.g. {@code "application"})
  * @param subtype the subtype in lowercase (e.g. {@code "pdf"})
+ *
+ * @author Salvation Team
  */
 public record MediaType(String type, String subtype) {
 

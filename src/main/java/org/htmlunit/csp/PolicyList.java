@@ -33,6 +33,8 @@ import java.util.List;
  * </p>
  *
  * @see Policy#parseSerializedCSPList(String, Policy.PolicyListErrorConsumer)
+ *
+ * @author Salvation Team
  */
 public class PolicyList {
     private final List<Policy> policies_;

@@ -28,9 +28,11 @@ import org.htmlunit.csp.Policy;
  * enforces Trusted Types for all script-related injection sinks.
  * </p>
  *
- * @author Michael Smith
  * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive">
  *      require-trusted-types-for directive</a>
+ *
+ * @author Michael Smith
+ * @author Salvation Team
  */
 public class RequireTrustedTypesForDirective extends Directive {
     // https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive

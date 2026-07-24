@@ -29,6 +29,7 @@ import org.htmlunit.csp.url.URLWithScheme;
  * applicable to the simplified query (such as nonce, integrity, or
  * redirect information).
  * </p>
+ * @author Salvation Team
  */
 public class PolicyInOrigin {
     private final Policy policy_;

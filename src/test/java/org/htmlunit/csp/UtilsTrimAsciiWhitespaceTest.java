@@ -19,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Salvation Team
+ */
 public class UtilsTrimAsciiWhitespaceTest {
 
     // ===== NULL AND EMPTY TESTS =====

@@ -33,6 +33,8 @@ import org.htmlunit.csp.Policy;
  *      sandbox directive</a>
  * @see <a href="https://html.spec.whatwg.org/multipage/iframe-embed-object.html#attr-iframe-sandbox">
  *      HTML sandbox attribute</a>
+ *
+ * @author Salvation Team
  */
 public class SandboxDirective extends Directive {
     private static final String ALLOW_DOWNLOADS = "allow-downloads";

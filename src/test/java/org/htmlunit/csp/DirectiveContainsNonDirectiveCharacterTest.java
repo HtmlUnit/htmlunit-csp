@@ -19,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Salvation Team
+ */
 public class DirectiveContainsNonDirectiveCharacterTest {
 
     // ===== NULL AND EMPTY TESTS =====
