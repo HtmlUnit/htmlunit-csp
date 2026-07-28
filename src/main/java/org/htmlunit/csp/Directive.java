@@ -27,6 +27,7 @@ import java.util.function.Predicate;
  * single directive in a Content Security Policy. Subclasses interpret those
  * values into structured data (source expressions, sandbox keywords, etc.).
  * </p>
+ * @author Salvation Team
  */
 public class Directive {
 

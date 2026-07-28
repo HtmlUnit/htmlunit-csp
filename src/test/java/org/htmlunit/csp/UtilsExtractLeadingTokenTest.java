@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Salvation Team
+ */
 public class UtilsExtractLeadingTokenTest {
 
     // ===== NULL AND EMPTY TESTS =====

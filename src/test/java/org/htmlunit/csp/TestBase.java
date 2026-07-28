@@ -16,6 +16,9 @@ package org.htmlunit.csp;
 
 import java.util.Locale;
 
+/**
+ * @author Salvation Team
+ */
 public abstract class TestBase {
     /**
      * Policy.PolicyListErrorConsumer that throws.

@@ -32,6 +32,8 @@ import org.htmlunit.csp.Constants;
  *        (e.g. {@code "https"}, {@code "data"})
  * @see <a href="https://w3c.github.io/webappsec-csp/#grammardef-scheme-source">
  *      scheme-source grammar</a>
+ *
+ * @author Salvation Team
  */
 public record Scheme(String value) {
 

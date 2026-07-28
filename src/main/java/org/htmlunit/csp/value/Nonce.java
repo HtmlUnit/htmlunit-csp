@@ -30,6 +30,8 @@ import org.htmlunit.csp.Utils;
  * @param base64ValuePart the Base64-encoded nonce value (case-sensitive)
  * @see <a href="https://w3c.github.io/webappsec-csp/#grammardef-nonce-source">
  *      nonce-source grammar</a>
+ *
+ * @author Salvation Team
  */
 public record Nonce(String base64ValuePart) {
 

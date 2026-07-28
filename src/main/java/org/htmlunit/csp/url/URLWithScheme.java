@@ -29,6 +29,8 @@ import java.util.Objects;
  * Two {@code URLWithScheme} instances are considered equal if their scheme,
  * host, port, and path are all equal.
  * </p>
+ *
+ * @author Salvation Team
  */
 public abstract class URLWithScheme {
 

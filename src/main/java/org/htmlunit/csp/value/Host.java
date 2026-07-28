@@ -37,6 +37,8 @@ import org.htmlunit.csp.url.URI;
  * @param path the path part (e.g. {@code "/scripts/"}), or {@code null} if not specified
  * @see <a href="https://w3c.github.io/webappsec-csp/#grammardef-host-source">
  *      host-source grammar</a>
+ *
+ * @author Salvation Team
  */
 public record Host(String scheme, String host, int port, String path) {
 

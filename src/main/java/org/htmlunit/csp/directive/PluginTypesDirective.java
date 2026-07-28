@@ -34,6 +34,8 @@ import org.htmlunit.csp.value.MediaType;
  *
  * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/plugin-types">
  *      plugin-types on MDN</a>
+ *
+ * @author Salvation Team
  */
 public class PluginTypesDirective extends Directive {
     private final List<MediaType> mediaTypes_ = new ArrayList<>();

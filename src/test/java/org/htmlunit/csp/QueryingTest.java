@@ -26,6 +26,9 @@ import org.htmlunit.csp.url.URLWithScheme;
 import org.htmlunit.csp.value.MediaType;
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Salvation Team
+ */
 public class QueryingTest extends TestBase {
     static final String EXAMPLE_SHA = "sha512-O7Eu2jwpjbXeJVl/VNkk8uF+eKJq2JU+2CGO5oLwu76QIeLzAJ0VLJEb8fJexoOpAnFBZnZ6+9jlvQ+wEk7Lig=="; // sha512 of 'example'
 

@@ -32,6 +32,8 @@ import org.htmlunit.csp.Constants;
  *
  * @see <a href="https://url.spec.whatwg.org/#example-url-components">
  *      URL Standard — URL components</a>
+ *
+ * @author Salvation Team
  */
 public class GUID extends URLWithScheme {
 

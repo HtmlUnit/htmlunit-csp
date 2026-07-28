@@ -19,6 +19,9 @@ import java.util.Optional;
 import org.htmlunit.csp.url.URI;
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Salvation Team
+ */
 public class ReadmeTest extends TestBase {
 
     @Test

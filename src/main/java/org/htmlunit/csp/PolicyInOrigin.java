@@ -27,9 +27,12 @@ import org.htmlunit.csp.url.URLWithScheme;
  * {@code Optional.empty()} for unused parameters (nonce, integrity, redirects).
  * </p>
  *
- * @author Ronald Brill
  * @see CspQueriesInOrigin
  * @see PolicyListInOrigin
+
+ * @author Ronald Brill
+ * @author Rick Mitchell
+ * @author Salvation Team
  */
 public class PolicyInOrigin extends CspQueriesInOrigin {
 

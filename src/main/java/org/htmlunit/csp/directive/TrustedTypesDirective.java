@@ -34,9 +34,11 @@ import org.htmlunit.csp.Policy;
  * to allow any policy name.
  * </p>
  *
- * @author Michael Smith
  * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive">
  *      trusted-types directive</a>
+ *
+ * @author Salvation Team
+ * @author Michael Smith
  */
 public class TrustedTypesDirective extends Directive {
     // https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive

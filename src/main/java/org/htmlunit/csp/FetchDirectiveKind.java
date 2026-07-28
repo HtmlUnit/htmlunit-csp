@@ -29,6 +29,7 @@ package org.htmlunit.csp;
  * For example, the fallback chain for {@link #ScriptSrcElem} is:
  * {@code script-src-elem} → {@code script-src} → {@code default-src}.
  * </p>
+ * @author Salvation Team
  */
 public enum FetchDirectiveKind {
     /** The {@code child-src} fetch directive. */

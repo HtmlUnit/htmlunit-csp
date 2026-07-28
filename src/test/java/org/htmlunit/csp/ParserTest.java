@@ -25,6 +25,10 @@ import org.htmlunit.csp.Policy.PolicyErrorConsumer;
 import org.htmlunit.csp.value.Scheme;
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Ronald Brill
+ * @author Rick Mitchell
+ */
 public class ParserTest extends TestBase {
     @Test
     public void emptyPolicy() {

@@ -41,6 +41,8 @@ import org.htmlunit.csp.value.Nonce;
  * {@code default-src}, {@code img-src}, etc.) as well as {@code base-uri},
  * {@code form-action}, and {@code navigate-to}.
  * </p>
+ *
+ * @author Salvation Team
  */
 public class SourceExpressionDirective extends HostSourceDirective {
     private static final String REPORT_SAMPLE = "'report-sample'";
@@ -53,7 +55,7 @@ public class SourceExpressionDirective extends HostSourceDirective {
     /**
      * <a href="https://developer.mozilla.org/en-US/docs/Web/
      * HTTP/Headers/Content-Security-Policy/script-src#unsafe_webassembly_execution">
-     * Unsafe WebAssembly execution</a>
+     * Unsafe WebAssembly execution</a>.
      */
     private static final String WASM_UNSAFE_EVAL = "'wasm-unsafe-eval'";
 

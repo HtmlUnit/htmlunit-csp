@@ -31,6 +31,8 @@ import org.htmlunit.csp.Policy;
  *
  * @see <a href="https://w3c.github.io/webappsec-csp/#directive-frame-ancestors">
  *      frame-ancestors directive</a>
+ *
+ * @author Salvation Team
  */
 public class FrameAncestorsDirective extends HostSourceDirective {
 

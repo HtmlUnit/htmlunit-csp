@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  * IP addresses, etc.) as well as sentinel values for ports and a helper
  * method for ASCII whitespace detection.
  * </p>
+ * @author Salvation Team
  */
 public final class Constants {
     /**

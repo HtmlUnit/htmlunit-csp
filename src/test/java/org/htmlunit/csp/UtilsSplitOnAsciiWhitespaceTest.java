@@ -22,6 +22,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * @author Salvation Team
+ */
 public class UtilsSplitOnAsciiWhitespaceTest {
 
     // ===== NULL AND EMPTY TESTS =====
