@@ -21,11 +21,13 @@ import org.htmlunit.csp.url.URLWithScheme;
  * {@link URLWithScheme origin}. Query methods are defined on
  * {@link CspQueriesInOrigin}; AND semantics come from {@link PolicyList}.
  *
- * @author Ronald Brill
  * @see CspQueriesInOrigin
  * @see PolicyInOrigin
  * @see PolicyList
  * @since 5.4.0
+ *
+ * @author Ronald Brill
+ * @author Rick Mitchell
  */
 public class PolicyListInOrigin extends CspQueriesInOrigin {
 

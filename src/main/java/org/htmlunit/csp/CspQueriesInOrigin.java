@@ -28,11 +28,13 @@ import org.htmlunit.csp.url.URLWithScheme;
  * accessor for the underlying {@link Policy} / {@link PolicyList} is needed.
  * </p>
  *
- * @author Ronald Brill
  * @see CspQueries
  * @see PolicyInOrigin
  * @see PolicyListInOrigin
  * @since 5.4.0
+ *
+ * @author Ronald Brill
+ * @author Rick Mitchell
  */
 public class CspQueriesInOrigin {
     private final CspQueries queries_;

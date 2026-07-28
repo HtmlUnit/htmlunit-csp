@@ -28,11 +28,13 @@ import org.htmlunit.csp.value.MediaType;
  * Semantics of individual checks are documented on {@link Policy}.
  * </p>
  *
- * @author Ronald Brill
  * @see Policy
  * @see PolicyList
  * @see CspQueriesInOrigin
  * @since 5.4.0
+ *
+ * @author Ronald Brill
+ * @author Rick Mitchell
  */
 public interface CspQueries {
 

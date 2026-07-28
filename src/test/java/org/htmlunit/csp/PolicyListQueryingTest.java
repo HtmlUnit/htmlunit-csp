@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Test;
  *
  * @see <a href="https://w3c.github.io/webappsec-csp/#multiple-policies">CSP3 multiple policies</a>
  * @see <a href="https://content-security-policy.com/examples/multiple-csp-headers/">Foundeo examples</a>
+ *
+ * @author Rick Mitchell
  */
 public class PolicyListQueryingTest extends TestBase {
 

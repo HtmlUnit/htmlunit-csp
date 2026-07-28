@@ -27,6 +27,8 @@ import org.htmlunit.csp.value.MediaType;
 import org.junit.jupiter.api.Test;
 
 /**
+ * @author Ronald Brill
+ * @author Rick Mitchell
  * @author Salvation Team
  */
 public class QueryingTest extends TestBase {
