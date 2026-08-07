@@ -48,7 +48,7 @@ import org.htmlunit.csp.value.MediaType;
  * Empty policies (those with no directives) are omitted during parsing.
  * </p>
  *
-* @see CspQueries
+ * @see CspQueries
  * @see Policy#parseSerializedCSPList(String, PolicyListErrorConsumer)
  * @see Policy#parseSerializedCSPList(String, Policy.PolicyListErrorConsumer)
  *
