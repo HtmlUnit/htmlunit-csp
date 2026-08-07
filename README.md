@@ -28,7 +28,7 @@ Starting with version 5.0.0, **JDK 17 or higher is required**.
 If you are still on JDK 8, see [Legacy Support (JDK 8)](#legacy-support-jdk-8) below.
 
 
-### Latest release Version 5.3.0 / July 15, 2026
+### Latest release Version 5.4.0 / August 07, 2026
 
 ### Maven
 
@@ -38,7 +38,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>5.3.0</version>
+    <version>5.4.0</version>
 </dependency>
 ```
 
@@ -47,7 +47,7 @@ Add to your `pom.xml`:
 Add to your `build.gradle`:
 
 ```groovy
-implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '5.3.0'
+implementation group: 'org.htmlunit', name: 'htmlunit-csp', version: '5.4.0'
 ```
 
 ## Projects Using This Library
