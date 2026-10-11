@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.htmlunit</groupId>
     <artifactId>htmlunit-csp</artifactId>
-    <version>5.5.0</version>
+    <version>5.6.0-SNAPSHOT</version>
     <name>HtmlUnit Content-Security-Policy Parser</name>
     <organization>
         <name>HtmlUnit</name>
@@ -23,31 +23,35 @@
 
         <maven.version.ignore>(?i).*-(alpha|beta|m|rc)([\.-]?\d+)?</maven.version.ignore>
 
+        <enforcer.require.maven.version>3.9.0</enforcer.require.maven.version>
+        <enforcer.require.java.version>17</enforcer.require.java.version>
+
         <!-- test dependencies -->
-        <junit.version>6.1.2</junit.version>
+        <junit.version>6.1.3</junit.version>
 
         <!-- quality -->
         <checkstyle.version>12.3.1</checkstyle.version>
         <spotbugs.version>4.10.4</spotbugs.version>
-        <pmd.version>7.26.0</pmd.version>
+        <pmd.version>7.28.0</pmd.version>
         <spotless.version>2.38.0</spotless.version>
         <dependencycheck.version>10.0.4</dependencycheck.version>
 
         <!-- plugins -->
         <central-publishing-plugin.version>0.11.0</central-publishing-plugin.version>
-        <build-helper-plugin.version>3.6.1</build-helper-plugin.version>
+        <build-helper-plugin.version>3.6.2</build-helper-plugin.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
         <pmd-plugin.version>3.28.0</pmd-plugin.version>
-        <spotbugs-plugin.version>4.10.4.0</spotbugs-plugin.version>
+        <spotbugs-plugin.version>4.10.4.1</spotbugs-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
         <enforcer-plugin.version>3.6.3</enforcer-plugin.version>
         <changes-plugin.version>2.12.1</changes-plugin.version>
-        <compiler-plugin.version>3.15.0</compiler-plugin.version>
+        <compiler-plugin.version>3.16.0</compiler-plugin.version>
         <jar-plugin.version>3.5.1</jar-plugin.version>
         <release-plugin.version>3.3.1</release-plugin.version>
         <source-plugin.version>3.4.0</source-plugin.version>
         <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
-        <surefire-plugin.version>3.5.6</surefire-plugin.version>
+        <surefire-plugin.version>3.6.0</surefire-plugin.version>
+        <versions-plugin.version>2.22.0</versions-plugin.version>
     </properties>
 
     <build>
@@ -73,6 +77,29 @@
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-plugin.version}</version>
+                <configuration>
+                    <ruleSet>
+                        <rules>
+                            <rule>
+                                <groupId>com.puppycrawl.tools</groupId>
+                                <artifactId>checkstyle</artifactId>
+                                <ignoreVersions>
+                                    <!-- 12 is the last with jdk17 support -->
+                                    <ignoreVersion>
+                                        <type>range</type>
+                                        <version>[13.0,)</version>
+                                    </ignoreVersion>
+                                </ignoreVersions>
+                            </rule>
+                        </rules>
+                    </ruleSet>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${enforcer-plugin.version}</version>
@@ -85,10 +112,10 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>3.9.0</version>
+                                    <version>${enforcer.require.maven.version}</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <version>17</version>
+                                    <version>${enforcer.require.java.version}</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
