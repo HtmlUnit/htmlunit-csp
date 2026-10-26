@@ -675,10 +675,22 @@ public final class Policy implements CspQueries {
     }
 
     /**
-     * Indicates if wildcard policy names are permitted in the trusted-types directive.
-     * When true, any policy name is allowed, which may reduce security.
+     * Returns whether this policy has a {@code trusted-types} directive that contains
+     * the wildcard ({@code *}).
+     * <p>
+     * This only inspects the directive's syntax. It returns {@code false} when the policy
+     * has no {@code trusted-types} directive, even though every policy name is allowed
+     * in that case. To ask whether arbitrary policy names may be created, use
+     * {@link #allowsAnyTrustedTypesPolicyName()}, which returns {@code true} both without
+     * the directive and with {@code *}.
+     * </p>
+     * <p>
+     * A wildcard permits any policy name, which may reduce security.
+     * </p>
      *
-     * @return true if wildcard policy names (*) are permitted, false if not present or not permitted
+     * @return {@code true} if a {@code trusted-types} directive is present and contains {@code *}
+     * @see #allowsAnyTrustedTypesPolicyName()
+     * @see TrustedTypesDirective#star()
      */
     public boolean allowsWildcardPolicyNames() {
         return trustedTypes_ != null && trustedTypes_.allowsWildcardPolicyNames();
@@ -717,13 +729,18 @@ public final class Policy implements CspQueries {
     /**
      * Returns whether arbitrary policy names may be created: no {@code trusted-types}
      * directive, or one containing {@code *}.
+     * <p>
+     * Unlike {@link #allowsWildcardPolicyNames()}, this returns {@code true} when no
+     * {@code trusted-types} directive is present.
+     * </p>
      *
      * @return {@code true} if any policy name is allowed
+     * @see #allowsWildcardPolicyNames()
      * @since 5.7.0
      */
     @Override
     public boolean allowsAnyTrustedTypesPolicyName() {
-        return trustedTypes_ == null || trustedTypes_.allowsAnyPolicyName();
+        return trustedTypes_ == null || trustedTypes_.star();
     }
 
     /**

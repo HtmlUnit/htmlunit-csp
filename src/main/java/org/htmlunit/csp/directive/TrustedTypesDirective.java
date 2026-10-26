@@ -259,16 +259,6 @@ public class TrustedTypesDirective extends Directive {
     }
 
     /**
-     * Returns whether any policy name may be created, i.e. the wildcard is present.
-     *
-     * @return {@code true} if arbitrary policy names are permitted
-     * @since 5.7.0
-     */
-    public boolean allowsAnyPolicyName() {
-        return star();
-    }
-
-    /**
      * Sets whether the wildcard ({@code *}) is present.
      * <p>
      * Setting to {@code true} adds {@code *} to the directive values;
