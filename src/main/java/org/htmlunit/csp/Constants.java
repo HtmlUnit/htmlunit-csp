@@ -73,7 +73,8 @@ public final class Constants {
     public static final Pattern UNQUOTED_KEYWORD_PATTERN
                 = Pattern.compile("^(?:self|unsafe-inline|unsafe-eval|unsafe-redirect"
                         + "|none|strict-dynamic|unsafe-hashes|report-sample|unsafe-allow-redirects|"
-                        + "wasm-unsafe-eval)$");
+                        + "wasm-unsafe-eval|trusted-types-eval|unsafe-webtransport-hashes"
+                        + "|report-sha256|report-sha384|report-sha512)$");
 
     /**
      * Sentinel value representing a wildcard port ({@code :*}) in a host-source.

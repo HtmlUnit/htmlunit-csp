@@ -29,6 +29,11 @@ package org.htmlunit.csp;
  * For example, the fallback chain for {@link #ScriptSrcElem} is:
  * {@code script-src-elem} → {@code script-src} → {@code default-src}.
  * </p>
+ * <p>
+ * Note that {@code worker-src} falls back to {@code child-src} and then {@code script-src}, whereas
+ * {@code frame-src} falls back to {@code child-src} and then directly to {@code default-src}.
+ * {@code script-src-elem} and {@code script-src-attr} never govern workers or {@code eval}.
+ * </p>
  * @author Salvation Team
  */
 public enum FetchDirectiveKind {
@@ -90,6 +95,12 @@ public enum FetchDirectiveKind {
     // is done manually in prose rather than in this table
     // (in https://w3c.github.io/webappsec-csp/#can-compile-strings )
     // It is included here only for completeness
+    // CSP3 only defines fallback chains for effective directives (script-src-elem, worker-src, ...) and
+    // returns an empty list for everything else. Resolving the others is still useful for analysis
+    // ("what governs script-src / child-src?"), so script-src, style-src, prefetch-src, child-src and
+    // default-src are an intentional extension: child-src -> default-src, default-src alone.
+    private static final FetchDirectiveKind[] ChildSrcFallback = {ChildSrc, DefaultSrc};
+    private static final FetchDirectiveKind[] DefaultSrcFallback = {DefaultSrc};
     private static final FetchDirectiveKind[] ScriptSrcFallback = {ScriptSrc, DefaultSrc};
     private static final FetchDirectiveKind[] ScriptSrcElemFallback = {ScriptSrcElem, ScriptSrc, DefaultSrc};
     private static final FetchDirectiveKind[] ScriptSrcAttrFallback = {ScriptSrcAttr, ScriptSrc, DefaultSrc};
@@ -154,6 +165,8 @@ public enum FetchDirectiveKind {
 
     static FetchDirectiveKind[] getFetchDirectiveFallbackList(final FetchDirectiveKind directive) {
         return switch (directive) {
+            case ChildSrc -> ChildSrcFallback;
+            case DefaultSrc -> DefaultSrcFallback;
             case ScriptSrc -> ScriptSrcFallback;
             case ScriptSrcElem -> ScriptSrcElemFallback;
             case ScriptSrcAttr -> ScriptSrcAttrFallback;

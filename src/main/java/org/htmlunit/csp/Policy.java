@@ -101,6 +101,10 @@ public final class Policy implements CspQueries {
     private SandboxDirective sandbox_;
     private boolean upgradeInsecureRequests_;
 
+    // directives that impact script-like destinations, the only ones 'report-sha*' applies to
+    private static final List<String> SCRIPT_LIKE_DIRECTIVES
+            = List.of("script-src", "script-src-elem", "worker-src", "child-src", "default-src");
+
     private final EnumMap<FetchDirectiveKind, SourceExpressionDirective> fetchDirectives_
                     = new EnumMap<>(FetchDirectiveKind.class);
 
@@ -216,6 +220,7 @@ public final class Policy implements CspQueries {
                         policyErrorConsumer.add(severity, message, index[0], valueIndex);
 
         final Policy policy = new Policy(deliveredViaMeta);
+        int defaultSrcIndex = -1;
 
         // https://infra.spec.whatwg.org/#strictly-split
         for (final String token : serialized.split(";")) {
@@ -225,6 +230,9 @@ public final class Policy implements CspQueries {
                 continue;
             }
             final String directiveName = Utils.extractLeadingToken(trimmedLeadingAndTrailingWhitespace);
+            if (defaultSrcIndex < 0 && "default-src".equalsIgnoreCase(directiveName)) {
+                defaultSrcIndex = index[0];
+            }
 
             // Note: we do not lowercase directive names or
             // skip duplicates during parsing, to allow round-tripping even invalid policies
@@ -238,6 +246,7 @@ public final class Policy implements CspQueries {
             ++index[0];
         }
 
+        policy.warnAboutShadowedDefaultSrcKeywords(defaultSrcIndex, policyErrorConsumer);
         return policy;
     }
 
@@ -263,6 +272,7 @@ public final class Policy implements CspQueries {
                 // https://w3c.github.io/webappsec-csp/#directive-base-uri
                 final SourceExpressionDirective baseUriDirective
                         = new SourceExpressionDirective(values, directiveErrorConsumer);
+                warnAboutInertKeywords(lowercaseDirectiveName, baseUriDirective, directiveErrorConsumer);
                 if (baseUri_ == null) {
                     baseUri_ = baseUriDirective;
                 }
@@ -291,6 +301,7 @@ public final class Policy implements CspQueries {
                 // https://w3c.github.io/webappsec-csp/#directive-form-action
                 final SourceExpressionDirective formActionDirective
                         = new SourceExpressionDirective(values, directiveErrorConsumer);
+                warnAboutInertKeywords(lowercaseDirectiveName, formActionDirective, directiveErrorConsumer);
                 if (formAction_ == null) {
                     formAction_ = formActionDirective;
                 }
@@ -325,6 +336,7 @@ public final class Policy implements CspQueries {
                 // There is no logic here
                 final SourceExpressionDirective navigateToDirective
                         = new SourceExpressionDirective(values, directiveErrorConsumer);
+                warnAboutInertKeywords(lowercaseDirectiveName, navigateToDirective, directiveErrorConsumer);
                 if (navigateTo_ == null) {
                     navigateTo_ = navigateToDirective;
                 }
@@ -477,6 +489,7 @@ public final class Policy implements CspQueries {
                     }
                     final SourceExpressionDirective thisDirective
                                 = new SourceExpressionDirective(values, directiveErrorConsumer);
+                    warnAboutInertKeywords(lowercaseDirectiveName, thisDirective, directiveErrorConsumer);
                     if (fetchDirectives_.containsKey(fetchDirectiveKind)) {
                         wasDupe = true;
                     }
@@ -522,6 +535,71 @@ public final class Policy implements CspQueries {
             }
         }
         return out.toString();
+    }
+
+    /**
+     * Warns about keywords that parse fine but have no effect in the directive they were put in:
+     * the eval keywords are only consulted for {@code script-src} (else {@code default-src}),
+     * {@code 'unsafe-webtransport-hashes'} only for {@code connect-src} (else {@code default-src}) and the
+     * {@code 'report-sha*'} keywords only for directives that impact script-like destinations.
+     */
+    private static void warnAboutInertKeywords(final String directiveName,
+            final SourceExpressionDirective directive, final Directive.DirectiveErrorConsumer errors) {
+        final boolean scriptSrcOrDefault = "script-src".equals(directiveName) || "default-src".equals(directiveName);
+        if (!scriptSrcOrDefault) {
+            final String reason = "it is only used from script-src and default-src";
+            warnIfInert(errors, directive.unsafeEval(), "'unsafe-eval'", directiveName, reason);
+            warnIfInert(errors, directive.unsafeWasm(), "'wasm-unsafe-eval'", directiveName, reason);
+            warnIfInert(errors, directive.trustedTypesEval(), "'trusted-types-eval'", directiveName, reason);
+        }
+        if (!"connect-src".equals(directiveName) && !"default-src".equals(directiveName)) {
+            warnIfInert(errors, directive.unsafeWebTransportHashes(), "'unsafe-webtransport-hashes'",
+                    directiveName, "it is only used from connect-src and default-src");
+        }
+        if (!SCRIPT_LIKE_DIRECTIVES.contains(directiveName)) {
+            for (final String algorithm : directive.getReportHashAlgorithms()) {
+                warnIfInert(errors, true, "'report-" + algorithm + "'", directiveName,
+                        "it only applies to directives that impact script-like destinations ("
+                                + String.join(", ", SCRIPT_LIKE_DIRECTIVES) + ")");
+            }
+        }
+    }
+
+    private static void warnIfInert(final Directive.DirectiveErrorConsumer errors, final boolean present,
+            final String keyword, final String directiveName, final String reason) {
+        if (present) {
+            errors.add(Severity.Warning, keyword + " has no effect in " + directiveName + ", " + reason, -1);
+        }
+    }
+
+    /**
+     * Warns about keywords in {@code default-src} that are shadowed because a more specific directive
+     * ({@code script-src} for eval, {@code connect-src} for WebTransport) is present and governs instead.
+     */
+    private void warnAboutShadowedDefaultSrcKeywords(final int defaultSrcIndex,
+            final PolicyErrorConsumer errors) {
+        final SourceExpressionDirective defaultSrc = fetchDirectives_.get(FetchDirectiveKind.DefaultSrc);
+        if (defaultSrc == null) {
+            return;
+        }
+        if (fetchDirectives_.containsKey(FetchDirectiveKind.ScriptSrc)) {
+            warnIfShadowed(errors, defaultSrcIndex, defaultSrc.unsafeEval(), "'unsafe-eval'", "script-src");
+            warnIfShadowed(errors, defaultSrcIndex, defaultSrc.unsafeWasm(), "'wasm-unsafe-eval'", "script-src");
+            warnIfShadowed(errors, defaultSrcIndex, defaultSrc.trustedTypesEval(),
+                    "'trusted-types-eval'", "script-src");
+        }
+        if (fetchDirectives_.containsKey(FetchDirectiveKind.ConnectSrc)) {
+            warnIfShadowed(errors, defaultSrcIndex, defaultSrc.unsafeWebTransportHashes(),
+                    "'unsafe-webtransport-hashes'", "connect-src");
+        }
+    }
+
+    private static void warnIfShadowed(final PolicyErrorConsumer errors, final int directiveIndex,
+            final boolean present, final String keyword, final String governingDirective) {
+        if (present) {
+            errors.add(Severity.Warning, keyword + " has no effect in default-src, "
+                    + governingDirective + " is present and governs instead", directiveIndex, -1);
+        }
     }
 
     // Accessors
@@ -929,15 +1007,102 @@ public final class Policy implements CspQueries {
      * @return {@code true} if this policy allows eval
      * @see <a href="https://w3c.github.io/webappsec-csp/#can-compile-strings">
      *      can compile strings check</a>
+     * @see #allowsTrustedTypesEval()
+     * @see #allowsWasmEval()
      */
     public boolean allowsEval() {
-        // This is done in prose, not in a table
-        final FetchDirectiveKind governingDirective =
-                fetchDirectives_
-                    .containsKey(FetchDirectiveKind.ScriptSrc)
-                        ? FetchDirectiveKind.ScriptSrc : FetchDirectiveKind.DefaultSrc;
-        final SourceExpressionDirective sourceList = fetchDirectives_.get(governingDirective);
+        final SourceExpressionDirective sourceList = evalSourceList();
         return sourceList == null || sourceList.unsafeEval();
+    }
+
+    /**
+     * Source list gating JavaScript execution sinks and WebAssembly compilation:
+     * {@code script-src}, else {@code default-src}. {@code script-src-elem} and
+     * {@code script-src-attr} are deliberately not consulted.
+     */
+    private SourceExpressionDirective evalSourceList() {
+        return getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ScriptSrc).orElse(null);
+    }
+
+    /**
+     * Determines whether this policy allows compiling WebAssembly
+     * ({@code WebAssembly.compile()}, {@code new WebAssembly.Module()}, ...).
+     * <p>
+     * Allowed if there is no governing {@code script-src} / {@code default-src}, or it contains
+     * {@code 'wasm-unsafe-eval'} or {@code 'unsafe-eval'}. Unlike {@link #allowsEval()},
+     * {@code 'wasm-unsafe-eval'} alone does <em>not</em> allow {@code eval()}.
+     * </p>
+     *
+     * @return {@code true} if this policy allows WebAssembly compilation
+     * @see <a href="https://www.w3.org/TR/CSP3/#wasm-integration">
+     *      EnsureCSPDoesNotBlockWasmByteCompilation</a>
+     * @since 5.7.0
+     */
+    @Override
+    public boolean allowsWasmEval() {
+        final SourceExpressionDirective sourceList = evalSourceList();
+        return sourceList == null || sourceList.unsafeEval() || sourceList.unsafeWasm();
+    }
+
+    /**
+     * Determines whether this policy allows {@code eval()} and similar sinks to run a
+     * {@code TrustedScript}.
+     * <p>
+     * Allowed if {@link #allowsEval()} is, or if the governing source list contains
+     * {@code 'trusted-types-eval'} and Trusted Types are enforced for scripts by this policy
+     * ({@link #enforcesTrustedTypesForScript()}). For a {@link PolicyList} the enforcement is
+     * evaluated over the whole list, see {@link PolicyList#allowsTrustedTypesEval()}.
+     * </p>
+     *
+     * @return {@code true} if a {@code TrustedScript} may be evaluated
+     * @see <a href="https://www.w3.org/TR/CSP3/#can-compile-strings">
+     *      EnsureCSPDoesNotBlockStringCompilation</a>
+     * @since 5.7.0
+     */
+    @Override
+    public boolean allowsTrustedTypesEval() {
+        return allowsTrustedTypesEval(enforcesTrustedTypesForScript());
+    }
+
+    /**
+     * Same as {@link #allowsTrustedTypesEval()}, but with the "Trusted Types required for scripts"
+     * condition supplied by the caller instead of taken from this policy.
+     * <p>
+     * CSP3 only counts <em>enforced</em> policies towards that condition, even when checking a
+     * Report-Only policy. For a Report-Only policy pass
+     * {@code enforcedPolicies.enforcesTrustedTypesForScript()}.
+     * </p>
+     *
+     * @param trustedTypesRequired whether an enforced policy has {@code require-trusted-types-for 'script'}
+     * @return {@code true} if a {@code TrustedScript} may be evaluated
+     * @since 5.7.0
+     */
+    public boolean allowsTrustedTypesEval(final boolean trustedTypesRequired) {
+        final SourceExpressionDirective sourceList = evalSourceList();
+        return sourceList == null || sourceList.unsafeEval()
+                || (trustedTypesRequired && sourceList.trustedTypesEval());
+    }
+
+    /**
+     * Determines whether this policy allows a WebTransport connection that authenticates the
+     * server with {@code serverCertificateHashes}.
+     * <p>
+     * Governed by {@code connect-src} (falling back to {@code default-src}): allowed if neither is
+     * present, otherwise only if the governing source list contains
+     * {@code 'unsafe-webtransport-hashes'}. Host sources are not consulted for such connections.
+     * Ordinary WebTransport connections are covered by {@link #allowsConnection}.
+     * </p>
+     *
+     * @return {@code true} if this policy allows WebTransport with certificate hashes
+     * @see <a href="https://www.w3.org/TR/CSP3/#connect-src-pre-request">
+     *      connect-src pre-request check</a>
+     * @since 5.7.0
+     */
+    @Override
+    public boolean allowsWebTransportWithCertificateHashes() {
+        final SourceExpressionDirective sourceList
+                = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ConnectSrc).orElse(null);
+        return sourceList == null || sourceList.unsafeWebTransportHashes();
     }
 
     /**

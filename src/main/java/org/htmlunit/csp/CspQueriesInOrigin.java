@@ -28,7 +28,8 @@ import org.htmlunit.csp.url.URLWithScheme;
  * accessor for the underlying {@link Policy} / {@link PolicyList} is needed.
  * </p>
  * <p>
- * Origin-independent queries (Trusted Types) are not wrapped; use {@link #getQueries()}.
+ * The Trusted Types policy-name queries do not depend on the origin and are not wrapped;
+ * use {@link #getQueries()}.
  * </p>
  *
  * @see CspQueries
@@ -212,6 +213,39 @@ public class CspQueriesInOrigin {
      */
     public boolean allowsEval() {
         return queries_.allowsEval();
+    }
+
+    /**
+     * Returns whether WebAssembly compilation is allowed.
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see CspQueries#allowsWasmEval
+     * @since 5.7.0
+     */
+    public boolean allowsWasmEval() {
+        return queries_.allowsWasmEval();
+    }
+
+    /**
+     * Returns whether eval of a {@code TrustedScript} is allowed.
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see CspQueries#allowsTrustedTypesEval
+     * @since 5.7.0
+     */
+    public boolean allowsTrustedTypesEval() {
+        return queries_.allowsTrustedTypesEval();
+    }
+
+    /**
+     * Returns whether a WebTransport connection using {@code serverCertificateHashes} is allowed.
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see CspQueries#allowsWebTransportWithCertificateHashes
+     * @since 5.7.0
+     */
+    public boolean allowsWebTransportWithCertificateHashes() {
+        return queries_.allowsWebTransportWithCertificateHashes();
     }
 
     /**
