@@ -122,7 +122,8 @@ public class TrustedTypesDirective extends Directive {
         // Empty directive validation - if no values were provided, warn
         if (values.isEmpty()) {
             errors.add(Policy.Severity.Warning,
-                    "Empty trusted-types directive allows all policy names (use '*' or 'none' to be explicit)", -1);
+                    "Empty trusted-types directive blocks all policy names, like 'none'"
+                            + " (use 'none' to be explicit)", -1);
         }
 
         // 'none' must not be combined with other values
@@ -135,12 +136,6 @@ public class TrustedTypesDirective extends Directive {
         if (star_ && !policyNames_.isEmpty()) {
             errors.add(Policy.Severity.Warning,
                     "Wildcard (*) permits any policy name, making specific policy names redundant", -1);
-        }
-
-        // 'allow-duplicates' is redundant with wildcard (wildcard already allows everything)
-        if (star_ && allowDuplicates_) {
-            errors.add(Policy.Severity.Warning,
-                    "'allow-duplicates' is redundant when wildcard (*) is present", -1);
         }
 
         // 'allow-duplicates' without policy names or wildcard has no effect
@@ -239,6 +234,38 @@ public class TrustedTypesDirective extends Directive {
      */
     public boolean allowsWildcardPolicyNames() {
         return star_;
+    }
+
+    /**
+     * Returns whether a Trusted Types policy with the given name may be created.
+     * <p>
+     * Follows the "should Trusted Types policy creation be blocked by CSP" algorithm:
+     * a name is allowed if the directive contains the wildcard or lists the name
+     * (case-sensitive). Consequently an <em>empty</em> directive and a lone {@code 'none'}
+     * allow no policy name, matching browsers (the parser still warns, see constructor).
+     * {@code 'none'} is only special as the single item; in an invalid combination such as
+     * {@code 'none' foo} it is ignored and {@code foo} stays allowed, as the spec does.
+     * Duplicate creation is a separate check, see {@link #allowDuplicates()}.
+     * </p>
+     *
+     * @param policyName the name passed to {@code trustedTypes.createPolicy}
+     * @return {@code true} if the directive permits creating a policy with this name
+     * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#should-block-create-policy">
+     *      should block create policy</a>
+     * @since 5.7.0
+     */
+    public boolean allowsPolicyName(final String policyName) {
+        return star_ || policyNames_.contains(policyName);
+    }
+
+    /**
+     * Returns whether any policy name may be created, i.e. the wildcard is present.
+     *
+     * @return {@code true} if arbitrary policy names are permitted
+     * @since 5.7.0
+     */
+    public boolean allowsAnyPolicyName() {
+        return star();
     }
 
     /**

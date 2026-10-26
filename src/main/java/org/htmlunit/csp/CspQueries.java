@@ -280,4 +280,47 @@ public interface CspQueries {
      * @see Policy#allowsPlugin
      */
     boolean allowsPlugin(Optional<? extends MediaType> mediaType);
+
+    /**
+     * Returns whether Trusted Types are enforced for script sinks
+     * ({@code require-trusted-types-for 'script'}).
+     * <p>
+     * For a {@link PolicyList}, {@code true} if <em>any</em> member policy enforces them
+     * (unlike the other methods, which require every policy to allow).
+     * </p>
+     *
+     * @return {@code true} if enforced
+     * @see Policy#enforcesTrustedTypesForScript
+     * @since 5.7.0
+     */
+    boolean enforcesTrustedTypesForScript();
+
+    /**
+     * Returns whether a Trusted Types policy with the given name may be created.
+     *
+     * @param policyName the policy name
+     * @return {@code true} if allowed under this query target's rules
+     * @throws NullPointerException if {@code policyName} is {@code null}
+     * @see Policy#allowsTrustedTypesPolicyName
+     * @since 5.7.0
+     */
+    boolean allowsTrustedTypesPolicyName(String policyName);
+
+    /**
+     * Returns whether arbitrary Trusted Types policy names may be created.
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsAnyTrustedTypesPolicyName
+     * @since 5.7.0
+     */
+    boolean allowsAnyTrustedTypesPolicyName();
+
+    /**
+     * Returns whether a Trusted Types policy name may be created more than once.
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsDuplicateTrustedTypesPolicies
+     * @since 5.7.0
+     */
+    boolean allowsDuplicateTrustedTypesPolicies();
 }

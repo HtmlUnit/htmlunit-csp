@@ -14,6 +14,9 @@
  */
 package org.htmlunit.csp;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Optional;
 
 import org.htmlunit.csp.url.URI;
@@ -58,5 +61,19 @@ public class ReadmeTest extends TestBase {
 
         // Assumes the policy has a `script-src` directive (or else the `get` would throw),
         // and checks if it contains the `'strict-dynamic'` source expression
-        System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().strictDynamic());    }
+        System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().strictDynamic());
+    }
+
+    @Test
+    public void trustedTypes() {
+        Policy policy = Policy.parseSerializedCSP(
+                "require-trusted-types-for 'script'; trusted-types foo 'allow-duplicates'",
+                Policy.PolicyErrorConsumer.ignored);
+
+        assertTrue(policy.enforcesTrustedTypesForScript());
+        assertTrue(policy.allowsTrustedTypesPolicyName("foo"));
+        assertFalse(policy.allowsTrustedTypesPolicyName("bar"));
+        assertFalse(policy.allowsAnyTrustedTypesPolicyName());
+        assertTrue(policy.allowsDuplicateTrustedTypesPolicies());
+    }
 }

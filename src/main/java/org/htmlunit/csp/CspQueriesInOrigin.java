@@ -27,6 +27,9 @@ import org.htmlunit.csp.url.URLWithScheme;
  * Use {@link PolicyInOrigin} or {@link PolicyListInOrigin} when a typed
  * accessor for the underlying {@link Policy} / {@link PolicyList} is needed.
  * </p>
+ * <p>
+ * Origin-independent queries (Trusted Types) are not wrapped; use {@link #getQueries()}.
+ * </p>
  *
  * @see CspQueries
  * @see PolicyInOrigin
