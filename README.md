@@ -171,7 +171,22 @@ policy.allowsAnyTrustedTypesPolicyName();        // false (only true without the
 policy.allowsDuplicateTrustedTypesPolicies();    // true
 ```
 
-Semantics follow the [Trusted Types spec](https://w3c.github.io/trusted-types/dist/spec/#should-block-create-policy): a missing `trusted-types` directive allows everything; an empty directive or `'none'` allows no policy name; `*` allows any name but does not imply `'allow-duplicates'`. For a `PolicyList` the `allows*` methods require every policy to allow, while `enforcesTrustedTypesForScript()` is true if any policy enforces.
+Semantics follow the [Trusted Types spec](https://w3c.github.io/trusted-types/dist/spec/#should-block-create-policy):
+
+- A missing `trusted-types` directive allows every policy name and duplicates.
+- An empty directive or a lone `'none'` allows no policy name. `'none'` combined with other values is ignored.
+- `*` allows any name but does not imply `'allow-duplicates'`.
+- Policy names are matched case-sensitively.
+
+For a `PolicyList`, the `allows*` methods require every policy to allow, while `enforcesTrustedTypesForScript()` is true if any policy enforces.
+
+`allowsAnyTrustedTypesPolicyName()` answers whether any name may be created. It differs from `Policy.allowsWildcardPolicyNames()`, which only reports whether the directive contains `*` and returns `false` when there is no directive.
+
+`allowsDuplicateTrustedTypesPolicies()` only says whether the policy permits creating a name more than once. Tracking which names have already been created is up to the caller.
+
+Browsers only block policy creation for enforced policies, so query a list built from `Content-Security-Policy` headers; Report-Only policies belong in a separate `PolicyList` (see [Multiple Policies](#multiple-policies)).
+
+These queries do not depend on the document's origin, so `PolicyInOrigin` and `PolicyListInOrigin` do not wrap them; call them on `getQueries()`.
 
 <a name="legacy-support-jdk-8"></a>
 ### Legacy Support (JDK 8)
