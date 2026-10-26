@@ -157,6 +157,22 @@ Policy policy = Policy.parseSerializedCSP("script-src 'strict-dynamic'", Policy.
 System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().strictDynamic());
 ```
 
+#### Trusted Types
+
+`Policy` and `PolicyList` (via `CspQueries`) answer Trusted Types questions without inspecting directives:
+
+```java
+Policy policy = Policy.parseSerializedCSP("require-trusted-types-for 'script'; trusted-types foo 'allow-duplicates'", Policy.PolicyErrorConsumer.ignored);
+
+policy.enforcesTrustedTypesForScript();          // true: sinks require Trusted Types
+policy.allowsTrustedTypesPolicyName("foo");      // true
+policy.allowsTrustedTypesPolicyName("bar");      // false
+policy.allowsAnyTrustedTypesPolicyName();        // false (only true without the directive, or with `*`)
+policy.allowsDuplicateTrustedTypesPolicies();    // true
+```
+
+Semantics follow the [Trusted Types spec](https://w3c.github.io/trusted-types/dist/spec/#should-block-create-policy): a missing `trusted-types` directive allows everything; an empty directive or `'none'` allows no policy name; `*` allows any name but does not imply `'allow-duplicates'`. For a `PolicyList` the `allows*` methods require every policy to allow, while `enforcesTrustedTypesForScript()` is true if any policy enforces.
+
 <a name="legacy-support-jdk-8"></a>
 ### Legacy Support (JDK 8)
 

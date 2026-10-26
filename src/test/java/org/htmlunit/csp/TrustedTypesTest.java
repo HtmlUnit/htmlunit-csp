@@ -16,9 +16,11 @@ package org.htmlunit.csp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.htmlunit.csp.directive.RequireTrustedTypesForDirective;
 import org.htmlunit.csp.directive.TrustedTypesDirective;
@@ -80,11 +82,10 @@ public class TrustedTypesTest extends TestBase {
         assertTrue(tt.allowsWildcardPolicyNames());
         assertTrue(p.allowsWildcardPolicyNames());
         assertTrue(tt.allowDuplicates());
-        assertEquals(2, observedErrors.size());
+        // 'allow-duplicates' is not redundant with '*': the wildcard does not allow duplicates
+        assertEquals(1, observedErrors.size());
         assertEquals(Policy.Severity.Warning, observedErrors.get(0).severity_());
         assertTrue(observedErrors.get(0).message_().contains("Wildcard policy names"));
-        assertEquals(Policy.Severity.Warning, observedErrors.get(1).severity_());
-        assertTrue(observedErrors.get(1).message_().contains("redundant when wildcard"));
 
         // None keyword
         p = Policy.parseSerializedCSP("trusted-types 'none'", ThrowIfPolicyError);
@@ -125,8 +126,7 @@ public class TrustedTypesTest extends TestBase {
         roundTrips("trusted-types 'none'");
         roundTrips("trusted-types myPolicy 'allow-duplicates'");
         roundTrips("trusted-types * 'allow-duplicates'",
-                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
-                e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1));
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0));
     }
 
     @Test
@@ -262,7 +262,7 @@ public class TrustedTypesTest extends TestBase {
     public void testTrustedTypesErrorsEmptyDirective() {
         roundTrips(
                 "trusted-types",
-                e(Policy.Severity.Warning, "Empty trusted-types directive allows all policy names (use '*' or 'none' to be explicit)", 0, -1)
+                e(Policy.Severity.Warning, "Empty trusted-types directive blocks all policy names, like 'none' (use 'none' to be explicit)", 0, -1)
         );
     }
 
@@ -277,22 +277,20 @@ public class TrustedTypesTest extends TestBase {
 
     @Test
     public void testTrustedTypesErrorsWildcardWithAllowDuplicates() {
-        // Wildcard with allow-duplicates (redundant)
+        // Wildcard with allow-duplicates: not redundant, '*' alone does not allow duplicates
         roundTrips(
                 "trusted-types * 'allow-duplicates'",
-                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0),
-                e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1)
+                e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 0)
         );
     }
 
     @Test
     public void testTrustedTypesErrorsPolicyNameWithWildcardAndAllowDuplicates() {
-        // Policy names with wildcard and allow-duplicates (multiple redundancies)
+        // Policy names with wildcard and allow-duplicates (names redundant, allow-duplicates not)
         roundTrips(
                 "trusted-types myPolicy * 'allow-duplicates'",
                 e(Policy.Severity.Warning, "Wildcard policy names (*) permit any policy name, which may reduce security", 0, 1),
-                e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1),
-                e(Policy.Severity.Warning, "'allow-duplicates' is redundant when wildcard (*) is present", 0, -1)
+                e(Policy.Severity.Warning, "Wildcard (*) permits any policy name, making specific policy names redundant", 0, -1)
         );
     }
 
@@ -464,6 +462,118 @@ public class TrustedTypesTest extends TestBase {
         p = Policy.parseSerializedCSP("default-src 'self'", ThrowIfPolicyError);
         assertFalse(p.trustedTypes().isPresent());
         assertFalse(p.allowsWildcardPolicyNames());
+    }
+
+    // Query helpers
+    // https://w3c.github.io/trusted-types/dist/spec/#should-block-create-policy
+
+    private static Policy policy(String csp) {
+        return Policy.parseSerializedCSP(csp, Policy.PolicyErrorConsumer.ignored);
+    }
+
+    private static PolicyList list(String... csps) {
+        return PolicyList.ofSerialized(List.of(csps), Policy.PolicyListErrorConsumer.ignored);
+    }
+
+    @Test
+    public void testEnforcesTrustedTypesForScript() {
+        assertTrue(policy("require-trusted-types-for 'script'").enforcesTrustedTypesForScript());
+        assertTrue(policy("require-trusted-types-for 'SCRIPT'").enforcesTrustedTypesForScript());
+        // unknown keyword only -> not enforced
+        assertFalse(policy("require-trusted-types-for 'style'").enforcesTrustedTypesForScript());
+        // trusted-types alone does not enforce sinks
+        assertFalse(policy("trusted-types foo").enforcesTrustedTypesForScript());
+        assertFalse(policy("default-src 'self'").enforcesTrustedTypesForScript());
+    }
+
+    @Test
+    public void testAllowsPolicyNameWithoutDirective() {
+        final Policy p = policy("default-src 'self'");
+        assertTrue(p.allowsTrustedTypesPolicyName("anything"));
+        assertTrue(p.allowsAnyTrustedTypesPolicyName());
+        assertTrue(p.allowsDuplicateTrustedTypesPolicies());
+    }
+
+    @Test
+    public void testAllowsPolicyNameNamed() {
+        final Policy p = policy("trusted-types foo bar");
+        assertTrue(p.allowsTrustedTypesPolicyName("foo"));
+        assertTrue(p.allowsTrustedTypesPolicyName("bar"));
+        assertFalse(p.allowsTrustedTypesPolicyName("baz"));
+        // names are case-sensitive
+        assertFalse(p.allowsTrustedTypesPolicyName("FOO"));
+        assertFalse(p.allowsAnyTrustedTypesPolicyName());
+        assertFalse(p.allowsDuplicateTrustedTypesPolicies());
+    }
+
+    @Test
+    public void testAllowsPolicyNameWildcard() {
+        final Policy p = policy("trusted-types *");
+        assertTrue(p.allowsTrustedTypesPolicyName("anything"));
+        assertTrue(p.allowsAnyTrustedTypesPolicyName());
+        // '*' does not imply 'allow-duplicates'
+        assertFalse(p.allowsDuplicateTrustedTypesPolicies());
+        assertTrue(policy("trusted-types * 'allow-duplicates'").allowsDuplicateTrustedTypesPolicies());
+    }
+
+    @Test
+    public void testAllowsPolicyNameNoneAndEmpty() {
+        // 'none' and the empty directive both block every policy name (spec: no '*' and no match)
+        for (final String csp : new String[] {"trusted-types 'none'", "trusted-types"}) {
+            final Policy p = policy(csp);
+            assertFalse(p.allowsTrustedTypesPolicyName("foo"), csp);
+            assertFalse(p.allowsAnyTrustedTypesPolicyName(), csp);
+            assertFalse(p.allowsDuplicateTrustedTypesPolicies(), csp);
+        }
+    }
+
+    @Test
+    public void testNoneCombinedWithOtherValues() {
+        // invalid, but per spec 'none' is only special as the single item
+        final Policy p = policy("trusted-types 'none' foo");
+        assertTrue(p.allowsTrustedTypesPolicyName("foo"));
+        assertFalse(p.allowsTrustedTypesPolicyName("bar"));
+        assertTrue(policy("trusted-types 'none' *").allowsAnyTrustedTypesPolicyName());
+        assertTrue(policy("trusted-types 'none' 'allow-duplicates'").allowsDuplicateTrustedTypesPolicies());
+    }
+
+    @Test
+    public void testDuplicateTrustedTypesDirectiveFirstWins() {
+        // CSP3: a repeated directive in one policy is ignored
+        final Policy p = policy("trusted-types foo; trusted-types bar");
+        assertTrue(p.allowsTrustedTypesPolicyName("foo"));
+        assertFalse(p.allowsTrustedTypesPolicyName("bar"));
+    }
+
+    @Test
+    public void testNullPolicyName() {
+        assertThrows(NullPointerException.class, () -> policy("trusted-types foo").allowsTrustedTypesPolicyName(null));
+        assertThrows(NullPointerException.class, () -> policy("default-src 'self'").allowsTrustedTypesPolicyName(null));
+        assertThrows(NullPointerException.class, () -> new PolicyList(List.of()).allowsTrustedTypesPolicyName(null));
+    }
+
+    @Test
+    public void testPolicyListTrustedTypes() {
+        // every policy must allow the name; any policy may enforce sinks
+        PolicyList l = list("trusted-types foo bar", "trusted-types bar baz");
+        assertFalse(l.allowsTrustedTypesPolicyName("foo"));
+        assertTrue(l.allowsTrustedTypesPolicyName("bar"));
+        assertFalse(l.allowsAnyTrustedTypesPolicyName());
+
+        l = list("trusted-types *", "default-src 'self'");
+        assertTrue(l.allowsAnyTrustedTypesPolicyName());
+
+        l = list("trusted-types *", "trusted-types foo");
+        assertFalse(l.allowsAnyTrustedTypesPolicyName());
+
+        l = list("default-src 'self'", "require-trusted-types-for 'script'");
+        assertTrue(l.enforcesTrustedTypesForScript());
+        assertFalse(list("default-src 'self'").enforcesTrustedTypesForScript());
+
+        // empty list is unrestricted and enforces nothing
+        l = new PolicyList(List.of());
+        assertTrue(l.allowsTrustedTypesPolicyName("x"));
+        assertFalse(l.enforcesTrustedTypesForScript());
     }
 
     // Helper methods

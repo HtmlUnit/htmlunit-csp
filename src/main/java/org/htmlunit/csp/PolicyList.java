@@ -280,4 +280,25 @@ public class PolicyList implements CspQueries {
     public boolean allowsPlugin(final Optional<? extends MediaType> mediaType) {
         return allAllow(p -> p.allowsPlugin(mediaType));
     }
+
+    @Override
+    public boolean enforcesTrustedTypesForScript() {
+        return policies_.stream().anyMatch(Policy::enforcesTrustedTypesForScript);
+    }
+
+    @Override
+    public boolean allowsTrustedTypesPolicyName(final String policyName) {
+        Objects.requireNonNull(policyName, "policyName");
+        return allAllow(p -> p.allowsTrustedTypesPolicyName(policyName));
+    }
+
+    @Override
+    public boolean allowsAnyTrustedTypesPolicyName() {
+        return allAllow(Policy::allowsAnyTrustedTypesPolicyName);
+    }
+
+    @Override
+    public boolean allowsDuplicateTrustedTypesPolicies() {
+        return allAllow(Policy::allowsDuplicateTrustedTypesPolicies);
+    }
 }

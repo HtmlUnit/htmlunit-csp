@@ -685,6 +685,60 @@ public final class Policy implements CspQueries {
     }
 
     /**
+     * Returns whether Trusted Types are enforced for script sinks, i.e. the policy has
+     * {@code require-trusted-types-for 'script'}.
+     *
+     * @return {@code true} if enforced
+     * @see <a href="https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive">
+     *      require-trusted-types-for directive</a>
+     * @since 5.7.0
+     */
+    @Override
+    public boolean enforcesTrustedTypesForScript() {
+        return requireTrustedTypesFor_ != null && requireTrustedTypesFor_.script();
+    }
+
+    /**
+     * Returns whether a Trusted Types policy with the given name may be created.
+     * Without a {@code trusted-types} directive every name is allowed; with one, see
+     * {@link TrustedTypesDirective#allowsPolicyName(String)} (an empty directive allows none).
+     *
+     * @param policyName the name passed to {@code trustedTypes.createPolicy}
+     * @return {@code true} if creation is not blocked by this policy
+     * @throws NullPointerException if {@code policyName} is {@code null}
+     * @since 5.7.0
+     */
+    @Override
+    public boolean allowsTrustedTypesPolicyName(final String policyName) {
+        Objects.requireNonNull(policyName, "policyName");
+        return trustedTypes_ == null || trustedTypes_.allowsPolicyName(policyName);
+    }
+
+    /**
+     * Returns whether arbitrary policy names may be created: no {@code trusted-types}
+     * directive, or one containing {@code *}.
+     *
+     * @return {@code true} if any policy name is allowed
+     * @since 5.7.0
+     */
+    @Override
+    public boolean allowsAnyTrustedTypesPolicyName() {
+        return trustedTypes_ == null || trustedTypes_.allowsAnyPolicyName();
+    }
+
+    /**
+     * Returns whether a policy name may be created more than once: no {@code trusted-types}
+     * directive, or one containing {@code 'allow-duplicates'}.
+     *
+     * @return {@code true} if duplicate policy names are allowed
+     * @since 5.7.0
+     */
+    @Override
+    public boolean allowsDuplicateTrustedTypesPolicies() {
+        return trustedTypes_ == null || trustedTypes_.allowDuplicates();
+    }
+
+    /**
      * Returns the parsed {@code require-trusted-types-for} directive, if present.
      *
      * @return an {@link Optional} containing the {@link RequireTrustedTypesForDirective},
