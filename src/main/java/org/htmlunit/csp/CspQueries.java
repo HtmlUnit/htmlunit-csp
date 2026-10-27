@@ -323,4 +323,35 @@ public interface CspQueries {
      * @since 5.7.0
      */
     boolean allowsDuplicateTrustedTypesPolicies();
+
+    /**
+     * Returns whether WebAssembly compilation is allowed
+     * ({@code 'wasm-unsafe-eval'} or {@code 'unsafe-eval'}).
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsWasmEval
+     * @since 5.7.0
+     */
+    boolean allowsWasmEval();
+
+    /**
+     * Returns whether {@code eval()} and similar sinks may run a {@code TrustedScript}
+     * ({@code 'unsafe-eval'}, or {@code 'trusted-types-eval'} with Trusted Types enforced).
+     * {@link #allowsEval()} stays the check for plain strings.
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsTrustedTypesEval
+     * @since 5.7.0
+     */
+    boolean allowsTrustedTypesEval();
+
+    /**
+     * Returns whether a WebTransport connection using {@code serverCertificateHashes} is allowed
+     * ({@code 'unsafe-webtransport-hashes'} in the governing {@code connect-src}).
+     *
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsWebTransportWithCertificateHashes
+     * @since 5.7.0
+     */
+    boolean allowsWebTransportWithCertificateHashes();
 }

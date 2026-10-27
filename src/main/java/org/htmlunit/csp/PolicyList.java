@@ -301,4 +301,44 @@ public class PolicyList implements CspQueries {
     public boolean allowsDuplicateTrustedTypesPolicies() {
         return allAllow(Policy::allowsDuplicateTrustedTypesPolicies);
     }
+
+    @Override
+    public boolean allowsWasmEval() {
+        return allAllow(Policy::allowsWasmEval);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Per CSP3 the "Trusted Types required" condition is evaluated over the whole list, not
+     * per policy: {@code script-src 'trusted-types-eval'} in one policy takes effect when
+     * <em>another</em> policy has {@code require-trusted-types-for 'script'}.
+     * </p>
+     */
+    @Override
+    public boolean allowsTrustedTypesEval() {
+        return allowsTrustedTypesEval(enforcesTrustedTypesForScript());
+    }
+
+    /**
+     * Same as {@link #allowsTrustedTypesEval()}, but with the "Trusted Types required for scripts"
+     * condition supplied by the caller instead of taken from this list.
+     * <p>
+     * CSP3 only counts <em>enforced</em> policies towards that condition, even when checking a
+     * Report-Only list. For a Report-Only list pass
+     * {@code enforcedList.enforcesTrustedTypesForScript()}.
+     * </p>
+     *
+     * @param trustedTypesRequired whether an enforced policy has {@code require-trusted-types-for 'script'}
+     * @return {@code true} if a {@code TrustedScript} may be evaluated
+     * @since 5.7.0
+     */
+    public boolean allowsTrustedTypesEval(final boolean trustedTypesRequired) {
+        return allAllow(p -> p.allowsTrustedTypesEval(trustedTypesRequired));
+    }
+
+    @Override
+    public boolean allowsWebTransportWithCertificateHashes() {
+        return allAllow(Policy::allowsWebTransportWithCertificateHashes);
+    }
 }

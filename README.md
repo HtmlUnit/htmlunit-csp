@@ -188,6 +188,32 @@ Browsers only block policy creation for enforced policies, so query a list built
 
 These queries do not depend on the document's origin, so `PolicyInOrigin` and `PolicyListInOrigin` do not wrap them; call them on `getQueries()`.
 
+#### Fallback, `-elem` / `-attr` and eval keywords
+
+`Policy.getGoverningDirectiveForEffectiveDirective(kind)` resolves the [CSP3 fallback list](https://www.w3.org/TR/CSP3/#directive-fallback-list):
+
+| effective directive | chain |
+| --- | --- |
+| `script-src-elem`, `script-src-attr` | itself, `script-src`, `default-src` |
+| `style-src-elem`, `style-src-attr` | itself, `style-src`, `default-src` |
+| `worker-src` | itself, `child-src`, `script-src`, `default-src` |
+| `frame-src` | itself, `child-src`, `default-src` (not `script-src`) |
+| other fetch directives | itself, `default-src` |
+
+CSP3 only defines chains for effective directives; the library also resolves `script-src`, `style-src`, `prefetch-src`, `child-src` (itself, `default-src`) and `default-src` for analysis. `script-src-elem` / `script-src-attr` never govern workers, `eval()` or WebAssembly: those use `script-src`, then `default-src`.
+
+| query | allowed when the governing `script-src` / `default-src` ... |
+| --- | --- |
+| `allowsEval()` | is absent or has `'unsafe-eval'` |
+| `allowsWasmEval()` | is absent or has `'wasm-unsafe-eval'` or `'unsafe-eval'` |
+| `allowsTrustedTypesEval()` | is absent, has `'unsafe-eval'`, or has `'trusted-types-eval'` while `require-trusted-types-for 'script'` is enforced |
+
+Keywords without an `allows*` query are exposed on `SourceExpressionDirective`: `trustedTypesEval()`, `unsafeWasm()`, `unsafeWebTransportHashes()` and `getReportHashAlgorithms()` (`'report-sha256'` / `384` / `512`, which only trigger `csp-hash` reports and never affect enforcement). Putting a keyword where it has no effect produces a parse warning: an eval or WebTransport keyword in a directive that never consults it (or in `default-src` when `script-src` / `connect-src` governs instead), or a `'report-sha*'` keyword in a directive that does not impact script-like destinations. If several `'report-sha*'` keywords are present, the browser reports with the strongest one.
+
+`allowsWebTransportWithCertificateHashes()` covers `'unsafe-webtransport-hashes'`: WebTransport connections using `serverCertificateHashes` are allowed only if the governing `connect-src` (else `default-src`) contains the keyword, or neither exists.
+
+`'trusted-types-eval'` only lets a `TrustedScript` through, so `allowsEval()` (plain strings) stays `false` for it. In a `PolicyList` the enforcement is evaluated over the whole list, as in CSP3, so `script-src 'trusted-types-eval'` in one policy is activated by `require-trusted-types-for 'script'` in another. As in the spec, only *enforced* policies count towards that requirement; the library has no per-policy disposition, so for a Report-Only `PolicyList` `allowsTrustedTypesEval()` can differ from a browser in either direction (it ignores an enforced `require-trusted-types-for`, and counts a Report-Only one). Pass the enforced list's answer instead: `reportOnly.allowsTrustedTypesEval(enforced.enforcesTrustedTypesForScript())`.
+
 <a name="legacy-support-jdk-8"></a>
 ### Legacy Support (JDK 8)
 

@@ -33,7 +33,9 @@ import org.htmlunit.csp.value.Nonce;
  * {@link HostSourceDirective}, a source-expression list may contain keyword
  * sources ({@code 'unsafe-inline'}, {@code 'unsafe-eval'}, {@code 'strict-dynamic'},
  * {@code 'unsafe-hashes'}, {@code 'report-sample'}, {@code 'unsafe-allow-redirects'},
- * {@code 'wasm-unsafe-eval'}), nonce-sources ({@code 'nonce-...'}) and hash-sources
+ * {@code 'wasm-unsafe-eval'}, {@code 'trusted-types-eval'},
+ * {@code 'unsafe-webtransport-hashes'}, {@code 'report-sha256'},
+ * {@code 'report-sha384'}, {@code 'report-sha512'}), nonce-sources ({@code 'nonce-...'}) and hash-sources
  * ({@code 'sha256-...'}, {@code 'sha384-...'}, {@code 'sha512-...'}).
  * </p>
  * <p>
@@ -46,6 +48,7 @@ import org.htmlunit.csp.value.Nonce;
  */
 public class SourceExpressionDirective extends HostSourceDirective {
     private static final String REPORT_SAMPLE = "'report-sample'";
+    private static final String REPORT_HASH_PREFIX = "'report-";
     private static final String UNSAFE_INLINE = "'unsafe-inline'";
     private static final String STRICT_DYNAMIC = "'strict-dynamic'";
     private static final String UNSAFE_ALLOW_REDIRECTS = "'unsafe-allow-redirects'";
@@ -58,6 +61,8 @@ public class SourceExpressionDirective extends HostSourceDirective {
      * Unsafe WebAssembly execution</a>.
      */
     private static final String WASM_UNSAFE_EVAL = "'wasm-unsafe-eval'";
+    private static final String TRUSTED_TYPES_EVAL = "'trusted-types-eval'";
+    private static final String UNSAFE_WEBTRANSPORT_HASHES = "'unsafe-webtransport-hashes'";
 
     private boolean unsafeInline_;
     private boolean unsafeEval_;
@@ -66,6 +71,9 @@ public class SourceExpressionDirective extends HostSourceDirective {
     private boolean reportSample_;
     private boolean unsafeAllowRedirects_;
     private boolean unsafeWasm_;
+    private boolean trustedTypesEval_;
+    private boolean unsafeWebTransportHashes_;
+    private final List<String> reportHashAlgorithms_ = new ArrayList<>();
 
     // In practice, these are probably small enough for Lists to be faster than LinkedHashSets
     private final List<Nonce> nonces_ = new ArrayList<>();
@@ -130,6 +138,37 @@ public class SourceExpressionDirective extends HostSourceDirective {
                     }
                     else {
                         unsafeWasm_ = true;
+                    }
+                    break;
+                case TRUSTED_TYPES_EVAL:
+                    if (trustedTypesEval_) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression " + TRUSTED_TYPES_EVAL, index);
+                    }
+                    else {
+                        trustedTypesEval_ = true;
+                    }
+                    break;
+                case "'report-sha256'":
+                case "'report-sha384'":
+                case "'report-sha512'": {
+                    // reporting only, never affects enforcement
+                    final String algorithm =
+                            lowercaseToken.substring(REPORT_HASH_PREFIX.length(), lowercaseToken.length() - 1);
+                    if (reportHashAlgorithms_.contains(algorithm)) {
+                        errors.add(Policy.Severity.Warning, "Duplicate source-expression " + lowercaseToken, index);
+                    }
+                    else {
+                        reportHashAlgorithms_.add(algorithm);
+                    }
+                    break;
+                }
+                case UNSAFE_WEBTRANSPORT_HASHES:
+                    if (unsafeWebTransportHashes_) {
+                        errors.add(Policy.Severity.Warning,
+                                "Duplicate source-expression " + UNSAFE_WEBTRANSPORT_HASHES, index);
+                    }
+                    else {
+                        unsafeWebTransportHashes_ = true;
                     }
                     break;
                 case REPORT_SAMPLE:
@@ -330,6 +369,63 @@ public class SourceExpressionDirective extends HostSourceDirective {
      */
     public boolean unsafeWasm() {
         return unsafeWasm_;
+    }
+
+    /**
+     * Returns whether the {@code 'trusted-types-eval'} keyword is present.
+     * <p>
+     * When present <em>and</em> Trusted Types are enforced for scripts
+     * ({@code require-trusted-types-for 'script'}), {@code eval()} and friends accept a
+     * {@code TrustedScript} without requiring {@code 'unsafe-eval'}. Plain strings stay blocked.
+     * See {@link org.htmlunit.csp.CspQueries#allowsTrustedTypesEval()}.
+     * </p>
+     *
+     * @return {@code true} if {@code 'trusted-types-eval'} is present
+     * @see <a href="https://www.w3.org/TR/CSP3/#grammardef-trusted-types-eval">
+     *      CSP3 'trusted-types-eval'</a>
+     * @since 5.7.0
+     */
+    public boolean trustedTypesEval() {
+        return trustedTypesEval_;
+    }
+
+    /**
+     * Returns whether the {@code 'unsafe-webtransport-hashes'} keyword is present.
+     * <p>
+     * Only meaningful for {@code connect-src}: WebTransport connections that authenticate the
+     * server with {@code serverCertificateHashes} are blocked unless the keyword is present.
+     * See {@link org.htmlunit.csp.CspQueries#allowsWebTransportWithCertificateHashes()}.
+     * </p>
+     *
+     * @return {@code true} if {@code 'unsafe-webtransport-hashes'} is present
+     * @see <a href="https://www.w3.org/TR/CSP3/#grammardef-unsafe-webtransport-hashes">
+     *      CSP3 'unsafe-webtransport-hashes'</a>
+     * @since 5.7.0
+     */
+    public boolean unsafeWebTransportHashes() {
+        return unsafeWebTransportHashes_;
+    }
+
+    /**
+     * Returns the algorithms of the {@code 'report-sha256'}, {@code 'report-sha384'} and
+     * {@code 'report-sha512'} keywords present, in order, as {@code "sha256"}, {@code "sha384"}
+     * and {@code "sha512"}.
+     * <p>
+     * These keywords only make the browser send {@code csp-hash} reports for loaded scripts;
+     * they never affect what is allowed. They only apply to directives that impact script-like
+     * destinations.
+     * </p>
+     * <p>
+     * If several are present the browser uses only one: the strongest, {@code sha512} over
+     * {@code sha384} over {@code sha256}, regardless of their order here (CSP3 "potentially report hash").
+     * </p>
+     *
+     * @return the report hash algorithms
+     * @see <a href="https://www.w3.org/TR/CSP3/#potentially-report-hash">CSP3 potentially report hash</a>
+     * @since 5.7.0
+     */
+    public List<String> getReportHashAlgorithms() {
+        return Collections.unmodifiableList(reportHashAlgorithms_);
     }
 
     /**
