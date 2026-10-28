@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.htmlunit.csp.Policy.PolicyListErrorConsumer;
 import org.htmlunit.csp.url.URLWithScheme;
@@ -88,6 +89,8 @@ public class PolicyList implements CspQueries {
      * @throws NullPointerException if {@code serializedPoliciesOrLists} or
      *         {@code policyListErrorConsumer} is {@code null}, or if any element
      *         of {@code serializedPoliciesOrLists} is {@code null}
+     * @see #ofSerialized(List, List, PolicyListErrorConsumer)
+     * @see Policy#parseSerializedCSPList(String, PolicyListErrorConsumer, boolean)
      * @since 5.4.0
      */
     public static PolicyList ofSerialized(final List<String> serializedPoliciesOrLists,
@@ -96,6 +99,30 @@ public class PolicyList implements CspQueries {
         Objects.requireNonNull(policyListErrorConsumer, "policyListErrorConsumer");
         return Policy.parseSerializedCSPList(
                 String.join(",", serializedPoliciesOrLists), policyListErrorConsumer);
+    }
+
+    /**
+     * Combines header and meta serialized CSPs (each element may be a comma-separated
+     * list) into one list, header policies first. Meta policies are parsed with
+     * {@code deliveredViaMeta = true}. Error indexes are relative to the header or meta list.
+     *
+     * @param headerValues header field values
+     * @param metaContents meta {@code content} attribute values
+     * @param policyListErrorConsumer consumer for parse errors/warnings
+     * @return the combined {@link PolicyList}
+     * @throws NullPointerException if any argument, or any list element, is {@code null}
+     */
+    public static PolicyList ofSerialized(final List<String> headerValues,
+            final List<String> metaContents,
+            final PolicyListErrorConsumer policyListErrorConsumer) {
+        Objects.requireNonNull(headerValues, "headerValues");
+        Objects.requireNonNull(metaContents, "metaContents");
+        Objects.requireNonNull(policyListErrorConsumer, "policyListErrorConsumer");
+        return new PolicyList(Stream.concat(
+                Policy.parseSerializedCSPList(String.join(",", headerValues),
+                        policyListErrorConsumer, false).getPolicies().stream(),
+                Policy.parseSerializedCSPList(String.join(",", metaContents),
+                        policyListErrorConsumer, true).getPolicies().stream()).toList());
     }
 
     /**

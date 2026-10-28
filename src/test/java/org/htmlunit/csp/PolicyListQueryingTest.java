@@ -167,6 +167,75 @@ public class PolicyListQueryingTest extends TestBase {
     }
 
     @Test
+    public void commaListEquivalentToMultipleHeaders() {
+        final PolicyList comma = PolicyList.ofSerialized(
+                List.of("img-src a.example, script-src 'none',, ,connect-src 'self'"),
+                PolicyListErrorConsumer.ignored);
+        final PolicyList multi = PolicyList.ofSerialized(
+                List.of("img-src a.example", "script-src 'none'", "connect-src 'self'"),
+                PolicyListErrorConsumer.ignored);
+
+        assertEquals(multi.toString(), comma.toString());
+        assertEquals(3, comma.getPolicies().size());
+
+        final PolicyListInOrigin bound = new PolicyListInOrigin(comma, ORIGIN);
+        assertFalse(bound.allowsScriptFromSource(uri("https://example.com/app.js")));
+        assertTrue(bound.allowsConnection(uri("https://example.com/api")));
+        assertTrue(bound.allowsImageFromSource(uri("https://a.example/i.png")));
+        assertFalse(bound.allowsImageFromSource(uri("https://b.example/i.png")));
+    }
+
+    @Test
+    public void metaCommaListKeepsIgnoredDirectivesForAnalysisOnly() {
+        final PolicyList list = Policy.parseSerializedCSPList(
+                "script-src 'self'; frame-ancestors 'none', sandbox; report-uri /r",
+                PolicyListErrorConsumer.ignored, true);
+        assertEquals(2, list.getPolicies().size());
+        assertTrue(list.getPolicies().get(0).frameAncestors().isPresent());
+        assertTrue(list.getPolicies().get(1).sandbox().isPresent());
+        assertTrue(list.getPolicies().get(1).reportUri().isPresent());
+
+        final PolicyListInOrigin bound = new PolicyListInOrigin(list, ORIGIN);
+        assertTrue(bound.allowsFrameAncestor(uri("https://evil.example/")));
+        assertTrue(bound.allowsFormAction(uri("https://example.com/submit")));
+        assertFalse(bound.allowsScriptFromSource(uri("https://cdn.example.com/x.js")));
+    }
+
+    @Test
+    public void metaSandboxScriptsBranchesIgnoredForQuery() {
+        for (final String sandbox : List.of("sandbox", "sandbox allow-scripts")) {
+            final PolicyListInOrigin meta = new PolicyListInOrigin(Policy.parseSerializedCSPList(
+                    "script-src 'self', " + sandbox, PolicyListErrorConsumer.ignored, true), ORIGIN);
+            assertTrue(meta.allowsScriptFromSource(uri("https://example.com/app.js")));
+        }
+
+        // same list as header: sandbox without allow-scripts blocks
+        final PolicyListInOrigin header = new PolicyListInOrigin(
+                Policy.parseSerializedCSPList("script-src 'self', sandbox",
+                        PolicyListErrorConsumer.ignored), ORIGIN);
+        assertFalse(header.allowsScriptFromSource(uri("https://example.com/app.js")));
+    }
+
+    @Test
+    public void ofSerializedHeaderAndMeta() {
+        final PolicyList list = PolicyList.ofSerialized(
+                List.of("script-src 'self'; frame-ancestors 'none'"),
+                List.of("img-src a.example; frame-ancestors 'none', sandbox"),
+                PolicyListErrorConsumer.ignored);
+
+        assertEquals(3, list.getPolicies().size());
+        assertFalse(list.getPolicies().get(0).deliveredViaMeta());
+        assertTrue(list.getPolicies().get(1).deliveredViaMeta());
+        assertTrue(list.getPolicies().get(2).deliveredViaMeta());
+
+        final PolicyListInOrigin bound = new PolicyListInOrigin(list, ORIGIN);
+        // only the header's frame-ancestors counts
+        assertFalse(bound.allowsFrameAncestor(uri("https://evil.example/")));
+        assertTrue(bound.allowsScriptFromSource(uri("https://example.com/app.js")));
+        assertFalse(bound.allowsImageFromSource(uri("https://b.example/i.png")));
+    }
+
+    @Test
     public void unsafeInlineRequiresAllPolicies() {
         final PolicyListInOrigin bothAllow = ofSerialized(
                 List.of("script-src 'unsafe-inline'", "default-src 'unsafe-inline'"));

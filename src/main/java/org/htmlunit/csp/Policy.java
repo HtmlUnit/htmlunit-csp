@@ -131,6 +131,26 @@ public final class Policy implements CspQueries {
      */
     public static PolicyList parseSerializedCSPList(final String serialized,
                         final PolicyListErrorConsumer policyListErrorConsumer) {
+        return parseSerializedCSPList(serialized, policyListErrorConsumer, false);
+    }
+
+    /**
+     * Like {@link #parseSerializedCSPList(String, PolicyListErrorConsumer)}, but every member
+     * policy is parsed with the given {@code deliveredViaMeta} flag (browsers split meta
+     * {@code content} on commas as well, even though the HTML spec names a single policy).
+     * Unlike {@link #parseSerializedCSP(String, PolicyErrorConsumer, boolean)}, commas are accepted.
+     *
+     * @param serialized the comma-separated serialized CSP list to parse
+     * @param policyListErrorConsumer a consumer that receives any errors or warnings
+     *        encountered during parsing
+     * @param deliveredViaMeta {@code true} if the list came from a {@code meta} element
+     * @return the parsed {@link PolicyList}
+     * @throws IllegalArgumentException if {@code serialized} contains non-ASCII characters
+     * @see #parseSerializedCSP(String, PolicyErrorConsumer, boolean)
+     */
+    public static PolicyList parseSerializedCSPList(final String serialized,
+            final PolicyListErrorConsumer policyListErrorConsumer,
+            final boolean deliveredViaMeta) {
         // "A serialized CSP list is an ASCII string"
         enforceAscii(serialized);
 
@@ -144,7 +164,7 @@ public final class Policy implements CspQueries {
 
         // https://infra.spec.whatwg.org/#split-on-commas
         for (final String token : serialized.split(",")) {
-            final Policy policy = parseSerializedCSP(token, policyErrorConsumer);
+            final Policy policy = parseSerializedCSP(token, policyErrorConsumer, deliveredViaMeta);
             if (policy.directives_.isEmpty()) {
                 ++index[0];
                 continue;
