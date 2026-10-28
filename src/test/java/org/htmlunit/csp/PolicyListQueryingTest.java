@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.htmlunit.csp.Policy.PolicyListErrorConsumer;
+import org.htmlunit.csp.directive.SourceExpressionDirective;
 import org.htmlunit.csp.url.URI;
 import org.htmlunit.csp.url.URLWithScheme;
 import org.junit.jupiter.api.Test;
@@ -164,6 +165,275 @@ public class PolicyListQueryingTest extends TestBase {
                 PolicyListErrorConsumer.ignored);
 
         assertEquals(3, list.getPolicies().size());
+    }
+
+    @Test
+    public void commaListEquivalentToMultipleHeaders() {
+        final PolicyList comma = PolicyList.ofSerialized(
+                List.of("img-src a.example, script-src 'none',, ,connect-src 'self'"),
+                PolicyListErrorConsumer.ignored);
+        final PolicyList multi = PolicyList.ofSerialized(
+                List.of("img-src a.example", "script-src 'none'", "connect-src 'self'"),
+                PolicyListErrorConsumer.ignored);
+
+        assertEquals(multi.toString(), comma.toString());
+        assertEquals(3, comma.getPolicies().size());
+
+        final PolicyListInOrigin bound = new PolicyListInOrigin(comma, ORIGIN);
+        assertFalse(bound.allowsScriptFromSource(uri("https://example.com/app.js")));
+        assertTrue(bound.allowsConnection(uri("https://example.com/api")));
+        assertTrue(bound.allowsImageFromSource(uri("https://a.example/i.png")));
+        assertFalse(bound.allowsImageFromSource(uri("https://b.example/i.png")));
+    }
+
+    @Test
+    public void metaCommaListKeepsIgnoredDirectivesForAnalysisOnly() {
+        final PolicyList list = Policy.parseSerializedCSPList(
+                "script-src 'self'; frame-ancestors 'none', sandbox; report-uri /r",
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SPLIT);
+        assertEquals(2, list.getPolicies().size());
+        assertTrue(list.getPolicies().get(0).frameAncestors().isPresent());
+        assertTrue(list.getPolicies().get(1).sandbox().isPresent());
+        assertTrue(list.getPolicies().get(1).reportUri().isPresent());
+
+        final PolicyListInOrigin bound = new PolicyListInOrigin(list, ORIGIN);
+        assertTrue(bound.allowsFrameAncestor(uri("https://evil.example/")));
+        assertTrue(bound.allowsFormAction(uri("https://example.com/submit")));
+        assertFalse(bound.allowsScriptFromSource(uri("https://cdn.example.com/x.js")));
+    }
+
+    @Test
+    public void metaSandboxScriptsBranchesIgnoredForQuery() {
+        for (final String sandbox : List.of("sandbox", "sandbox allow-scripts")) {
+            final PolicyListInOrigin meta = new PolicyListInOrigin(Policy.parseSerializedCSPList(
+                    "script-src 'self', " + sandbox, PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SPLIT), ORIGIN);
+            assertTrue(meta.allowsScriptFromSource(uri("https://example.com/app.js")));
+        }
+
+        // same list as header: sandbox without allow-scripts blocks
+        final PolicyListInOrigin header = new PolicyListInOrigin(
+                Policy.parseSerializedCSPList("script-src 'self', sandbox",
+                        PolicyListErrorConsumer.ignored), ORIGIN);
+        assertFalse(header.allowsScriptFromSource(uri("https://example.com/app.js")));
+    }
+
+    @Test
+    public void metaSingleModeKeepsCommaInOnePolicy() {
+        final List<String> messages = new java.util.ArrayList<>();
+        final PolicyList list = Policy.parseSerializedCSPList("script-src 'self', sandbox",
+                (severity, message, policyIndex, directiveIndex, valueIndex) -> messages.add(message),
+                Policy.MetaCommaHandling.SINGLE_POLICY);
+
+        assertEquals(1, list.getPolicies().size());
+        assertTrue(list.getPolicies().get(0).deliveredViaMeta());
+        assertFalse(list.getPolicies().get(0).sandbox().isPresent());
+        assertFalse(messages.isEmpty());
+    }
+
+    @Test
+    public void metaSingleModeKeepsCommaInUrlPath() {
+        final PolicyList list = Policy.parseSerializedCSPList(
+                "script-src https://a.example/x,y https://b.example/",
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SINGLE_POLICY);
+        assertEquals(1, list.getPolicies().size());
+        assertEquals(List.of("https://a.example/x,y", "https://b.example/"),
+                list.getPolicies().get(0).getFetchDirective(FetchDirectiveKind.ScriptSrc).orElseThrow().getValues());
+
+        final PolicyListInOrigin bound = new PolicyListInOrigin(list, ORIGIN);
+        assertTrue(bound.allowsScriptFromSource(uri("https://a.example/x,y")));
+        assertFalse(bound.allowsScriptFromSource(uri("https://a.example/other")));
+    }
+
+    private static List<Policy.Severity> singleModeSeverities(final String meta) {
+        final List<Policy.Severity> severities = new java.util.ArrayList<>();
+        final PolicyList list = Policy.parseSerializedCSPList(meta,
+                (severity, message, policyIndex, directiveIndex, valueIndex) -> {
+                    if (valueIndex >= 0) {
+                        severities.add(severity);
+                    }
+                }, Policy.MetaCommaHandling.SINGLE_POLICY);
+        assertEquals(1, list.getPolicies().size());
+        // the comma must survive parsing and serialization of the value
+        assertTrue(list.toString().contains(","));
+        return severities;
+    }
+
+    @Test
+    public void metaSingleModeAcceptsCommaInUriValuedDirectives() {
+        assertTrue(singleModeSeverities("report-uri /r,x https://a.example/r,y").isEmpty());
+        assertTrue(singleModeSeverities("frame-ancestors https://a.example/x,y").isEmpty());
+        assertTrue(singleModeSeverities("form-action https://a.example/x,y").isEmpty());
+    }
+
+    @Test
+    public void metaSingleModeFlagsCommaInTokenBasedDirectives() {
+        assertEquals(List.of(Policy.Severity.Error), singleModeSeverities("sandbox allow-forms,x"));
+        assertEquals(List.of(Policy.Severity.Error), singleModeSeverities("sandbox allow-scripts, allow-forms"));
+        assertEquals(List.of(Policy.Severity.Error), singleModeSeverities("report-to a,b"));
+        assertEquals(List.of(Policy.Severity.Error), singleModeSeverities("plugin-types text/plain,x"));
+        assertEquals(List.of(Policy.Severity.Error), singleModeSeverities("trusted-types a,b"));
+        assertEquals(List.of(Policy.Severity.Error), singleModeSeverities("require-trusted-types-for 'script',"));
+    }
+
+    @Test
+    public void metaSingleModeFlagsCommaInSourceKeywords() {
+        for (final String directive : List.of("default-src", "img-src", "frame-ancestors")) {
+            assertEquals(List.of(Policy.Severity.Error), singleModeSeverities(directive + " 'self',"));
+        }
+        assertEquals(List.of(Policy.Severity.Error), singleModeSeverities("img-src a.example,b.example"));
+    }
+
+    @Test
+    public void metaSingleModePolicyWithCommaValueDoesNotRoundTripAsHeaderList() {
+        final PolicyList meta = Policy.parseSerializedCSPList("script-src https://a.example/x,y",
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SINGLE_POLICY);
+        assertEquals(1, meta.getPolicies().size());
+        assertEquals(2, Policy.parseSerializedCSPList(meta.toString(), PolicyListErrorConsumer.ignored)
+                .getPolicies().size());
+    }
+
+    @Test
+    public void errorIndexOfFullyDroppedMetaPolicyIsNextPolicyIndex() {
+        final List<Integer> indexes = new java.util.ArrayList<>();
+        final PolicyList list = PolicyList.ofSerialized(List.of("img-src a"),
+                List.of("script-src, x", "bogus-dir"),
+                (severity, message, policyIndex, directiveIndex, valueIndex) -> indexes.add(policyIndex),
+                Policy.MetaCommaHandling.SINGLE_POLICY);
+        assertEquals(2, list.getPolicies().size());
+        assertEquals(List.of(1, 1), indexes);
+    }
+
+    @Test
+    public void nonceAndHashMustBeFullyBase64() {
+        for (final String source : List.of("'nonce-abc!d'", "'sha256-abc!d'")) {
+            final List<Policy.Severity> severities = new java.util.ArrayList<>();
+            Policy.parseSerializedCSP("script-src " + source,
+                    (severity, message, directiveIndex, valueIndex) -> severities.add(severity));
+            assertTrue(severities.contains(Policy.Severity.Error), source);
+        }
+        assertTrue(singleModeSeverities("script-src 'nonce-abc,d'").contains(Policy.Severity.Error));
+        assertTrue(singleModeSeverities("script-src 'sha256-abc,d'").contains(Policy.Severity.Error));
+        Policy.parseSerializedCSP("script-src 'nonce-abc==' 'sha256-abc_-+/='",
+                (severity, message, directiveIndex, valueIndex) -> assertEquals(Policy.Severity.Warning, severity));
+    }
+
+    @Test
+    public void metaSingleModeDropsDirectiveWithCommaInName() {
+        final List<String> messages = new java.util.ArrayList<>();
+        final PolicyList list = Policy.parseSerializedCSPList("img-src a; script-src, sandbox",
+                (severity, message, policyIndex, directiveIndex, valueIndex) -> messages.add(message),
+                Policy.MetaCommaHandling.SINGLE_POLICY);
+        assertEquals(1, list.getPolicies().size());
+        assertTrue(list.getPolicies().get(0).getFetchDirective(FetchDirectiveKind.ImgSrc).isPresent());
+        assertFalse(list.getPolicies().get(0).sandbox().isPresent());
+        assertFalse(messages.isEmpty());
+    }
+
+    @Test
+    public void valueErrorMessageMentionsCommaOnlyWhenCommasAreRejected() {
+        final IllegalArgumentException header = assertThrows(IllegalArgumentException.class,
+                () -> new SourceExpressionDirective(List.of("a,b"), Directive.DirectiveErrorConsumer.ignored));
+        assertTrue(header.getMessage().contains("','"), header.getMessage());
+
+        final IllegalArgumentException single = assertThrows(IllegalArgumentException.class,
+                () -> new SourceExpressionDirective(List.of("a b"), Directive.DirectiveErrorConsumer.ignored, true));
+        assertFalse(single.getMessage().contains("','"), single.getMessage());
+    }
+
+    @Test
+    public void headerParsingStillRejectsCommaValuesAfterSingleModeParse() {
+        Policy.parseSerializedCSPList("script-src https://a.example/x,y",
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SINGLE_POLICY);
+        assertThrows(IllegalArgumentException.class, () -> Policy.parseSerializedCSP(
+                "script-src https://a.example/x,y", Policy.PolicyErrorConsumer.ignored));
+    }
+
+    @Test
+    public void errorPolicyIndexIsPositionInResultList() {
+        final List<Integer> indexes = new java.util.ArrayList<>();
+        final PolicyListErrorConsumer consumer =
+                (severity, message, policyIndex, directiveIndex, valueIndex) -> indexes.add(policyIndex);
+
+        // empty members are not counted
+        Policy.parseSerializedCSPList("img-src a, , report-uri /r", consumer);
+        assertEquals(List.of(1), indexes);
+
+        // header policies first, then each meta, so indexes tell the lists apart
+        indexes.clear();
+        final PolicyList list = PolicyList.ofSerialized(
+                List.of("img-src a, bogus-dir"), List.of("script-src 'self'", "bogus-dir, img-src b"),
+                consumer, Policy.MetaCommaHandling.SPLIT);
+        assertEquals(List.of(1, 3), indexes);
+        assertEquals(5, list.getPolicies().size());
+    }
+
+    @Test
+    public void ofSerializedMultipleMetasWithCommaMembers() {
+        final PolicyList list = PolicyList.ofSerialized(List.of(),
+                List.of("img-src a, script-src 'self'", "connect-src 'self', font-src b"),
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SPLIT);
+        assertEquals(4, list.getPolicies().size());
+        for (final Policy p : list.getPolicies()) {
+            assertTrue(p.deliveredViaMeta());
+        }
+    }
+
+    @Test
+    public void ofSerializedEmptyAndCommaOnlyValuesYieldNoPolicies() {
+        for (final Policy.MetaCommaHandling mode : Policy.MetaCommaHandling.values()) {
+            assertEquals(0, PolicyList.ofSerialized(List.of(), List.of(""),
+                    PolicyListErrorConsumer.ignored, mode).getPolicies().size());
+            assertEquals(0, PolicyList.ofSerialized(List.of(), List.of(",", " , ,"),
+                    PolicyListErrorConsumer.ignored, mode).getPolicies().size());
+            assertEquals(0, PolicyList.ofSerialized(List.of(), List.of(),
+                    PolicyListErrorConsumer.ignored, mode).getPolicies().size());
+        }
+    }
+
+    @Test
+    public void ofSerializedMixedEmptyAndNonEmptyHeadersAndMetas() {
+        final PolicyList list = PolicyList.ofSerialized(
+                List.of("", "img-src a", " , "), List.of("", "script-src 'self'", ","),
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SPLIT);
+        assertEquals(2, list.getPolicies().size());
+        assertFalse(list.getPolicies().get(0).deliveredViaMeta());
+        assertTrue(list.getPolicies().get(1).deliveredViaMeta());
+    }
+
+    @Test
+    public void errorIndexSkipsEarlierEmptyMetas() {
+        final List<Integer> indexes = new java.util.ArrayList<>();
+        PolicyList.ofSerialized(List.of("img-src a"), List.of("", ",", "bogus-dir", "", "bogus-dir"),
+                (severity, message, policyIndex, directiveIndex, valueIndex) -> indexes.add(policyIndex),
+                Policy.MetaCommaHandling.SPLIT);
+        assertEquals(List.of(1, 2), indexes);
+    }
+
+    @Test
+    public void ofSerializedMetaSingleModeParsesEachMetaSeparately() {
+        final PolicyList list = PolicyList.ofSerialized(List.of(),
+                List.of("img-src a", "script-src 'self', sandbox"),
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SINGLE_POLICY);
+        assertEquals(2, list.getPolicies().size());
+    }
+
+    @Test
+    public void ofSerializedHeaderAndMeta() {
+        final PolicyList list = PolicyList.ofSerialized(
+                List.of("script-src 'self'; frame-ancestors 'none'"),
+                List.of("img-src a.example; frame-ancestors 'none', sandbox"),
+                PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SPLIT);
+
+        assertEquals(3, list.getPolicies().size());
+        assertFalse(list.getPolicies().get(0).deliveredViaMeta());
+        assertTrue(list.getPolicies().get(1).deliveredViaMeta());
+        assertTrue(list.getPolicies().get(2).deliveredViaMeta());
+
+        final PolicyListInOrigin bound = new PolicyListInOrigin(list, ORIGIN);
+        // only the header's frame-ancestors counts
+        assertFalse(bound.allowsFrameAncestor(uri("https://evil.example/")));
+        assertTrue(bound.allowsScriptFromSource(uri("https://example.com/app.js")));
+        assertFalse(bound.allowsImageFromSource(uri("https://b.example/i.png")));
     }
 
     @Test

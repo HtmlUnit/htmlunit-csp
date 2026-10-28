@@ -87,7 +87,11 @@ For a policy from a [`<meta http-equiv="Content-Security-Policy">`](https://html
 Policy metaPolicy = Policy.parseSerializedCSP(metaContent, consumer, true);
 ```
 
+`parseSerializedCSP` rejects commas even with `true`. If the meta `content` may contain commas, use `Policy.parseSerializedCSPList(content, consumer, Policy.MetaCommaHandling)` (see [Multiple Policies](#multiple-policies)).
+
 Those three directives remain available via getters for analysis, but `allows*` methods ignore `frame-ancestors` and `sandbox` on meta-delivered policies (matching browser enforce after HTML strips them). See also [CSP3 meta element](https://w3c.github.io/webappsec-csp/#meta-element).
+
+Meta delivery is not interchangeable with a header: besides `frame-ancestors` and `sandbox`, `report-uri` is ignored in meta (so a meta policy cannot report violations through it), and `Content-Security-Policy-Report-Only` is not supported in meta at all. Combining header and meta policies therefore only adds the meta policy's remaining directives to the intersection.
 
 ### Multiple Policies
 
@@ -114,13 +118,19 @@ PolicyList fromOneHeader = Policy.parseSerializedCSPList(
 
 Keep Report-Only policies in a separate `PolicyList`. Directive inspection and parse warnings stay per member policy via `getPolicies()`.
 
-`ofSerialized` always parses as header delivery (`deliveredViaMeta = false`). For mixed header + meta, parse each `Policy` with the correct flag, then build the list:
+`ofSerialized(headers, consumer)` always parses as header delivery. For header + `meta`, use the combined factory. Header policies come first; error `policyIndex` values are positions in the returned list (empty members are not counted, which differs from releases before 5.8.0 that counted them), so header and meta errors can be told apart:
 
 ```java
-Policy headerPolicy = Policy.parseSerializedCSP(headerValue, consumer, false);
-Policy metaPolicy = Policy.parseSerializedCSP(metaContent, consumer, true);
-PolicyList enforce = new PolicyList(List.of(headerPolicy, metaPolicy));
+PolicyList enforce = PolicyList.ofSerialized(
+    List.of(headerValue), List.of(metaContent),
+    Policy.PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SPLIT);
+
+// meta only
+PolicyList metaOnly = Policy.parseSerializedCSPList(
+    metaContent, Policy.PolicyListErrorConsumer.ignored, Policy.MetaCommaHandling.SPLIT);
 ```
+
+Browsers disagree on commas in `meta` content ([whatwg/html#5102](https://github.com/whatwg/html/issues/5102)): Chrome splits them into several policies (`SPLIT`), Firefox parses the whole content as one policy with the comma left in it (`SINGLE_POLICY`). In `SINGLE_POLICY` mode a comma stays in the directive value (for example a URL path such as `https://a.example/x,y`) and that directive's own parser accepts it or warns; only a directive whose *name* contains a comma is dropped. Pick the mode for the browser you are modelling. A `SINGLE_POLICY` policy does not round-trip: its `toString()` keeps the comma inside the value, so re-parsing it as a header list splits it differently.
 
 ### Query a Policy
 

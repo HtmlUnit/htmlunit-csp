@@ -131,28 +131,54 @@ public final class Policy implements CspQueries {
      */
     public static PolicyList parseSerializedCSPList(final String serialized,
                         final PolicyListErrorConsumer policyListErrorConsumer) {
+        return parseSerializedCSPList(serialized, policyListErrorConsumer, false, true);
+    }
+
+    /**
+     * Parses the {@code content} of a {@code meta} element into a {@link PolicyList}; every
+     * member policy has {@link #deliveredViaMeta()} set.
+     * <p>
+     * Browsers disagree on commas in meta content, see {@link MetaCommaHandling}. Unlike
+     * {@link #parseSerializedCSP(String, PolicyErrorConsumer, boolean)}, commas are accepted.
+     * With {@link MetaCommaHandling#SINGLE_POLICY} they stay in directive values.
+     * </p>
+     *
+     * @param serialized the meta {@code content} to parse
+     * @param policyListErrorConsumer a consumer that receives any errors or warnings
+     *        encountered during parsing
+     * @param metaCommaHandling how to treat commas in {@code serialized}
+     * @return the parsed {@link PolicyList}
+     * @throws IllegalArgumentException if {@code serialized} contains non-ASCII characters
+     * @throws NullPointerException if {@code metaCommaHandling} is {@code null}
+     * @since 5.8.0
+     */
+    public static PolicyList parseSerializedCSPList(final String serialized,
+            final PolicyListErrorConsumer policyListErrorConsumer,
+            final MetaCommaHandling metaCommaHandling) {
+        Objects.requireNonNull(metaCommaHandling, "metaCommaHandling");
+        return parseSerializedCSPList(serialized, policyListErrorConsumer, true,
+                metaCommaHandling == MetaCommaHandling.SPLIT);
+    }
+
+    private static PolicyList parseSerializedCSPList(final String serialized,
+            final PolicyListErrorConsumer policyListErrorConsumer,
+            final boolean deliveredViaMeta, final boolean splitOnCommas) {
         // "A serialized CSP list is an ASCII string"
         enforceAscii(serialized);
 
         final List<Policy> policies = new ArrayList<>();
 
-        // java's lambdas are dumb
-        final int[] index = {0};
+        // a policy with errors always has directives, so it lands at policies.size()
         final PolicyErrorConsumer policyErrorConsumer =
                 (Severity severity, String message, int directiveIndex, int valueIndex) ->
-                        policyListErrorConsumer.add(severity, message, index[0], directiveIndex, valueIndex);
+                        policyListErrorConsumer.add(severity, message, policies.size(), directiveIndex, valueIndex);
 
         // https://infra.spec.whatwg.org/#split-on-commas
-        for (final String token : serialized.split(",")) {
-            final Policy policy = parseSerializedCSP(token, policyErrorConsumer);
-            if (policy.directives_.isEmpty()) {
-                ++index[0];
-                continue;
+        for (final String token : splitOnCommas ? serialized.split(",") : new String[] {serialized}) {
+            final Policy policy = parseSerializedCSP(token, policyErrorConsumer, deliveredViaMeta, !splitOnCommas);
+            if (!policy.directives_.isEmpty()) {
+                policies.add(policy);
             }
-
-            policies.add(policy);
-
-            ++index[0];
         }
         return new PolicyList(policies);
     }
@@ -205,9 +231,14 @@ public final class Policy implements CspQueries {
      */
     public static Policy parseSerializedCSP(final String serialized, final PolicyErrorConsumer policyErrorConsumer,
             final boolean deliveredViaMeta) {
+        return parseSerializedCSP(serialized, policyErrorConsumer, deliveredViaMeta, false);
+    }
+
+    private static Policy parseSerializedCSP(final String serialized, final PolicyErrorConsumer policyErrorConsumer,
+            final boolean deliveredViaMeta, final boolean allowCommas) {
         // "A serialized CSP is an ASCII string", and browsers do in fact reject CSPs which contain non-ASCII characters
         enforceAscii(serialized);
-        if (serialized.contains(",")) {
+        if (!allowCommas && serialized.contains(",")) {
             // This is not quite per spec, but
             throw new IllegalArgumentException(
                     "Serialized CSPs cannot contain commas - you may have wanted parseSerializedCSPList");
@@ -241,7 +272,18 @@ public final class Policy implements CspQueries {
 
             final List<String> directiveValues = Utils.splitOnAsciiWhitespace(remainingToken);
 
-            policy.add(directiveName, directiveValues, directiveErrorConsumer);
+            if (allowCommas) {
+                // a directive name cannot contain a comma; commas in values are handled below
+                if (directiveName.indexOf(',') >= 0) {
+                    policyErrorConsumer.add(Severity.Warning,
+                            "Ignoring directive whose name contains a comma", index[0], -1);
+                    ++index[0];
+                    continue;
+                }
+            }
+
+            // commas stay in values, e.g. in a URL path; each directive validates them itself
+            policy.add(directiveName, directiveValues, directiveErrorConsumer, allowCommas);
 
             ++index[0];
         }
@@ -253,7 +295,7 @@ public final class Policy implements CspQueries {
     // We do not provide a generic method for updating an existing directive in-place.
     // Just remove the existing one and add it back.
     private Directive add(final String name, final List<String> values,
-                            final Directive.DirectiveErrorConsumer directiveErrorConsumer) {
+                            final Directive.DirectiveErrorConsumer directiveErrorConsumer, final boolean allowCommas) {
         enforceAscii(name);
 
         // the parser will never hit these errors by construction, but use of the manipulation APIs can
@@ -271,7 +313,7 @@ public final class Policy implements CspQueries {
             case "base-uri":
                 // https://w3c.github.io/webappsec-csp/#directive-base-uri
                 final SourceExpressionDirective baseUriDirective
-                        = new SourceExpressionDirective(values, directiveErrorConsumer);
+                        = new SourceExpressionDirective(values, directiveErrorConsumer, allowCommas);
                 warnAboutInertKeywords(lowercaseDirectiveName, baseUriDirective, directiveErrorConsumer);
                 if (baseUri_ == null) {
                     baseUri_ = baseUriDirective;
@@ -294,13 +336,13 @@ public final class Policy implements CspQueries {
                     }
                     blockAllMixedContent_ = true;
                 }
-                newDirective = new Directive(values);
+                newDirective = new Directive(values, allowCommas);
                 break;
 
             case "form-action":
                 // https://w3c.github.io/webappsec-csp/#directive-form-action
                 final SourceExpressionDirective formActionDirective
-                        = new SourceExpressionDirective(values, directiveErrorConsumer);
+                        = new SourceExpressionDirective(values, directiveErrorConsumer, allowCommas);
                 warnAboutInertKeywords(lowercaseDirectiveName, formActionDirective, directiveErrorConsumer);
                 if (formAction_ == null) {
                     formAction_ = formActionDirective;
@@ -320,7 +362,7 @@ public final class Policy implements CspQueries {
                             "The frame-ancestors directive is ignored when delivered via a meta element", -1);
                 }
                 final FrameAncestorsDirective frameAncestorsDirective
-                        = new FrameAncestorsDirective(values, directiveErrorConsumer);
+                        = new FrameAncestorsDirective(values, directiveErrorConsumer, allowCommas);
                 if (frameAncestors_ == null) {
                     frameAncestors_ = frameAncestorsDirective;
                 }
@@ -335,7 +377,7 @@ public final class Policy implements CspQueries {
                 // For some ungodly reason "navigate-to" is a list of source expressions while "frame-ancestors" is not
                 // There is no logic here
                 final SourceExpressionDirective navigateToDirective
-                        = new SourceExpressionDirective(values, directiveErrorConsumer);
+                        = new SourceExpressionDirective(values, directiveErrorConsumer, allowCommas);
                 warnAboutInertKeywords(lowercaseDirectiveName, navigateToDirective, directiveErrorConsumer);
                 if (navigateTo_ == null) {
                     navigateTo_ = navigateToDirective;
@@ -350,7 +392,7 @@ public final class Policy implements CspQueries {
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/plugin-types
                 directiveErrorConsumer.add(Severity.Warning, "The plugin-types directive has been deprecated", -1);
                 final PluginTypesDirective pluginTypesDirective
-                        = new PluginTypesDirective(values, directiveErrorConsumer);
+                        = new PluginTypesDirective(values, directiveErrorConsumer, allowCommas);
                 if (pluginTypes_ == null) {
                     pluginTypes_ = pluginTypesDirective;
                 }
@@ -385,7 +427,7 @@ public final class Policy implements CspQueries {
                 else {
                     wasDupe = true;
                 }
-                newDirective = new Directive(values);
+                newDirective = new Directive(values, allowCommas);
                 break;
 
             case "referrer":
@@ -406,7 +448,8 @@ public final class Policy implements CspQueries {
                             "The report-uri directive is ignored when delivered via a meta element", -1);
                 }
 
-                final ReportUriDirective reportUriDirective = new ReportUriDirective(values, directiveErrorConsumer);
+                final ReportUriDirective reportUriDirective =
+                        new ReportUriDirective(values, directiveErrorConsumer, allowCommas);
                 if (reportUri_ == null) {
                     reportUri_ = reportUriDirective;
                 }
@@ -422,7 +465,8 @@ public final class Policy implements CspQueries {
                     directiveErrorConsumer.add(Severity.Warning,
                             "The sandbox directive is ignored when delivered via a meta element", -1);
                 }
-                final SandboxDirective sandboxDirective = new SandboxDirective(values, directiveErrorConsumer);
+                final SandboxDirective sandboxDirective =
+                        new SandboxDirective(values, directiveErrorConsumer, allowCommas);
                 if (sandbox_ == null) {
                     sandbox_ = sandboxDirective;
                 }
@@ -435,7 +479,7 @@ public final class Policy implements CspQueries {
             case "trusted-types":
                 // https://w3c.github.io/trusted-types/dist/spec/#trusted-types-csp-directive
                 final TrustedTypesDirective trustedTypesDirective =
-                        new TrustedTypesDirective(values, directiveErrorConsumer);
+                        new TrustedTypesDirective(values, directiveErrorConsumer, allowCommas);
                 if (trustedTypes_ == null) {
                     trustedTypes_ = trustedTypesDirective;
                 }
@@ -448,7 +492,7 @@ public final class Policy implements CspQueries {
             case "require-trusted-types-for":
                 // https://w3c.github.io/trusted-types/dist/spec/#require-trusted-types-for-csp-directive
                 final RequireTrustedTypesForDirective requireTrustedTypesForDirective =
-                        new RequireTrustedTypesForDirective(values, directiveErrorConsumer);
+                        new RequireTrustedTypesForDirective(values, directiveErrorConsumer, allowCommas);
                 if (requireTrustedTypesFor_ == null) {
                     requireTrustedTypesFor_ = requireTrustedTypesForDirective;
                 }
@@ -470,7 +514,7 @@ public final class Policy implements CspQueries {
                     }
                     upgradeInsecureRequests_ = true;
                 }
-                newDirective = new Directive(values);
+                newDirective = new Directive(values, allowCommas);
                 break;
 
             default:
@@ -478,7 +522,7 @@ public final class Policy implements CspQueries {
                     directiveErrorConsumer.add(Severity.Error,
                                     "Directive name " + name
                                         + " contains characters outside the range ALPHA / DIGIT / \"-\"", -1);
-                    newDirective = new Directive(values);
+                    newDirective = new Directive(values, allowCommas);
                     break;
                 }
                 final FetchDirectiveKind fetchDirectiveKind = FetchDirectiveKind.fromString(lowercaseDirectiveName);
@@ -488,7 +532,7 @@ public final class Policy implements CspQueries {
                                                     "The prefetch-src directive has been deprecated", -1);
                     }
                     final SourceExpressionDirective thisDirective
-                                = new SourceExpressionDirective(values, directiveErrorConsumer);
+                                = new SourceExpressionDirective(values, directiveErrorConsumer, allowCommas);
                     warnAboutInertKeywords(lowercaseDirectiveName, thisDirective, directiveErrorConsumer);
                     if (fetchDirectives_.containsKey(fetchDirectiveKind)) {
                         wasDupe = true;
@@ -500,7 +544,7 @@ public final class Policy implements CspQueries {
                     break;
                 }
                 directiveErrorConsumer.add(Severity.Warning, "Unrecognized directive " + lowercaseDirectiveName, -1);
-                newDirective = new Directive(values);
+                newDirective = new Directive(values, allowCommas);
                 break;
         }
 
@@ -634,8 +678,12 @@ public final class Policy implements CspQueries {
      * HTML meta algorithm strips those directives).
      * </p>
      *
-     * @return {@code true} if {@link #parseSerializedCSP(String, PolicyErrorConsumer, boolean)}
-     *         was called with {@code deliveredViaMeta} set to {@code true}
+     * @return {@code true} if this policy came from
+     *         {@link #parseSerializedCSP(String, PolicyErrorConsumer, boolean)} with
+     *         {@code deliveredViaMeta} set to {@code true}, from
+     *         {@link #parseSerializedCSPList(String, PolicyListErrorConsumer, MetaCommaHandling)},
+     *         or from the meta side of
+     *         {@link PolicyList#ofSerialized(List, List, PolicyListErrorConsumer, MetaCommaHandling)}
      * @see <a href="https://w3c.github.io/webappsec-csp/#meta-element">CSP meta element</a>
      * @since 5.4.0
      */
@@ -1943,11 +1991,38 @@ public final class Policy implements CspQueries {
          *
          * @param severity the severity of the issue
          * @param message a human-readable description of the issue
-         * @param policyIndex the zero-based index of the policy within the comma-separated list
+         * @param policyIndex the zero-based index of the policy within the resulting
+         *        {@link PolicyList}, i.e. its position in {@link PolicyList#getPolicies()}.
+         *        Empty policies are not counted: for {@code "img-src a, , report-uri /r"} the
+         *        {@code report-uri} warning is reported at index {@code 1}. Before 5.8.0 the
+         *        index counted empty members of the serialized list as well (here {@code 2}).
+         *        For the combined {@code PolicyList.ofSerialized} factory, header policies
+         *        come first, then meta policies. A policy whose directives were all dropped
+         *        (a directive name containing a comma under {@code SINGLE_POLICY}) is omitted,
+         *        so its warning reports the index the next policy gets.
          * @param directiveIndex the zero-based index of the directive within that policy
          * @param valueIndex the zero-based index of the value within the directive,
          *        or {@code -1} if the issue does not pertain to a specific value
          */
         void add(Severity severity, String message, int policyIndex, int directiveIndex, int valueIndex);
+    }
+
+    /**
+     * How commas in {@code meta} {@code content} are treated. The HTML spec parses the content
+     * as a single policy, but browsers differ; see
+     * <a href="https://github.com/whatwg/html/issues/5102">whatwg/html#5102</a>.
+     *
+     * @since 5.8.0
+     */
+    public enum MetaCommaHandling {
+        /** Split on commas into several policies (Chrome; Safari is believed to match). */
+        SPLIT,
+        /**
+         * Parse the whole content as one policy, leaving commas in it (Firefox). A comma in a value
+         * (e.g. a URL path) is kept and validated by that directive; a directive whose name
+         * contains a comma is dropped with a warning. Such a policy serializes with the comma inside
+         * the value, so re-parsing its {@code toString()} as a header list splits it differently.
+         */
+        SINGLE_POLICY
     }
 }

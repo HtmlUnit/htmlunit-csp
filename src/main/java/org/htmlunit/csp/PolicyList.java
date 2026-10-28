@@ -14,6 +14,7 @@
  */
 package org.htmlunit.csp;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -88,6 +89,8 @@ public class PolicyList implements CspQueries {
      * @throws NullPointerException if {@code serializedPoliciesOrLists} or
      *         {@code policyListErrorConsumer} is {@code null}, or if any element
      *         of {@code serializedPoliciesOrLists} is {@code null}
+     * @see #ofSerialized(List, List, PolicyListErrorConsumer, Policy.MetaCommaHandling)
+     * @see Policy#parseSerializedCSPList(String, PolicyListErrorConsumer, Policy.MetaCommaHandling)
      * @since 5.4.0
      */
     public static PolicyList ofSerialized(final List<String> serializedPoliciesOrLists,
@@ -96,6 +99,41 @@ public class PolicyList implements CspQueries {
         Objects.requireNonNull(policyListErrorConsumer, "policyListErrorConsumer");
         return Policy.parseSerializedCSPList(
                 String.join(",", serializedPoliciesOrLists), policyListErrorConsumer);
+    }
+
+    /**
+     * Combines header and meta serialized CSPs into one list, header policies first
+     * (each header element may be a comma-separated list). Each meta {@code content} is parsed
+     * separately with {@code deliveredViaMeta = true} and the given comma handling.
+     * Error {@code policyIndex} values are positions in the returned list, so header and meta
+     * errors can be told apart.
+     *
+     * @param headerValues header field values
+     * @param metaContents meta {@code content} attribute values
+     * @param policyListErrorConsumer consumer for parse errors/warnings
+     * @param metaCommaHandling how to treat commas in each meta {@code content}
+     * @return the combined {@link PolicyList}
+     * @throws NullPointerException if any argument, or any list element, is {@code null}
+     * @since 5.8.0
+     */
+    public static PolicyList ofSerialized(final List<String> headerValues,
+            final List<String> metaContents,
+            final PolicyListErrorConsumer policyListErrorConsumer,
+            final Policy.MetaCommaHandling metaCommaHandling) {
+        Objects.requireNonNull(headerValues, "headerValues");
+        Objects.requireNonNull(metaContents, "metaContents");
+        Objects.requireNonNull(policyListErrorConsumer, "policyListErrorConsumer");
+        Objects.requireNonNull(metaCommaHandling, "metaCommaHandling");
+        final List<Policy> all = new ArrayList<>(Policy.parseSerializedCSPList(
+                String.join(",", headerValues), policyListErrorConsumer).getPolicies());
+        for (final String meta : metaContents) {
+            final int offset = all.size();
+            all.addAll(Policy.parseSerializedCSPList(meta,
+                    (severity, message, policyIndex, directiveIndex, valueIndex) -> policyListErrorConsumer.add(
+                            severity, message, offset + policyIndex, directiveIndex, valueIndex),
+                    metaCommaHandling).getPolicies());
+        }
+        return new PolicyList(all);
     }
 
     /**

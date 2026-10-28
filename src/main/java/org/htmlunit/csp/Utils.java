@@ -44,7 +44,7 @@ public final class Utils {
      * </p>
      */
     public static final Predicate<String> IS_BASE64_VALUE
-                            = Pattern.compile("[a-zA-Z0-9+/\\-_]+=?=?").asPredicate();
+                            = Pattern.compile("[a-zA-Z0-9+/\\-_]+=?=?").asMatchPredicate();
 
     // https://infra.spec.whatwg.org/#split-on-ascii-whitespace
     static List<String> splitOnAsciiWhitespace(final String input) {

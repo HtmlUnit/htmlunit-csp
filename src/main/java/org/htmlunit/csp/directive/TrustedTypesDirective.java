@@ -63,7 +63,23 @@ public class TrustedTypesDirective extends Directive {
      * @param errors consumer that receives parsing errors and warnings
      */
     public TrustedTypesDirective(final List<String> values, final DirectiveErrorConsumer errors) {
-        super(values);
+        this(values, errors, false);
+    }
+
+    /**
+     * Like {@link #TrustedTypesDirective(List, DirectiveErrorConsumer)}, but with {@code allowCommas}
+     * a comma is kept in a value and left to this directive's own validation. This is used for
+     * single-policy {@code meta} content, see
+     * {@link org.htmlunit.csp.Policy.MetaCommaHandling#SINGLE_POLICY}.
+     *
+     * @param values the raw string values for this directive
+     * @param errors consumer that receives parsing errors and warnings
+     * @param allowCommas {@code true} to accept commas inside values
+     * @since 5.8.0
+     */
+    public TrustedTypesDirective(final List<String> values, final DirectiveErrorConsumer errors,
+            final boolean allowCommas) {
+        super(values, allowCommas);
 
         int index = 0;
         for (final String token : values) {
