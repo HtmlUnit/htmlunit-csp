@@ -260,6 +260,20 @@ public class CspQueriesInOrigin {
     }
 
     /**
+     * Returns whether a connection to the given URL is allowed.
+     *
+     * @param url the URL to connect to
+     * @param mapWebSocketScheme whether to map the scheme of {@code ws:} and {@code wss:} URLs
+     *        to {@code http:} / {@code https:} before matching (the spec way) or not (the browser way)
+     * @return {@code true} if allowed under this query target's rules
+     * @see CspQueries#allowsConnection(Optional, Optional, boolean)
+     * @since 5.8.0
+     */
+    public boolean allowsConnection(final URLWithScheme url, final boolean mapWebSocketScheme) {
+        return queries_.allowsConnection(Optional.of(url), Optional.of(origin_), mapWebSocketScheme);
+    }
+
+    /**
      * Returns whether navigation to the given URL is allowed.
      *
      * @param url the navigation target URL

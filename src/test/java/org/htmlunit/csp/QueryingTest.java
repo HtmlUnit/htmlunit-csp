@@ -441,6 +441,55 @@ public class QueryingTest extends TestBase {
     }
 
     @Test
+    public void allowsConnectWebSocketSpec() {
+        PolicyInOrigin p;
+
+        // the spec maps ws: to http: and wss: to https: before matching
+        p = parse("connect-src http://good.com/", "http://abc.com");
+        assertTrue(p.allowsConnection(URI.parseURI("ws://good.com/").orElse(null)));
+        assertTrue(p.allowsConnection(URI.parseURI("ws://good.com/").orElse(null), true));
+        assertTrue(p.allowsConnection(URI.parseURI("wss://good.com/").orElse(null), true));
+
+        p = parse("connect-src https://good.com/", "http://abc.com");
+        assertFalse(p.allowsConnection(URI.parseURI("ws://good.com/").orElse(null), true));
+        assertTrue(p.allowsConnection(URI.parseURI("wss://good.com/").orElse(null), true));
+    }
+
+    @Test
+    public void allowsConnectWebSocketBrowser() {
+        PolicyInOrigin p;
+
+        // like browsers, the ws: url is matched (no mapping to http:)
+        p = parse("connect-src http://good.com/", "http://abc.com");
+        assertTrue(p.allowsConnection(URI.parseURI("http://good.com/").orElse(null), false));
+        assertFalse(p.allowsConnection(URI.parseURI("ws://good.com/").orElse(null), false));
+        assertFalse(p.allowsConnection(URI.parseURI("wss://good.com/").orElse(null), false));
+
+        p = parse("connect-src https://good.com/", "http://abc.com");
+        assertFalse(p.allowsConnection(URI.parseURI("wss://good.com/").orElse(null), false));
+
+        // scheme-part match: ws matches ws, wss, http and https
+        p = parse("connect-src ws://good.com/", "http://abc.com");
+        assertTrue(p.allowsConnection(URI.parseURI("ws://good.com/").orElse(null), false));
+        assertTrue(p.allowsConnection(URI.parseURI("wss://good.com/").orElse(null), false));
+        assertTrue(p.allowsConnection(URI.parseURI("http://good.com/").orElse(null), false));
+        assertTrue(p.allowsConnection(URI.parseURI("https://good.com/").orElse(null), false));
+        assertFalse(p.allowsConnection(URI.parseURI("ws://other.com/").orElse(null), false));
+
+        // wss matches wss and https
+        p = parse("connect-src wss://good.com/", "http://abc.com");
+        assertFalse(p.allowsConnection(URI.parseURI("ws://good.com/").orElse(null), false));
+        assertTrue(p.allowsConnection(URI.parseURI("wss://good.com/").orElse(null), false));
+        assertTrue(p.allowsConnection(URI.parseURI("https://good.com/").orElse(null), false));
+
+        // 'self' matches ws: and wss: of the same host
+        p = parse("connect-src 'self'", "http://abc.com");
+        assertTrue(p.allowsConnection(URI.parseURI("ws://abc.com/").orElse(null), false));
+        assertTrue(p.allowsConnection(URI.parseURI("wss://abc.com/").orElse(null), false));
+        assertFalse(p.allowsConnection(URI.parseURI("ws://other.com/").orElse(null), false));
+    }
+
+    @Test
     public void allowsFrameAncestor() {
         PolicyInOrigin p;
 

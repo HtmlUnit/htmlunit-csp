@@ -1339,13 +1339,14 @@ public final class Policy implements CspQueries {
     }
 
     /**
-     * Determines whether this policy allows a connection (e.g. {@code fetch()},
+     * Determines whether this policy allows a connection (e.g. via {@code fetch},
      * {@code XMLHttpRequest}, {@code WebSocket}) to the given source.
      * <p>
      * For {@code ws:} and {@code wss:} URLs (when using {@code new WebSocket}),
      * the scheme is mapped to {@code http:} / {@code https:} respectively for matching,
-     * per the <a href="https://fetch.spec.whatwg.org/#concept-websocket-establish">
-     * WebSocket establish algorithm</a>.
+     * per the <a href="https://websockets.spec.whatwg.org/#concept-websocket-establish">
+     * WebSocket establish algorithm</a>. This is the same as calling
+     * {@link #allowsConnection(Optional, Optional, boolean)} with {@code mapWebSocketScheme == true}.
      * </p>
      *
      * @param source the URL to connect to, if known
@@ -1354,6 +1355,40 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
                                     final Optional<? extends URLWithScheme> origin) {
+        return allowsConnection(source, origin, true);
+    }
+
+    /**
+     * Determines whether this policy allows a connection (e.g. via {@code fetch},
+     * {@code XMLHttpRequest}, {@code WebSocket}) to the given source.
+     * <p>
+     * The <a href="https://websockets.spec.whatwg.org/#concept-websocket-establish">
+     * WebSocket establish algorithm</a> maps the scheme of {@code ws:} and {@code wss:} URLs to
+     * {@code http:} / {@code https:} before the request is checked. Browsers do not implement
+     * this (see <a href="https://github.com/w3c/webappsec-csp/issues/429">webappsec-csp issue 429</a>);
+     * they match the original URL against the source list.
+     * </p>
+     * <ul>
+     *   <li>{@code mapWebSocketScheme == true} (spec): the mapped URL is matched; e.g. the source
+     *       {@code http://example.com} matches {@code ws://example.com}.</li>
+     *   <li>{@code mapWebSocketScheme == false} (browsers): the original URL is matched; e.g. the source
+     *       {@code http://example.com} does not match {@code ws://example.com}, but the source
+     *       {@code ws://example.com} matches {@code ws:}, {@code wss:}, {@code http:} and {@code https:}
+     *       urls of this host (scheme-part match); 'self' matches {@code ws:} and {@code wss:} urls
+     *       of the origin's host.</li>
+     * </ul>
+     * Urls with other schemes are matched in the same way in both modes.
+     *
+     * @param source the URL to connect to, if known
+     * @param origin the origin of the protected resource, if known
+     * @param mapWebSocketScheme whether to map the scheme of {@code ws:} and {@code wss:} URLs
+     *        to {@code http:} / {@code https:} before matching (the spec way) or not (the browser way)
+     * @return {@code true} if this policy allows the connection
+     * @since 5.8.0
+     */
+    public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
+                                    final Optional<? extends URLWithScheme> origin,
+                                    final boolean mapWebSocketScheme) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ConnectSrc).orElse(null);
         if (sourceList == null) {
@@ -1362,12 +1397,12 @@ public final class Policy implements CspQueries {
         if (source.isEmpty()) {
             return false;
         }
-        // See https://fetch.spec.whatwg.org/#concept-websocket-establish
-        // Also browsers don't implement this; see https://github.com/w3c/webappsec-csp/issues/429
+        // See https://websockets.spec.whatwg.org/#concept-websocket-establish
+        // Browsers don't implement this; see https://github.com/w3c/webappsec-csp/issues/429
         final URLWithScheme actualSource = source.get();
         final String scheme = actualSource.getScheme();
         URLWithScheme usedSource = actualSource;
-        if (actualSource instanceof URI) {
+        if (mapWebSocketScheme && actualSource instanceof URI) {
             if ("ws".equals(scheme)) {
                 usedSource = new URI("http", actualSource.getHost(), actualSource.getPort(), actualSource.getPath());
             }

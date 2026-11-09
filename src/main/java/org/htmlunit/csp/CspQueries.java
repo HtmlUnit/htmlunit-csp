@@ -196,6 +196,26 @@ public interface CspQueries {
             Optional<? extends URLWithScheme> origin);
 
     /**
+     * Returns whether a connection is allowed.
+     * <p>
+     * The default implementation ignores {@code mapWebSocketScheme} and calls
+     * {@link #allowsConnection(Optional, Optional)}.
+     * </p>
+     *
+     * @param source connection URL, if known
+     * @param origin protected-resource origin, if known
+     * @param mapWebSocketScheme whether to map the scheme of {@code ws:} and {@code wss:} URLs
+     *        to {@code http:} / {@code https:} before matching (the spec way) or not (the browser way)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsConnection(Optional, Optional, boolean)
+     * @since 5.8.0
+     */
+    default boolean allowsConnection(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin, final boolean mapWebSocketScheme) {
+        return allowsConnection(source, origin);
+    }
+
+    /**
      * Returns whether a font is allowed.
      *
      * @param source font URL, if known

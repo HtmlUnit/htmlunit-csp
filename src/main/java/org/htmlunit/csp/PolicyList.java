@@ -235,6 +235,13 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
+                                    final Optional<? extends URLWithScheme> origin,
+                                    final boolean mapWebSocketScheme) {
+        return allAllow(p -> p.allowsConnection(source, origin, mapWebSocketScheme));
+    }
+
+    @Override
     public boolean allowsFont(final Optional<? extends URLWithScheme> source,
                               final Optional<? extends URLWithScheme> origin) {
         return allAllow(p -> p.allowsFont(source, origin));
