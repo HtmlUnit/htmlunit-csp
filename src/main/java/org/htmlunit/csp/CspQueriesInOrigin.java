@@ -28,8 +28,8 @@ import org.htmlunit.csp.url.URLWithScheme;
  * accessor for the underlying {@link Policy} / {@link PolicyList} is needed.
  * </p>
  * <p>
- * The Trusted Types policy-name queries do not depend on the origin and are not wrapped;
- * use {@link #getQueries()}.
+ * The Trusted Types policy-name queries and the {@code isXxxUnrestricted} queries do not depend
+ * on the origin and are not wrapped; use {@link #getQueries()}.
  * </p>
  *
  * @see CspQueries

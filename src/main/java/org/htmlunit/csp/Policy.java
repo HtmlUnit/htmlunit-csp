@@ -1635,6 +1635,35 @@ public final class Policy implements CspQueries {
         return Optional.empty();
     }
 
+    @Override
+    public boolean isFetchDirectiveUnrestricted(final FetchDirectiveKind kind) {
+        Objects.requireNonNull(kind, "kind");
+        return getGoverningDirectiveForEffectiveDirective(kind)
+                .map(d -> d.star() && !(strictDynamicIgnoresHosts(kind) && d.strictDynamic()))
+                .orElse(true);
+    }
+
+    /**
+     * Kinds whose URL loads go through the script-pre-request check, where {@code 'strict-dynamic'}
+     * makes the host sources (including {@code *}) irrelevant, see {@link #allowsExternalScript}.
+     * {@code worker-src} is deliberately absent ({@link #allowsWorker} ignores {@code 'strict-dynamic'})
+     * as is {@code script-src-attr} (inline attributes only, no URL loads).
+     * <p>
+     * Known gap: when a worker falls back to {@code script-src} (no {@code worker-src} /
+     * {@code child-src}) the spec applies the script check, so {@code 'strict-dynamic'} allows
+     * non-parser-inserted requests, which workers always are. {@link #allowsWorker} does not model
+     * this yet; when it does, this helper must follow.
+     * </p>
+     */
+    private static boolean strictDynamicIgnoresHosts(final FetchDirectiveKind kind) {
+        return kind == FetchDirectiveKind.ScriptSrc || kind == FetchDirectiveKind.ScriptSrcElem;
+    }
+
+    @Override
+    public boolean isBaseUriUnrestricted() {
+        return baseUri_ == null || baseUri_.star();
+    }
+
     // https://w3c.github.io/webappsec-csp/#directive-inline-check
     // https://w3c.github.io/webappsec-csp/#should-block-inline specifies the first four values
     // https://w3c.github.io/webappsec-csp/#should-block-navigation-request

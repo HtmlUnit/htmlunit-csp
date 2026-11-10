@@ -374,4 +374,49 @@ public interface CspQueries {
      * @since 5.7.0
      */
     boolean allowsWebTransportWithCertificateHashes();
+
+    /**
+     * Returns whether the given fetch directive is effectively unrestricted, i.e. the governing
+     * directive (following the fallback chain, e.g. {@code script-src-elem} to {@code script-src}
+     * to {@code default-src}) is missing or contains the {@code *} wildcard.
+     * <p>
+     * For a {@link PolicyList}, {@code true} only if <em>every</em> member policy leaves it
+     * unrestricted (an empty list is unrestricted). Use {@link PolicyList#getPolicies()} for
+     * an "any policy" query.
+     * </p>
+     * <p>
+     * Only URL-based loads are covered: inline scripts and styles, {@code eval()} and similar are
+     * governed by other queries (e.g. {@link #allowsInlineScript}, {@link #allowsEval}), so
+     * {@code script-src *} is still restrictive for those. For {@code script-src} and
+     * {@code script-src-elem}, {@code 'strict-dynamic'} makes host sources, including {@code *},
+     * irrelevant, so such a directive is not unrestricted.
+     * </p>
+     * <p>
+     * Note that {@code *} does not match every scheme (e.g. {@code data:}, {@code blob:}), so
+     * "missing" and "{@code *}" are not equivalent. To distinguish them use
+     * {@code Policy.getGoverningDirectiveForEffectiveDirective(kind).isEmpty()} (missing) vs
+     * {@code .map(SourceExpressionDirective::star)} (wildcard).
+     * </p>
+     *
+     * @param kind the effective fetch directive to resolve
+     * @return {@code true} if unrestricted
+     * @throws NullPointerException if {@code kind} is {@code null}
+     * @see Policy#getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind)
+     * @since 5.8.0
+     */
+    boolean isFetchDirectiveUnrestricted(FetchDirectiveKind kind);
+
+    /**
+     * Returns whether {@code base-uri} is unrestricted, i.e. missing or containing {@code *}.
+     * {@code base-uri} does not fall back to {@code default-src}.
+     * <p>
+     * For a {@link PolicyList}, {@code true} only if <em>every</em> member policy leaves it
+     * unrestricted (an empty list is unrestricted).
+     * </p>
+     *
+     * @return {@code true} if unrestricted
+     * @see Policy#baseUri()
+     * @since 5.8.0
+     */
+    boolean isBaseUriUnrestricted();
 }
