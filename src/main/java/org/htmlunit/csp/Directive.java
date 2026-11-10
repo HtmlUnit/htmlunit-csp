@@ -36,6 +36,9 @@ public class Directive {
 
     private List<String> values_;
 
+    // true only while the constructor adds the initial values of single-policy meta content
+    private boolean allowCommas_;
+
     /**
      * Tests if a string contains any non-directive characters.
      * Non-directive characters are: ASCII whitespace (tab, newline, form feed,
@@ -63,7 +66,8 @@ public class Directive {
      * Appends a value to this directive's value list.
      * <p>
      * The value must be a non-empty ASCII string that does not contain whitespace,
-     * commas, or semicolons.
+     * commas, or semicolons. The only exception is the initial values of a directive constructed
+     * with {@code allowCommas}, where a comma is kept and left to the directive's own validation.
      * </p>
      *
      * @param value the value to add
@@ -72,8 +76,10 @@ public class Directive {
      */
     protected void addValue(final String value) {
         Policy.enforceAscii(value);
-        if (containsNonDirectiveCharacter(value)) {
-            throw new IllegalArgumentException("values must not contain whitespace, ',', or ';'");
+        if (containsNonDirectiveCharacter(allowCommas_ ? value.replace(",", "") : value)) {
+            throw new IllegalArgumentException(allowCommas_
+                    ? "values must not contain whitespace or ';'"
+                    : "values must not contain whitespace, ',', or ';'");
         }
         if (value.isEmpty()) {
             throw new IllegalArgumentException("values must not be empty");
@@ -101,11 +107,31 @@ public class Directive {
      *         or contains whitespace / comma / semicolon
      */
     protected Directive(final List<String> values) {
+        this(values, false);
+    }
+
+    /**
+     * Constructs a directive with the given list of values.
+     * <p>
+     * With {@code allowCommas}, a comma is accepted inside a value (single-policy
+     * {@code meta} content, see {@link Policy.MetaCommaHandling#SINGLE_POLICY}) and left to
+     * the directive's own validation; whitespace and semicolons are still rejected.
+     * </p>
+     *
+     * @param values the raw string values for this directive
+     * @param allowCommas {@code true} to accept commas inside the initial values
+     * @throws IllegalArgumentException if any value is empty, non-ASCII,
+     *         or contains whitespace / semicolon / (unless {@code allowCommas}) comma
+     * @since 5.8.0
+     */
+    protected Directive(final List<String> values, final boolean allowCommas) {
         values_ = new ArrayList<>();
+        allowCommas_ = allowCommas;
         for (final String value : values) {
             // We use this API so we get the validity checks
             addValue(value);
         }
+        allowCommas_ = false;
     }
 
     /**

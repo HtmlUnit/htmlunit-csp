@@ -56,7 +56,18 @@ public abstract class HostSourceDirective extends Directive {
      * @param values the raw string values for this directive
      */
     protected HostSourceDirective(final List<String> values) {
-        super(values);
+        this(values, false);
+    }
+
+    /**
+     * Constructs a host-source directive from the given raw values.
+     *
+     * @param values the raw string values for this directive
+     * @param allowCommas {@code true} to accept commas inside values
+     * @since 5.8.0
+     */
+    protected HostSourceDirective(final List<String> values, final boolean allowCommas) {
+        super(values, allowCommas);
     }
 
     /**

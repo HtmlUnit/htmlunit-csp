@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Salvation Team
  */
-public class CSP3SpecConformanceTest {
+public class Csp3SpecConformanceTest {
 
     // -----------------------------------------------------------------------
     // Difference 1: parseSerializedCSP rejects commas (spec does not)
@@ -137,11 +137,11 @@ public class CSP3SpecConformanceTest {
 
     /**
      * When parseSerializedCSPList skips empty policies, the error indices
-     * still count them, so error policyIndex doesn't match the position
-     * in the resulting PolicyList.
+     * do not count them, so error policyIndex is the position in the
+     * resulting PolicyList.
      */
     @Test
-    public void policyListIndexCountsSkippedEmptyPolicies() {
+    public void policyListIndexSkipsEmptyPolicies() {
         final ArrayList<int[]> errorIndices = new ArrayList<>();
         final Policy.PolicyListErrorConsumer consumer =
             (severity, message, policyIndex, directiveIndex, valueIndex) ->
@@ -154,10 +154,10 @@ public class CSP3SpecConformanceTest {
         // Only one policy in the resulting list
         assertEquals(1, list.getPolicies().size());
 
-        // But errors are reported at policyIndex=1 (not 0)
+        // And errors are reported at policyIndex=0, its position in the list
         assertFalse(errorIndices.isEmpty(), "Should have at least one error");
-        assertEquals(1, errorIndices.get(0)[0],
-            "Error policyIndex is 1 — counts the skipped empty policy");
+        assertEquals(0, errorIndices.get(0)[0],
+            "Error policyIndex is the position in the resulting list");
     }
 
     // -----------------------------------------------------------------------

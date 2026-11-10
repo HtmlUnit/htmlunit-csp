@@ -53,7 +53,23 @@ public class RequireTrustedTypesForDirective extends Directive {
      * @param errors consumer that receives parsing errors and warnings
      */
     public RequireTrustedTypesForDirective(final List<String> values, final DirectiveErrorConsumer errors) {
-        super(values);
+        this(values, errors, false);
+    }
+
+    /**
+     * Like {@link #RequireTrustedTypesForDirective(List, DirectiveErrorConsumer)}, but with {@code allowCommas}
+     * a comma is kept in a value and left to this directive's own validation. This is used for
+     * single-policy {@code meta} content, see
+     * {@link org.htmlunit.csp.Policy.MetaCommaHandling#SINGLE_POLICY}.
+     *
+     * @param values the raw string values for this directive
+     * @param errors consumer that receives parsing errors and warnings
+     * @param allowCommas {@code true} to accept commas inside values
+     * @since 5.8.0
+     */
+    public RequireTrustedTypesForDirective(final List<String> values, final DirectiveErrorConsumer errors,
+            final boolean allowCommas) {
+        super(values, allowCommas);
 
         if (values.isEmpty()) {
             errors.add(Policy.Severity.Error, "The require-trusted-types-for directive requires a value", -1);
