@@ -171,6 +171,7 @@ public class PolicyList implements CspQueries {
 
     /**
      * Returns {@code true} only if every policy in the list satisfies {@code check}.
+     * Also used for non-"allow" predicates such as the {@code isXxxUnrestricted} queries.
      * Stops at the first {@code false} (short-circuit). An empty list returns {@code true}.
      */
     private boolean allAllow(final Predicate<Policy> check) {
@@ -385,5 +386,16 @@ public class PolicyList implements CspQueries {
     @Override
     public boolean allowsWebTransportWithCertificateHashes() {
         return allAllow(Policy::allowsWebTransportWithCertificateHashes);
+    }
+
+    @Override
+    public boolean isFetchDirectiveUnrestricted(final FetchDirectiveKind kind) {
+        Objects.requireNonNull(kind, "kind");
+        return allAllow(p -> p.isFetchDirectiveUnrestricted(kind));
+    }
+
+    @Override
+    public boolean isBaseUriUnrestricted() {
+        return allAllow(Policy::isBaseUriUnrestricted);
     }
 }

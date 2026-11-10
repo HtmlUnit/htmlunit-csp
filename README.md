@@ -212,6 +212,8 @@ These queries do not depend on the document's origin, so `PolicyInOrigin` and `P
 
 CSP3 only defines chains for effective directives; the library also resolves `script-src`, `style-src`, `prefetch-src`, `child-src` (itself, `default-src`) and `default-src` for analysis. `script-src-elem` / `script-src-attr` never govern workers, `eval()` or WebAssembly: those use `script-src`, then `default-src`.
 
+`isFetchDirectiveUnrestricted(kind)` is `true` when the governing directive (same chains as above) is absent or has `*`; `isBaseUriUnrestricted()` does the same for `base-uri`, which has no fallback. In a `PolicyList` every policy must be unrestricted. Only URL loads are covered (inline scripts/styles and `eval()` stay governed by their own queries), and `'strict-dynamic'` on `script-src` / `script-src-elem` makes `*` irrelevant. Absent and `*` differ (`*` does not match `data:` or `blob:`); see the `CspQueries` javadoc for how to tell them apart.
+
 | query | allowed when the governing `script-src` / `default-src` ... |
 | --- | --- |
 | `allowsEval()` | is absent or has `'unsafe-eval'` |
