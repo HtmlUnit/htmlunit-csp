@@ -1578,6 +1578,15 @@ public final class Policy implements CspQueries {
      * Determines whether this policy allows loading a worker (dedicated, shared, or service)
      * from the given source.
      *
+     * <p>
+     * If the governing directive contains {@code 'strict-dynamic'} the worker is allowed regardless of
+     * the URL, since workers are never parser-inserted. Browsers (checked with Chrome and Firefox) do
+     * this whether {@code worker-src}, {@code child-src}, {@code script-src} or {@code default-src}
+     * governs. CSP3 only specifies it for {@code script-src}: its script pre-request check is the one
+     * that handles the keyword, while the {@code worker-src} check only matches the URL. This follows
+     * the browsers.
+     * </p>
+     *
      * @param source the URL of the worker script, if known
      * @param origin the origin of the protected resource, if known
      * @return {@code true} if this policy allows the worker
@@ -1587,6 +1596,11 @@ public final class Policy implements CspQueries {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.WorkerSrc).orElse(null);
         if (sourceList == null) {
+            return true;
+        }
+        // 'strict-dynamic' allows every request that is not parser-inserted, and workers never are.
+        // By the spec only a script-src governed worker gets this, browsers apply it for any governing directive.
+        if (strictDynamicApplies(FetchDirectiveKind.WorkerSrc, sourceList)) {
             return true;
         }
         return source.filter(urlWithScheme ->
@@ -1639,24 +1653,23 @@ public final class Policy implements CspQueries {
     public boolean isFetchDirectiveUnrestricted(final FetchDirectiveKind kind) {
         Objects.requireNonNull(kind, "kind");
         return getGoverningDirectiveForEffectiveDirective(kind)
-                .map(d -> d.star() && !(strictDynamicIgnoresHosts(kind) && d.strictDynamic()))
+                .map(d -> d.star() && !strictDynamicApplies(kind, d))
                 .orElse(true);
     }
 
     /**
-     * Kinds whose URL loads go through the script-pre-request check, where {@code 'strict-dynamic'}
-     * makes the host sources (including {@code *}) irrelevant, see {@link #allowsExternalScript}.
-     * {@code worker-src} is deliberately absent ({@link #allowsWorker} ignores {@code 'strict-dynamic'})
-     * as is {@code script-src-attr} (inline attributes only, no URL loads).
-     * <p>
-     * Known gap: when a worker falls back to {@code script-src} (no {@code worker-src} /
-     * {@code child-src}) the spec applies the script check, so {@code 'strict-dynamic'} allows
-     * non-parser-inserted requests, which workers always are. {@link #allowsWorker} does not model
-     * this yet; when it does, this helper must follow.
-     * </p>
+     * Whether {@code 'strict-dynamic'} in {@code governing} makes host sources (including {@code *})
+     * irrelevant for URL loads of the given kind. That is {@code script-src} and
+     * {@code script-src-elem} (script pre-request check, see {@link #allowsExternalScript}) and
+     * {@code worker-src}, whichever directive governs it (see {@link #allowsWorker}, where this
+     * follows the browsers rather than CSP3). {@code script-src-attr} is not a URL load.
      */
-    private static boolean strictDynamicIgnoresHosts(final FetchDirectiveKind kind) {
-        return kind == FetchDirectiveKind.ScriptSrc || kind == FetchDirectiveKind.ScriptSrcElem;
+    private static boolean strictDynamicApplies(final FetchDirectiveKind kind,
+            final SourceExpressionDirective governing) {
+        return governing.strictDynamic()
+                && (kind == FetchDirectiveKind.ScriptSrc
+                        || kind == FetchDirectiveKind.ScriptSrcElem
+                        || kind == FetchDirectiveKind.WorkerSrc);
     }
 
     @Override

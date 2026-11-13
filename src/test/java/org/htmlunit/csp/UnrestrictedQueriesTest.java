@@ -73,7 +73,8 @@ public class UnrestrictedQueriesTest extends TestBase {
         final Policy p = policy("script-src * 'strict-dynamic' 'nonce-abc'");
         assertFalse(p.isFetchDirectiveUnrestricted(FetchDirectiveKind.ScriptSrcElem));
         assertFalse(p.isFetchDirectiveUnrestricted(FetchDirectiveKind.ScriptSrc));
-        assertTrue(p.isFetchDirectiveUnrestricted(FetchDirectiveKind.WorkerSrc));
+        // no worker-src / child-src: script-src governs workers, so strict-dynamic applies
+        assertFalse(p.isFetchDirectiveUnrestricted(FetchDirectiveKind.WorkerSrc));
 
         final Policy d = policy("default-src * 'strict-dynamic'");
         assertFalse(d.isFetchDirectiveUnrestricted(FetchDirectiveKind.ScriptSrcElem));
@@ -81,6 +82,20 @@ public class UnrestrictedQueriesTest extends TestBase {
 
         assertFalse(list("script-src *", "script-src * 'strict-dynamic'")
                 .isFetchDirectiveUnrestricted(FetchDirectiveKind.ScriptSrcElem));
+    }
+
+    @Test
+    public void strictDynamicAppliesToWorkersWhicheverDirectiveGoverns() {
+        // like browsers (Chrome, Firefox), not only for script-src as in CSP3
+        assertFalse(policy("script-src * 'strict-dynamic'; worker-src * 'strict-dynamic'")
+                .isFetchDirectiveUnrestricted(FetchDirectiveKind.WorkerSrc));
+        assertFalse(policy("script-src *; child-src * 'strict-dynamic'")
+                .isFetchDirectiveUnrestricted(FetchDirectiveKind.WorkerSrc));
+        assertFalse(policy("default-src * 'strict-dynamic'")
+                .isFetchDirectiveUnrestricted(FetchDirectiveKind.WorkerSrc));
+        // a governing worker-src without the keyword wins over script-src
+        assertTrue(policy("script-src * 'strict-dynamic'; worker-src *")
+                .isFetchDirectiveUnrestricted(FetchDirectiveKind.WorkerSrc));
     }
 
     @Test

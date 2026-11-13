@@ -118,6 +118,21 @@ public class Csp3SurfaceTest extends TestBase {
     }
 
     @Test
+    public void strictDynamicAllowsWorkersWhicheverDirectiveGoverns() {
+        // CSP3 only has this in the script-src check; Chrome and Firefox apply it to worker-src,
+        // child-src and default-src too (workers are never parser-inserted)
+        assertTrue(worker(policy("script-src 'nonce-abc' 'strict-dynamic'"), OTHER));
+        assertTrue(worker(policy("worker-src 'self' 'strict-dynamic'; script-src 'nonce-abc'"), OTHER));
+        assertTrue(worker(policy("child-src 'self' 'strict-dynamic'; script-src 'nonce-abc'"), OTHER));
+        assertTrue(worker(policy("default-src 'self' 'strict-dynamic'"), OTHER));
+        // the keyword in a directive that does not govern workers changes nothing
+        assertFalse(worker(policy("worker-src 'self'; script-src 'strict-dynamic'"), OTHER));
+        assertFalse(worker(policy("child-src 'self'; default-src 'strict-dynamic'"), OTHER));
+        assertFalse(worker(policy("script-src 'self' 'strict-dynamic'; img-src 'strict-dynamic'; "
+                + "worker-src 'self'"), OTHER));
+    }
+
+    @Test
     public void frameFallsBackToChildThenDefaultSkippingScriptSrc() {
         assertTrue(frame(policy("frame-src 'self'; child-src 'none'"), SAME));
         assertFalse(frame(policy("frame-src 'none'; child-src 'self'"), SAME));
