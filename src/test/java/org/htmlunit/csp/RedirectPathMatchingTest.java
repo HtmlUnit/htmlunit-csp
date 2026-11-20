@@ -232,6 +232,78 @@ public class RedirectPathMatchingTest extends TestBase {
     }
 
     @Test
+    public void formActionPerRequestIgnoresPathOfRedirectTarget() {
+        final Policy p = policy("form-action https://example.com/allowed/");
+        final Optional<URI> other = url("https://example.com/other/done");
+
+        // a redirect target on an other path is allowed
+        assertTrue(p.allowsFormAction(other, ORIGIN, true));
+        // the submission itself still has its path compared
+        assertFalse(p.allowsFormAction(other, ORIGIN, false));
+        assertFalse(p.allowsFormAction(other, Optional.of(false), Optional.empty(), ORIGIN));
+        assertTrue(p.allowsFormAction(url("https://example.com/allowed/submit"), ORIGIN, false));
+
+        // host, port and scheme are still checked for a redirect target
+        assertFalse(p.allowsFormAction(url("https://evil.example/allowed/done"), ORIGIN, true));
+        assertFalse(p.allowsFormAction(url("https://example.com:8443/allowed/done"), ORIGIN, true));
+        assertFalse(p.allowsFormAction(url("http://example.com/allowed/done"), ORIGIN, true));
+
+        // unknown url
+        assertFalse(p.allowsFormAction(Optional.empty(), ORIGIN, true));
+        assertFalse(p.allowsFormAction(Optional.empty(), ORIGIN, false));
+    }
+
+    @Test
+    public void formActionPerRequestMatchesWholeSubmissionForInitialRequest() {
+        final List<String> policies = List.of("form-action https://example.com/allowed/",
+                "navigate-to https://example.com/allowed/",
+                "navigate-to 'unsafe-allow-redirects' https://example.com/allowed/",
+                "form-action 'self'", "form-action 'none'", "img-src 'none'", "sandbox");
+        final List<String> urls = List.of("https://example.com/allowed/x", "https://example.com/other/x",
+                "https://evil.example/allowed/x");
+        for (final String serialized : policies) {
+            final Policy p = policy(serialized);
+            for (final String u : urls) {
+                assertTrue(p.allowsFormAction(url(u), ORIGIN, false)
+                        == p.allowsFormAction(url(u), Optional.of(false), Optional.empty(), ORIGIN),
+                        serialized + " " + u);
+            }
+        }
+    }
+
+    @Test
+    public void formActionPerRequestNavigateToFallback() {
+        // without 'unsafe-allow-redirects' navigate-to only checks the submission itself
+        final Policy plain = policy("navigate-to https://example.com/allowed/");
+        assertTrue(plain.allowsFormAction(url("https://evil.example/x"), ORIGIN, true));
+        assertFalse(plain.allowsFormAction(url("https://example.com/other/submit"), ORIGIN, false));
+
+        // with 'unsafe-allow-redirects' redirect targets are checked, without the path
+        final Policy redirects = policy("navigate-to 'unsafe-allow-redirects' https://example.com/allowed/");
+        assertTrue(redirects.allowsFormAction(url("https://example.com/other/done"), ORIGIN, true));
+        assertFalse(redirects.allowsFormAction(url("https://evil.example/allowed/done"), ORIGIN, true));
+        assertFalse(redirects.allowsFormAction(url("https://example.com/other/submit"), ORIGIN, false));
+
+        // form-action wins over navigate-to, also for redirects
+        final Policy both = policy("form-action https://example.com/allowed/; "
+                + "navigate-to 'unsafe-allow-redirects' https://evil.example/");
+        assertTrue(both.allowsFormAction(url("https://example.com/other/done"), ORIGIN, true));
+        assertFalse(both.allowsFormAction(url("https://evil.example/done"), ORIGIN, true));
+
+        // no directive at all
+        assertTrue(policy("img-src 'none'").allowsFormAction(url("https://evil.example/x"), ORIGIN, true));
+    }
+
+    @Test
+    public void formActionPerRequestPolicyList() {
+        final PolicyList l = list("form-action https://example.com/allowed/", "form-action https://example.com/");
+        assertTrue(l.allowsFormAction(url("https://example.com/other/done"), ORIGIN, true));
+        assertFalse(l.allowsFormAction(url("https://example.com/other/done"), ORIGIN, false));
+        assertFalse(list("form-action https://example.com/allowed/", "form-action https://cdn.example/")
+                .allowsFormAction(url("https://example.com/other/done"), ORIGIN, true));
+    }
+
+    @Test
     public void formActionFallbackToNavigateToIgnoresPathOfRedirectTarget() {
         final Policy p = policy("navigate-to 'unsafe-allow-redirects' https://example.com/allowed/");
         final Optional<URI> start = url("https://example.com/allowed/submit");

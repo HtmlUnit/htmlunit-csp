@@ -146,6 +146,29 @@ public interface CspQueries {
             Optional<? extends URLWithScheme> origin);
 
     /**
+     * Returns whether one request of a form submission is allowed: the submission itself
+     * ({@code redirected == false}) or one of its redirect targets ({@code redirected == true}).
+     * For a redirect target the path part of host-source expressions is not compared.
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsFormAction(Optional, Optional, Optional, Optional)} with {@code to} as the
+     * (not redirected) target.
+     * </p>
+     *
+     * @param to the URL of this request (form action target or redirect target), if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether this request is the result of a redirect (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsFormAction(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsFormAction(final Optional<? extends URLWithScheme> to,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsFormAction(to, Optional.of(false), Optional.empty(), origin);
+    }
+
+    /**
      * Returns whether a {@code javascript:} URL navigation is allowed.
      *
      * @param source JavaScript after the {@code javascript:} prefix, if known

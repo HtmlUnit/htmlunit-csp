@@ -1272,6 +1272,50 @@ public final class Policy implements CspQueries {
     }
 
     /**
+     * Determines whether this policy allows one request of a form submission: the submission
+     * itself or one of its redirects.
+     * <p>
+     * Unlike {@link #allowsFormAction(Optional, Optional, Optional, Optional)}, which looks at the
+     * whole submission at once, this checks a single request, like the other {@code allows*}
+     * methods with a {@code redirected} flag. Call it for the submission ({@code redirected == false})
+     * and again for every redirect target ({@code redirected == true}). For a redirect target the
+     * path part of host-source expressions is not compared; scheme, host and port still have to
+     * match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * If there is no {@code form-action} directive, {@code navigate-to} is used as in
+     * {@link #allowsFormAction(Optional, Optional, Optional, Optional)}: a redirect target is only
+     * checked if it contains {@code 'unsafe-allow-redirects'}, otherwise only the submission
+     * itself counts. The {@code sandbox} directive is not considered, see {@link #sandbox()}.
+     * </p>
+     *
+     * @param to the URL of this request: the form action target, or the redirect target; if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether this request is the result of a redirect (its redirect count is
+     *        greater than 0)
+     * @return {@code true} if this policy allows the request
+     * @since 5.9.0
+     */
+    public boolean allowsFormAction(
+            final Optional<? extends URLWithScheme> to,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        if (formAction_ != null) {
+            return to.filter(url -> doesUrlMatchSourceListInOrigin(url, formAction_, origin, redirected)).isPresent();
+        }
+        if (navigateTo_ == null) {
+            return true;
+        }
+        if (redirected && !navigateTo_.unsafeAllowRedirects()) {
+            // without 'unsafe-allow-redirects' navigate-to only checks the initial url
+            return true;
+        }
+        return to.filter(url -> doesUrlMatchSourceListInOrigin(url, navigateTo_, origin, redirected)).isPresent();
+    }
+
+    /**
      * Determines whether this policy allows a {@code javascript:} URL navigation.
      * <p>
      * The hashes (for {@code 'unsafe-hashes'}) are expected to include the

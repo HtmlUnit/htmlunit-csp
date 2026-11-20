@@ -243,6 +243,14 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsFormAction(
+            final Optional<? extends URLWithScheme> to,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allAllow(p -> p.allowsFormAction(to, origin, redirected));
+    }
+
+    @Override
     public boolean allowsJavascriptUrlNavigation(
             final Optional<String> source,
             final Optional<? extends URLWithScheme> origin) {
