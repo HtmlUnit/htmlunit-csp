@@ -89,7 +89,7 @@ Policy metaPolicy = Policy.parseSerializedCSP(metaContent, consumer, true);
 
 `parseSerializedCSP` rejects commas even with `true`. If the meta `content` may contain commas, use `Policy.parseSerializedCSPList(content, consumer, Policy.MetaCommaHandling)` (see [Multiple Policies](#multiple-policies)).
 
-Those three directives remain available via getters for analysis, but `allows*` methods ignore `frame-ancestors` and `sandbox` on meta-delivered policies (matching browser enforce after HTML strips them). See also [CSP3 meta element](https://w3c.github.io/webappsec-csp/#meta-element).
+Those three directives remain available via getters for analysis, but `allowsFrameAncestor` ignores `frame-ancestors` on meta-delivered policies (matching browser enforce after HTML strips it). See also [CSP3 meta element](https://w3c.github.io/webappsec-csp/#meta-element).
 
 Meta delivery is not interchangeable with a header: besides `frame-ancestors` and `sandbox`, `report-uri` is ignored in meta (so a meta policy cannot report violations through it), and `Content-Security-Policy-Report-Only` is not supported in meta at all. Combining header and meta policies therefore only adds the meta policy's remaining directives to the intersection.
 

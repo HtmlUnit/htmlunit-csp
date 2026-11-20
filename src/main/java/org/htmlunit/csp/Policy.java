@@ -673,9 +673,10 @@ public final class Policy implements CspQueries {
      * Returns whether this policy was parsed as delivered via a {@code meta} element.
      * <p>
      * When {@code true}, {@code frame-ancestors}, {@code sandbox}, and {@code report-uri}
-     * still appear in getters for analysis, but {@code allows*} methods ignore
-     * {@code frame-ancestors} and {@code sandbox} (matching browser enforce after the
-     * HTML meta algorithm strips those directives).
+     * still appear in getters for analysis, but {@link #allowsFrameAncestor} ignores
+     * {@code frame-ancestors} (matching browser enforce after the HTML meta algorithm strips
+     * that directive). A {@code sandbox} directive never affects the {@code allows*} methods,
+     * see {@link #sandbox()}.
      * </p>
      *
      * @return {@code true} if this policy came from
@@ -689,15 +690,6 @@ public final class Policy implements CspQueries {
      */
     public boolean deliveredViaMeta() {
         return deliveredViaMeta_;
-    }
-
-    /**
-     * Sandbox effective for {@code allows*} queries.
-     * Meta-delivered {@code sandbox} is ignored for enforce simulation
-     * (HTML strips it before apply) but remains available via {@link #sandbox()}.
-     */
-    private SandboxDirective sandboxForQuery() {
-        return deliveredViaMeta_ ? null : sandbox_;
     }
 
     /**
@@ -779,6 +771,16 @@ public final class Policy implements CspQueries {
 
     /**
      * Returns the parsed {@code sandbox} directive, if present.
+     * <p>
+     * The {@code allows*} methods do not consider this directive (since 5.9.0). A sandbox does
+     * not decide whether a single resource matches the policy; it sets the document's
+     * <a href="https://html.spec.whatwg.org/multipage/browsers.html#sandboxing-flag-set">sandboxing
+     * flags</a> (scripts, forms, popups, ...), which the user agent has to apply itself from these
+     * tokens. Before 5.9.0, a header-delivered {@code sandbox} without {@code allow-scripts} made the
+     * script queries return {@code false}, and one without {@code allow-forms} made
+     * {@link #allowsFormAction} return {@code false}. A meta-delivered {@code sandbox} is ignored
+     * by browsers (see {@link #deliveredViaMeta()}).
+     * </p>
      *
      * @return an {@link Optional} containing the {@link SandboxDirective},
      *         or empty if the directive was not specified
@@ -986,11 +988,6 @@ public final class Policy implements CspQueries {
             final Optional<Boolean> parserInserted,
             final Optional<? extends URLWithScheme> origin,
             final boolean redirected) {
-        final SandboxDirective sandbox = sandboxForQuery();
-        if (sandbox != null && !sandbox.allowScripts()) {
-            return false;
-        }
-
         // Effective directive is "script-src-elem" per
         // https://w3c.github.io/webappsec-csp/#effective-directive-for-a-request
         final SourceExpressionDirective directive =
@@ -1047,10 +1044,6 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsInlineScript(final Optional<String> nonce,
             final Optional<String> source, final Optional<Boolean> parserInserted) {
-        final SandboxDirective sandbox = sandboxForQuery();
-        if (sandbox != null && !sandbox.allowScripts()) {
-            return false;
-        }
         return doesElementMatchSourceListForTypeAndSource(InlineType.Script, nonce, source, parserInserted);
     }
 
@@ -1066,10 +1059,6 @@ public final class Policy implements CspQueries {
      * @see #deliveredViaMeta()
      */
     public boolean allowsScriptAsAttribute(final Optional<String> source) {
-        final SandboxDirective sandbox = sandboxForQuery();
-        if (sandbox != null && !sandbox.allowScripts()) {
-            return false;
-        }
         return doesElementMatchSourceListForTypeAndSource(
                 InlineType.ScriptAttribute, Optional.empty(), source, Optional.empty());
     }
@@ -1249,9 +1238,8 @@ public final class Policy implements CspQueries {
      * Determines whether this policy allows a form submission to the given URL.
      * <p>
      * This checks the {@code form-action} directive first; if absent, falls back to
-     * the {@code navigate-to} directive via {@link #allowsNavigation}. If the sandbox
-     * directive is present and does not include {@code allow-forms}, form submission
-     * is blocked.
+     * the {@code navigate-to} directive via {@link #allowsNavigation}. The {@code sandbox}
+     * directive is not considered, see {@link #sandbox()}.
      * </p>
      *
      * @param to the form action target URL, if known
@@ -1269,10 +1257,6 @@ public final class Policy implements CspQueries {
             final Optional<Boolean> redirected,
             final Optional<? extends URLWithScheme> redirectedTo,
             final Optional<? extends URLWithScheme> origin) {
-        final SandboxDirective sandbox = sandboxForQuery();
-        if (sandbox != null && !sandbox.allowForms()) {
-            return false;
-        }
         if (formAction_ != null) {
             if (to.isEmpty()) {
                 return false;

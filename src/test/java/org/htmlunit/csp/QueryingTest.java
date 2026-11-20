@@ -1500,36 +1500,43 @@ public class QueryingTest extends TestBase {
         assertTrue(p.allowsPlugin(Optional.empty()));
     }
 
+    /**
+     * The {@code sandbox} directive sets the document's sandboxing flags, which the user agent
+     * applies itself; it does not make any {@code allows*} query fail.
+     */
     @Test
-    public void sandbox() {
-        Policy p;
+    public void sandboxDoesNotAffectQueries() {
+        for (final String serialized : new String[] {"sandbox", "sandbox allow-forms", "sandbox allow-scripts"}) {
+            final Policy p = parse(serialized);
+            assertTrue(p.sandbox().isPresent(), serialized);
 
-        p = parse("sandbox");
+            assertTrue(p.allowsScriptAsAttribute(Optional.empty()), serialized);
+            assertTrue(p.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()), serialized);
+            assertTrue(p.allowsExternalScript(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()), serialized);
 
-        assertFalse(p.allowsScriptAsAttribute(Optional.empty()));
-        assertFalse(p.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()));
-        assertFalse(p.allowsExternalScript(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
+            assertTrue(p.allowsStyleAsAttribute(Optional.empty()), serialized);
+            assertTrue(p.allowsInlineStyle(Optional.empty(), Optional.empty()), serialized);
+            assertTrue(p.allowsExternalStyle(Optional.empty(), Optional.empty(), Optional.empty()), serialized);
 
-        assertTrue(p.allowsStyleAsAttribute(Optional.empty()));
-        assertTrue(p.allowsInlineStyle(Optional.empty(), Optional.empty()));
-        assertTrue(p.allowsExternalStyle(Optional.empty(), Optional.empty(), Optional.empty()));
+            assertTrue(p.allowsFormAction(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()), serialized);
+        }
 
-        assertFalse(p.allowsFormAction(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
+        // the tokens stay available for the user agent
+        assertFalse(parse("sandbox").sandbox().get().allowScripts());
+        assertFalse(parse("sandbox").sandbox().get().allowForms());
+        assertTrue(parse("sandbox allow-scripts").sandbox().get().allowScripts());
+        assertTrue(parse("sandbox allow-forms").sandbox().get().allowForms());
 
-        p = parse("sandbox allow-forms");
-
-        assertTrue(p.allowsFormAction(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
-
-        p = parse("sandbox allow-scripts");
-
-        assertTrue(p.allowsScriptAsAttribute(Optional.empty()));
-        assertTrue(p.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()));
-        assertTrue(p.allowsExternalScript(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()));
+        // other directives are still enforced next to a sandbox
+        final Policy scriptNone = parse("sandbox allow-scripts; script-src 'none'");
+        assertFalse(scriptNone.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()));
+        assertFalse(scriptNone.allowsScriptAsAttribute(Optional.empty()));
     }
 
     /**
      * Meta-delivered {@code sandbox} / {@code frame-ancestors} stay in the model for
      * analysis but do not affect {@code allows*} (HTML strips them before enforce).
+     * Header-delivered {@code sandbox} does not affect {@code allows*} either.
      */
     @Test
     public void metaInvalidDirectivesIgnoredForQuery() {
@@ -1550,10 +1557,12 @@ public class QueryingTest extends TestBase {
         assertTrue(faMeta.allowsFrameAncestor(
                 Optional.of(URI.parseURI("https://evil.example/").orElseThrow()), Optional.empty()));
 
-        // Header delivery still enforces
+        // Header delivery: sandbox is available, but does not affect the queries either;
+        // frame-ancestors is still enforced
         final Policy sandboxHeader = Policy.parseSerializedCSP(
                 "sandbox", PolicyErrorConsumer.ignored, false);
-        assertFalse(sandboxHeader.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()));
+        assertTrue(sandboxHeader.sandbox().isPresent());
+        assertTrue(sandboxHeader.allowsInlineScript(Optional.empty(), Optional.empty(), Optional.empty()));
         final Policy faHeader = Policy.parseSerializedCSP(
                 "frame-ancestors 'none'", PolicyErrorConsumer.ignored, false);
         assertFalse(faHeader.allowsFrameAncestor(

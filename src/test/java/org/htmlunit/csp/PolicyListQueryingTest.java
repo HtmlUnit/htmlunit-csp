@@ -210,11 +210,14 @@ public class PolicyListQueryingTest extends TestBase {
             assertTrue(meta.allowsScriptFromSource(uri("https://example.com/app.js")));
         }
 
-        // same list as header: sandbox without allow-scripts blocks
-        final PolicyListInOrigin header = new PolicyListInOrigin(
-                Policy.parseSerializedCSPList("script-src 'self', sandbox",
-                        PolicyListErrorConsumer.ignored), ORIGIN);
-        assertFalse(header.allowsScriptFromSource(uri("https://example.com/app.js")));
+        // same list as header: the sandbox is available, but the user agent applies it
+        // (via the document's sandboxing flags), so it does not block the query
+        final PolicyList headerList = Policy.parseSerializedCSPList("script-src 'self', sandbox",
+                PolicyListErrorConsumer.ignored);
+        assertTrue(headerList.getPolicies().get(1).sandbox().isPresent());
+        final PolicyListInOrigin header = new PolicyListInOrigin(headerList, ORIGIN);
+        assertTrue(header.allowsScriptFromSource(uri("https://example.com/app.js")));
+        assertFalse(header.allowsScriptFromSource(uri("https://cdn.example.com/x.js")));
     }
 
     @Test
