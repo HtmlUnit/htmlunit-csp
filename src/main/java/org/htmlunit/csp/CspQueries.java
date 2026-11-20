@@ -57,6 +57,34 @@ public interface CspQueries {
             Optional<? extends URLWithScheme> origin);
 
     /**
+     * Same as {@link #allowsExternalScript(Optional, Optional, Optional, Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param nonce script nonce, if any
+     * @param integrity SRI metadata, if any
+     * @param scriptUrl script URL, if known
+     * @param parserInserted whether the script is parser-inserted
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsExternalScript(Optional, Optional, Optional, Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    boolean allowsExternalScript(Optional<String> nonce,
+            Optional<String> integrity,
+            Optional<? extends URLWithScheme> scriptUrl,
+            Optional<Boolean> parserInserted,
+            Optional<? extends URLWithScheme> origin,
+            boolean redirected);
+
+    /**
      * Returns whether an inline script is allowed.
      *
      * @param nonce script nonce, if any
@@ -144,6 +172,36 @@ public interface CspQueries {
             Optional<? extends URLWithScheme> origin);
 
     /**
+     * Same as {@link #allowsExternalStyle(Optional, Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsExternalStyle(Optional, Optional, Optional)}.
+     * </p>
+     *
+     * @param nonce style nonce, if any
+     * @param styleUrl stylesheet URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsExternalStyle(Optional, Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsExternalStyle(final Optional<String> nonce,
+            final Optional<? extends URLWithScheme> styleUrl,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsExternalStyle(nonce, styleUrl, origin);
+    }
+
+    /**
      * Returns whether an inline style is allowed.
      *
      * @param nonce style nonce, if any
@@ -172,6 +230,34 @@ public interface CspQueries {
      */
     boolean allowsFrame(Optional<? extends URLWithScheme> source,
             Optional<? extends URLWithScheme> origin);
+
+    /**
+     * Same as {@link #allowsFrame(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsFrame(Optional, Optional)}.
+     * </p>
+     *
+     * @param source framed resource URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsFrame(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsFrame(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsFrame(source, origin);
+    }
 
     /**
      * Returns whether a frame ancestor is allowed.
@@ -216,6 +302,37 @@ public interface CspQueries {
     }
 
     /**
+     * Same as {@link #allowsConnection(Optional, Optional, boolean)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsConnection(Optional, Optional, boolean)}.
+     * </p>
+     *
+     * @param source connection URL, if known
+     * @param origin protected-resource origin, if known
+     * @param mapWebSocketScheme whether to map the scheme of {@code ws:} and {@code wss:} URLs
+     *        to {@code http:} / {@code https:} before matching (the spec way) or not (the browser way)
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsConnection(Optional, Optional, boolean, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsConnection(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean mapWebSocketScheme,
+            final boolean redirected) {
+        return allowsConnection(source, origin, mapWebSocketScheme);
+    }
+
+    /**
      * Returns whether a font is allowed.
      *
      * @param source font URL, if known
@@ -225,6 +342,33 @@ public interface CspQueries {
      */
     boolean allowsFont(Optional<? extends URLWithScheme> source,
             Optional<? extends URLWithScheme> origin);
+
+    /**
+     * Same as {@link #allowsFont(Optional, Optional)}, for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsFont(Optional, Optional)}.
+     * </p>
+     *
+     * @param source font URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsFont(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsFont(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsFont(source, origin);
+    }
 
     /**
      * Returns whether an image is allowed.
@@ -238,6 +382,34 @@ public interface CspQueries {
             Optional<? extends URLWithScheme> origin);
 
     /**
+     * Same as {@link #allowsImage(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsImage(Optional, Optional)}.
+     * </p>
+     *
+     * @param source image URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsImage(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsImage(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsImage(source, origin);
+    }
+
+    /**
      * Returns whether an application manifest is allowed.
      *
      * @param source manifest URL, if known
@@ -247,6 +419,34 @@ public interface CspQueries {
      */
     boolean allowsApplicationManifest(Optional<? extends URLWithScheme> source,
             Optional<? extends URLWithScheme> origin);
+
+    /**
+     * Same as {@link #allowsApplicationManifest(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsApplicationManifest(Optional, Optional)}.
+     * </p>
+     *
+     * @param source manifest URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsApplicationManifest(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsApplicationManifest(source, origin);
+    }
 
     /**
      * Returns whether media is allowed.
@@ -260,6 +460,34 @@ public interface CspQueries {
             Optional<? extends URLWithScheme> origin);
 
     /**
+     * Same as {@link #allowsMedia(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsMedia(Optional, Optional)}.
+     * </p>
+     *
+     * @param source media URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsMedia(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsMedia(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsMedia(source, origin);
+    }
+
+    /**
      * Returns whether an object is allowed.
      *
      * @param source object URL, if known
@@ -269,6 +497,34 @@ public interface CspQueries {
      */
     boolean allowsObject(Optional<? extends URLWithScheme> source,
             Optional<? extends URLWithScheme> origin);
+
+    /**
+     * Same as {@link #allowsObject(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsObject(Optional, Optional)}.
+     * </p>
+     *
+     * @param source object URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsObject(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsObject(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsObject(source, origin);
+    }
 
     /**
      * Returns whether a prefetch is allowed.
@@ -282,6 +538,34 @@ public interface CspQueries {
             Optional<? extends URLWithScheme> origin);
 
     /**
+     * Same as {@link #allowsPrefetch(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsPrefetch(Optional, Optional)}.
+     * </p>
+     *
+     * @param source prefetch URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsPrefetch(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsPrefetch(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsPrefetch(source, origin);
+    }
+
+    /**
      * Returns whether a worker is allowed.
      *
      * @param source worker URL, if known
@@ -291,6 +575,34 @@ public interface CspQueries {
      */
     boolean allowsWorker(Optional<? extends URLWithScheme> source,
             Optional<? extends URLWithScheme> origin);
+
+    /**
+     * Same as {@link #allowsWorker(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     * <p>
+     * The default implementation ignores {@code redirected} and calls
+     * {@link #allowsWorker(Optional, Optional)}.
+     * </p>
+     *
+     * @param source worker URL, if known
+     * @param origin protected-resource origin, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if allowed under this query target's rules
+     * @see Policy#allowsWorker(Optional, Optional, boolean)
+     * @since 5.9.0
+     */
+    default boolean allowsWorker(final Optional<? extends URLWithScheme> source,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allowsWorker(source, origin);
+    }
 
     /**
      * Returns whether a plugin type is allowed.

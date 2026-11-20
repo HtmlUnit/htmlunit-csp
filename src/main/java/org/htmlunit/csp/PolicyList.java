@@ -197,6 +197,18 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsExternalScript(
+            final Optional<String> nonce,
+            final Optional<String> integrity,
+            final Optional<? extends URLWithScheme> scriptUrl,
+            final Optional<Boolean> parserInserted,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allAllow(p ->
+                p.allowsExternalScript(nonce, integrity, scriptUrl, parserInserted, origin, redirected));
+    }
+
+    @Override
     public boolean allowsInlineScript(final Optional<String> nonce,
             final Optional<String> source, final Optional<Boolean> parserInserted) {
         return allAllow(p -> p.allowsInlineScript(nonce, source, parserInserted));
@@ -246,6 +258,15 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsExternalStyle(
+            final Optional<String> nonce,
+            final Optional<? extends URLWithScheme> styleUrl,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
+        return allAllow(p -> p.allowsExternalStyle(nonce, styleUrl, origin, redirected));
+    }
+
+    @Override
     public boolean allowsInlineStyle(final Optional<String> nonce, final Optional<String> source) {
         return allAllow(p -> p.allowsInlineStyle(nonce, source));
     }
@@ -259,6 +280,13 @@ public class PolicyList implements CspQueries {
     public boolean allowsFrame(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
         return allAllow(p -> p.allowsFrame(source, origin));
+    }
+
+    @Override
+    public boolean allowsFrame(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin,
+                               final boolean redirected) {
+        return allAllow(p -> p.allowsFrame(source, origin, redirected));
     }
 
     @Override
@@ -281,9 +309,24 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
+                                    final Optional<? extends URLWithScheme> origin,
+                                    final boolean mapWebSocketScheme,
+                                    final boolean redirected) {
+        return allAllow(p -> p.allowsConnection(source, origin, mapWebSocketScheme, redirected));
+    }
+
+    @Override
     public boolean allowsFont(final Optional<? extends URLWithScheme> source,
                               final Optional<? extends URLWithScheme> origin) {
         return allAllow(p -> p.allowsFont(source, origin));
+    }
+
+    @Override
+    public boolean allowsFont(final Optional<? extends URLWithScheme> source,
+                              final Optional<? extends URLWithScheme> origin,
+                              final boolean redirected) {
+        return allAllow(p -> p.allowsFont(source, origin, redirected));
     }
 
     @Override
@@ -293,9 +336,23 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsImage(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin,
+                               final boolean redirected) {
+        return allAllow(p -> p.allowsImage(source, origin, redirected));
+    }
+
+    @Override
     public boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
                                              final Optional<? extends URLWithScheme> origin) {
         return allAllow(p -> p.allowsApplicationManifest(source, origin));
+    }
+
+    @Override
+    public boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
+                                             final Optional<? extends URLWithScheme> origin,
+                                             final boolean redirected) {
+        return allAllow(p -> p.allowsApplicationManifest(source, origin, redirected));
     }
 
     @Override
@@ -305,9 +362,23 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsMedia(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin,
+                               final boolean redirected) {
+        return allAllow(p -> p.allowsMedia(source, origin, redirected));
+    }
+
+    @Override
     public boolean allowsObject(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
         return allAllow(p -> p.allowsObject(source, origin));
+    }
+
+    @Override
+    public boolean allowsObject(final Optional<? extends URLWithScheme> source,
+                                final Optional<? extends URLWithScheme> origin,
+                                final boolean redirected) {
+        return allAllow(p -> p.allowsObject(source, origin, redirected));
     }
 
     @Override
@@ -317,9 +388,23 @@ public class PolicyList implements CspQueries {
     }
 
     @Override
+    public boolean allowsPrefetch(final Optional<? extends URLWithScheme> source,
+                                  final Optional<? extends URLWithScheme> origin,
+                                  final boolean redirected) {
+        return allAllow(p -> p.allowsPrefetch(source, origin, redirected));
+    }
+
+    @Override
     public boolean allowsWorker(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
         return allAllow(p -> p.allowsWorker(source, origin));
+    }
+
+    @Override
+    public boolean allowsWorker(final Optional<? extends URLWithScheme> source,
+                                final Optional<? extends URLWithScheme> origin,
+                                final boolean redirected) {
+        return allAllow(p -> p.allowsWorker(source, origin, redirected));
     }
 
     @Override

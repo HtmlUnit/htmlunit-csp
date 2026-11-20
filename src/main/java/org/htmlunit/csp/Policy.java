@@ -955,6 +955,37 @@ public final class Policy implements CspQueries {
             final Optional<? extends URLWithScheme> scriptUrl,
             final Optional<Boolean> parserInserted,
             final Optional<? extends URLWithScheme> origin) {
+        return allowsExternalScript(nonce, integrity, scriptUrl, parserInserted, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsExternalScript(Optional, Optional, Optional, Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param nonce the nonce attribute value of the script element, if any
+     * @param integrity the integrity attribute value (SRI metadata), if any
+     * @param scriptUrl the URL of the external script, if known
+     * @param parserInserted whether the script element is parser-inserted;
+     *        {@link Optional#empty()} if unknown
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the external script
+     * @since 5.9.0
+     */
+    public boolean allowsExternalScript(
+            final Optional<String> nonce,
+            final Optional<String> integrity,
+            final Optional<? extends URLWithScheme> scriptUrl,
+            final Optional<Boolean> parserInserted,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
         final SandboxDirective sandbox = sandboxForQuery();
         if (sandbox != null && !sandbox.allowScripts()) {
             return false;
@@ -999,7 +1030,7 @@ public final class Policy implements CspQueries {
             return !parserInserted.orElse(true);
         }
         return scriptUrl.filter(urlWithScheme ->
-                doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
+                doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin, redirected)).isPresent();
     }
 
     /**
@@ -1196,7 +1227,8 @@ public final class Policy implements CspQueries {
                 if (redirectedTo.isEmpty()) {
                     return false;
                 }
-                if (!doesUrlMatchSourceListInOrigin(redirectedTo.get(), navigateTo_, origin)) {
+                // redirectedTo is reached through a redirect, so the path is not compared
+                if (!doesUrlMatchSourceListInOrigin(redirectedTo.get(), navigateTo_, origin, true)) {
                     return false;
                 }
             }
@@ -1298,6 +1330,32 @@ public final class Policy implements CspQueries {
             final Optional<String> nonce,
             final Optional<? extends URLWithScheme> styleUrl,
             final Optional<? extends URLWithScheme> origin) {
+        return allowsExternalStyle(nonce, styleUrl, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsExternalStyle(Optional, Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param nonce the nonce attribute value of the link element, if any
+     * @param styleUrl the URL of the external stylesheet, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the external style
+     * @since 5.9.0
+     */
+    public boolean allowsExternalStyle(
+            final Optional<String> nonce,
+            final Optional<? extends URLWithScheme> styleUrl,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
         // Effective directive is "style-src-elem" per
         // https://w3c.github.io/webappsec-csp/#effective-directive-for-a-request
         final SourceExpressionDirective directive
@@ -1314,7 +1372,7 @@ public final class Policy implements CspQueries {
         }
         // integrity is not used: https://github.com/w3c/webappsec-csp/issues/430
         return styleUrl.filter(urlWithScheme ->
-                doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin)).isPresent();
+                doesUrlMatchSourceListInOrigin(urlWithScheme, directive, origin, redirected)).isPresent();
     }
 
     /**
@@ -1352,13 +1410,36 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsFrame(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
+        return allowsFrame(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsFrame(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL of the framed resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the frame
+     * @since 5.9.0
+     */
+    public boolean allowsFrame(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin,
+                               final boolean redirected) {
         final SourceExpressionDirective sourceList
             = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.FrameSrc).orElse(null);
         if (sourceList == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1437,6 +1518,32 @@ public final class Policy implements CspQueries {
     public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
                                     final Optional<? extends URLWithScheme> origin,
                                     final boolean mapWebSocketScheme) {
+        return allowsConnection(source, origin, mapWebSocketScheme, false);
+    }
+
+    /**
+     * Same as {@link #allowsConnection(Optional, Optional, boolean)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL to connect to, if known
+     * @param origin the origin of the protected resource, if known
+     * @param mapWebSocketScheme whether to map the scheme of {@code ws:} and {@code wss:} URLs
+     *        to {@code http:} / {@code https:} before matching (the spec way) or not (the browser way)
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the connection
+     * @since 5.9.0
+     */
+    public boolean allowsConnection(final Optional<? extends URLWithScheme> source,
+                                    final Optional<? extends URLWithScheme> origin,
+                                    final boolean mapWebSocketScheme,
+                                    final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ConnectSrc).orElse(null);
         if (sourceList == null) {
@@ -1459,7 +1566,7 @@ public final class Policy implements CspQueries {
             }
         }
 
-        return doesUrlMatchSourceListInOrigin(usedSource, sourceList, origin);
+        return doesUrlMatchSourceListInOrigin(usedSource, sourceList, origin, redirected);
     }
 
     /**
@@ -1471,13 +1578,35 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsFont(final Optional<? extends URLWithScheme> source,
                               final Optional<? extends URLWithScheme> origin) {
+        return allowsFont(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsFont(Optional, Optional)}, for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL of the font resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the font
+     * @since 5.9.0
+     */
+    public boolean allowsFont(final Optional<? extends URLWithScheme> source,
+                              final Optional<? extends URLWithScheme> origin,
+                              final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.FontSrc).orElse(null);
         if (sourceList == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1489,13 +1618,36 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsImage(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
+        return allowsImage(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsImage(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL of the image resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the image
+     * @since 5.9.0
+     */
+    public boolean allowsImage(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin,
+                               final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ImgSrc).orElse(null);
         if (sourceList == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1507,13 +1659,36 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
                                              final Optional<? extends URLWithScheme> origin) {
+        return allowsApplicationManifest(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsApplicationManifest(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL of the manifest resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the manifest
+     * @since 5.9.0
+     */
+    public boolean allowsApplicationManifest(final Optional<? extends URLWithScheme> source,
+                                             final Optional<? extends URLWithScheme> origin,
+                                             final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ManifestSrc).orElse(null);
         if (sourceList == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1525,13 +1700,36 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsMedia(final Optional<? extends URLWithScheme> source,
                                final Optional<? extends URLWithScheme> origin) {
+        return allowsMedia(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsMedia(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL of the media resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the media
+     * @since 5.9.0
+     */
+    public boolean allowsMedia(final Optional<? extends URLWithScheme> source,
+                               final Optional<? extends URLWithScheme> origin,
+                               final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.MediaSrc).orElse(null);
         if (sourceList == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1543,13 +1741,36 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsObject(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
+        return allowsObject(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsObject(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL of the object resource, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the object
+     * @since 5.9.0
+     */
+    public boolean allowsObject(final Optional<? extends URLWithScheme> source,
+                                final Optional<? extends URLWithScheme> origin,
+                                final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.ObjectSrc).orElse(null);
         if (sourceList == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1565,13 +1786,36 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsPrefetch(final Optional<? extends URLWithScheme> source,
                                   final Optional<? extends URLWithScheme> origin) {
+        return allowsPrefetch(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsPrefetch(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL to prefetch, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the prefetch
+     * @since 5.9.0
+     */
+    public boolean allowsPrefetch(final Optional<? extends URLWithScheme> source,
+                                  final Optional<? extends URLWithScheme> origin,
+                                  final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.PrefetchSrc).orElse(null);
         if (sourceList == null) {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1593,6 +1837,29 @@ public final class Policy implements CspQueries {
      */
     public boolean allowsWorker(final Optional<? extends URLWithScheme> source,
                                 final Optional<? extends URLWithScheme> origin) {
+        return allowsWorker(source, origin, false);
+    }
+
+    /**
+     * Same as {@link #allowsWorker(Optional, Optional)},
+     * for a request that may have been redirected.
+     * <p>
+     * Pass the URL of the current request, i.e. the URL after the last redirect. If
+     * {@code redirected} is {@code true}, the path part of host-source expressions is not
+     * compared; scheme, host and port still have to match. See
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>.
+     * </p>
+     *
+     * @param source the URL of the worker script, if known
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0)
+     * @return {@code true} if this policy allows the worker
+     * @since 5.9.0
+     */
+    public boolean allowsWorker(final Optional<? extends URLWithScheme> source,
+                                final Optional<? extends URLWithScheme> origin,
+                                final boolean redirected) {
         final SourceExpressionDirective sourceList
                 = getGoverningDirectiveForEffectiveDirective(FetchDirectiveKind.WorkerSrc).orElse(null);
         if (sourceList == null) {
@@ -1604,7 +1871,7 @@ public final class Policy implements CspQueries {
             return true;
         }
         return source.filter(urlWithScheme ->
-                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin)).isPresent();
+                        doesUrlMatchSourceListInOrigin(urlWithScheme, sourceList, origin, redirected)).isPresent();
     }
 
     /**
@@ -1799,10 +2066,39 @@ public final class Policy implements CspQueries {
      * @param list the host-source directive (source list) to match against
      * @param origin the origin of the protected resource, if known
      * @return {@code true} if the URL matches the source list
+     * @see #doesUrlMatchSourceListInOrigin(URLWithScheme, HostSourceDirective, Optional, boolean)
      */
     public static boolean doesUrlMatchSourceListInOrigin(final URLWithScheme url,
             final HostSourceDirective list,
             final Optional<? extends URLWithScheme> origin) {
+        return doesUrlMatchSourceListInOrigin(url, list, origin, false);
+    }
+
+    /**
+     * Determines whether a URL matches a source list in the context of a given origin.
+     * <p>
+     * Implements the
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-list">match a URL
+     * to a source list</a> algorithm. This checks wildcards ({@code *}), scheme sources,
+     * host sources, and the {@code 'self'} keyword against the provided URL.
+     * The path part of a host-source expression is only compared if the request was not
+     * redirected (step 6 of
+     * <a href="https://w3c.github.io/webappsec-csp/#match-url-to-source-expression">Does url match
+     * expression in origin with redirect count</a>).
+     * </p>
+     *
+     * @param url the URL to check
+     * @param list the host-source directive (source list) to match against
+     * @param origin the origin of the protected resource, if known
+     * @param redirected whether the request was redirected (its redirect count is greater than 0);
+     *        if {@code true} the path part of host-source expressions is not compared
+     * @return {@code true} if the URL matches the source list
+     * @since 5.9.0
+     */
+    public static boolean doesUrlMatchSourceListInOrigin(final URLWithScheme url,
+            final HostSourceDirective list,
+            final Optional<? extends URLWithScheme> origin,
+            final boolean redirected) {
         final String urlScheme = url.getScheme();
         if (list.star()) {
             // https://fetch.spec.whatwg.org/#network-scheme
@@ -1843,7 +2139,9 @@ public final class Policy implements CspQueries {
             if (!portPartMatches(expression.port(), url.getPort(), urlScheme)) {
                 continue;
             }
-            if (!pathPartMatches(expression.path(), url.getPath())) {
+            // https://w3c.github.io/webappsec-csp/#match-url-to-source-expression step 6:
+            // the path is only compared if the redirect count is 0
+            if (!redirected && !pathPartMatches(expression.path(), url.getPath())) {
                 continue;
             }
             return true;

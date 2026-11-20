@@ -167,6 +167,12 @@ Policy policy = Policy.parseSerializedCSP("script-src 'strict-dynamic'", Policy.
 System.out.println(policy.getFetchDirective(FetchDirectiveKind.ScriptSrc).get().strictDynamic());
 ```
 
+#### Redirects
+
+CSP only compares the path of a source expression if the request was not redirected ([step 6 of "Does url match expression in origin with redirect count"](https://w3c.github.io/webappsec-csp/#match-url-to-source-expression)); otherwise a policy would leak the path of a cross-origin redirect target. Every `allows*` query that takes a URL (`allowsExternalScript`, `allowsExternalStyle`, `allowsFrame`, `allowsConnection`, `allowsFont`, `allowsImage`, `allowsApplicationManifest`, `allowsMedia`, `allowsObject`, `allowsPrefetch` and `allowsWorker`) has an overload with a trailing `boolean redirected`; pass the URL after the last redirect and `true` to skip the path comparison. Scheme, host and port still have to match: with `img-src https://example.com/allowed/`, a redirect to `https://example.com/other/x.png` is allowed, a redirect to `https://cdn.example/allowed/x.png` is not. The existing signatures behave as before (`redirected == false`), and so does `Policy.doesUrlMatchSourceListInOrigin(url, list, origin)`, which also has the four-argument variant.
+
+`allowsNavigation` (and `allowsFormAction` when it falls back to `navigate-to`) already takes `redirected` / `redirectedTo`; the path is not compared for `redirectedTo`. `form-action` itself only checks the initial URL, and `frame-ancestors` has no redirects.
+
 #### Trusted Types
 
 `Policy` and `PolicyList` (via `CspQueries`) answer Trusted Types questions without inspecting directives:
